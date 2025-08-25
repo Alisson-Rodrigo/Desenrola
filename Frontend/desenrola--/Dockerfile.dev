@@ -1,0 +1,14 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# copiar só manifests pra cachear dependências
+COPY package*.json ./
+RUN npm ci
+
+EXPOSE 5173
+ENV HOST=0.0.0.0
+ENV CHOKIDAR_USEPOLLING=true
+
+# código será montado por volume
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
