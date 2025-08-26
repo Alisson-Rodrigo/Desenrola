@@ -4,10 +4,15 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "5173:5173"
+      - "3000:3000"
     volumes:
       - .:/app
       - /app/node_modules
     environment:
       - HOST=0.0.0.0
+      - NEXT_TELEMETRY_DISABLED=1
+      - NEXT_DISABLE_TURBOPACK=1
+      - WATCHPACK_POLLING=true
+      - WATCHPACK_POLLING_INTERVAL=200
       - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=200

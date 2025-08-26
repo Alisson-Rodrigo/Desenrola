@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+# Evita problemas de fuso/locale em logs
+ENV TZ=America/Fortaleza
+
+WORKDIR /app
+
+# Instala apenas as dependências (usa cache de layer)
+COPY package*.json ./
+RUN npm install
+
+# Next precisa escutar em 0.0.0.0 dentro do container
+ENV HOST=0.0.0.0
+ENV PORT=3000
+EXPOSE 3000
+
+# No dev o código vem por volume; só iniciar o dev server
+CMD ["npm", "run", "dev"]
+# CMD ["npx", "next", "dev", "-H", "
