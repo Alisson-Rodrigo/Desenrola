@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import styles from './ProfilePage.module.css';
 
+
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('servicos');
 
