@@ -3,12 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    container_name: desenrola_web
     ports:
       - "3000:3000"
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/app              # monta seu código
+      - /app/node_modules  # preserva node_modules do container
     environment:
+      - NODE_ENV=development
       - HOST=0.0.0.0
       - NEXT_TELEMETRY_DISABLED=1
       - NEXT_DISABLE_TURBOPACK=1
@@ -16,3 +18,4 @@ services:
       - WATCHPACK_POLLING_INTERVAL=200
       - CHOKIDAR_USEPOLLING=true
       - CHOKIDAR_INTERVAL=200
+    # command: ["npm","run","dev"]  # opcional (já está no CMD do Dockerfile)
