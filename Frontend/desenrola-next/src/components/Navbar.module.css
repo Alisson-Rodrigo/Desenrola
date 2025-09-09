@@ -1,13 +1,11 @@
 /* Navbar.module.css */
 .navbar {
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  width: 100%;
+  isolation: isolate; 
+  /* Todas as outras propriedades foram removidas */
 }
+.userProfile { position: relative; } /* dropdown posiciona relativo a este bloco */
+.dropdown { position: absolute; top: 100%; right: 0; }
+.mobileMenu { position: absolute; top: 100%; left: 0; right: 0; }
 
 .container {
   max-width: 1200px;
