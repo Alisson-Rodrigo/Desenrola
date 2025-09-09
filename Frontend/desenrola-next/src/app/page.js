@@ -1,9 +1,10 @@
-import Form from '../components/formulario'
+import Navbar from '../components/Navbar';
+
 export default function Home() {
   return (
-   <div>
-    <h1>Desenrola Next.js</h1>
-    <Form />
-   </div>
+    <div>
+      <Navbar />
+    
+    </div>
   );
 }

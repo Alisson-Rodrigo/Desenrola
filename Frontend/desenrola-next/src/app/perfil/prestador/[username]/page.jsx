@@ -13,6 +13,8 @@ import {
   Clock
 } from 'lucide-react';
 import styles from './ProfilePage.module.css';
+import Navbar from '../../../../components/Navbar';
+
 
 
 export default function ProfilePage() {
@@ -125,30 +127,9 @@ export default function ProfilePage() {
   );
 
   return (
+    
     <div className={styles.container}>
-      {/* Header Navigation */}
-      <header className={styles.header}>
-        <div className={styles.maxWidth}>
-          <div className={styles.headerContent}>
-            <div className={styles.logo}>
-              <h1 className={styles.logoText}>Desenvolva</h1>
-            </div>
-            <nav className={styles.nav}>
-              <a href="#" className={styles.navLink}>Início</a>
-              <a href="#" className={styles.navLink}>Serviços</a>
-              <a href="#" className={styles.navLink}>Portfólio</a>
-              <a href="#" className={styles.navLink}>Mais Pedidos</a>
-            </nav>
-            <div className={styles.onlineStatus}>
-              <div className={styles.statusBadge}>
-                <div className={styles.statusDot}></div>
-                <span className={styles.statusText}>Online</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
+         <Navbar />
       {/* Main Content */}
       <div className={styles.maxWidth}>
         <div className={styles.mainGrid}>
