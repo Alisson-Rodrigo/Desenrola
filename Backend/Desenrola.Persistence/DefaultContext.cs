@@ -29,9 +29,6 @@ namespace Desenrola.Persistence
                       .HasForeignKey(p => p.UserId)   // FK string
                       .HasPrincipalKey(u => u.Id)     // PK string (Identity)
                       .OnDelete(DeleteBehavior.Restrict);
-
-                // opcional: gerar Guid no banco
-                // entity.Property(p => p.Id).HasDefaultValueSql("uuid_generate_v4()");
             });
 
 
