@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link'; // 👈 Importa o Link do Next.js
+import Link from 'next/link';
+import { useRouter } from 'next/navigation'; // 👈 importa o router
 import { ChevronDown, Menu, X, User, Settings, LogOut } from 'lucide-react';
 import styles from './Navbar.module.css';
 
@@ -8,6 +9,7 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const router = useRouter();
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -21,6 +23,13 @@ export default function Navbar() {
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
+  // 👉 Função de logout
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    router.push('/login'); // redireciona para a tela de login
+  };
 
   return (
     <nav className={styles.navbar}>
@@ -68,7 +77,10 @@ export default function Navbar() {
                 <Settings size={16} /> Configurações
               </Link>
               <div className={styles.dropdownDivider}></div>
-              <button className={`${styles.dropdownItem} ${styles.danger}`}>
+              <button
+                className={`${styles.dropdownItem} ${styles.danger}`}
+                onClick={handleLogout} // 👈 chama logout
+              >
                 <LogOut size={16} /> Sair
               </button>
             </div>
