@@ -39,7 +39,7 @@ export default function LoginPage() {
       setMessage({ type: 'success', text: 'Login realizado com sucesso!' });
 
       // Redireciona (ajuste o destino conforme sua app)
-      router.push('/dashboard'); 
+      router.push('/'); 
     } catch (err) {
       setMessage({ type: 'error', text: err.message || 'Erro ao autenticar.' });
     } finally {
