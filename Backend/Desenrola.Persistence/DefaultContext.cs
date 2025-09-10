@@ -19,11 +19,21 @@ namespace Desenrola.Persistence
             // Mapeamento do Provider -> User (UserId deve ser string)
             builder.Entity<Provider>(entity =>
             {
+                entity.HasKey(p => p.Id);
+
+                entity.Property(p => p.UserId)
+                      .IsRequired();
+
                 entity.HasOne(p => p.User)
                       .WithMany()
-                      .HasForeignKey(p => p.UserId)
+                      .HasForeignKey(p => p.UserId)   // FK string
+                      .HasPrincipalKey(u => u.Id)     // PK string (Identity)
                       .OnDelete(DeleteBehavior.Restrict);
+
+                // opcional: gerar Guid no banco
+                // entity.Property(p => p.Id).HasDefaultValueSql("uuid_generate_v4()");
             });
+
 
             // Aplica configurações adicionais do assembly (se houver)
             builder.ApplyConfigurationsFromAssembly(typeof(DefaultContext).Assembly);

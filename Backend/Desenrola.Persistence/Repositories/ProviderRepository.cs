@@ -13,7 +13,7 @@ namespace Desenrola.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<List<Provider>> GetByUserIdAsync(Guid userId)
+        public async Task<List<Provider>> GetByUserIdAsync(string userId)
         {
             return await _context.Set<Provider>()
                 .Where(p => p.UserId == userId)

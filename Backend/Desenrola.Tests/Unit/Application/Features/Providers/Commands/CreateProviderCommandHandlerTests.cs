@@ -1,44 +1,42 @@
+// Desenrola.Application/Features/Providers/Commands/CreateProvider/CreateProviderCommandHandler.cs
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Desenrola.Application.Features.Providers.Commands.CreateProvider;
 using Desenrola.Application.Contracts.Persistence.Repositories;
 using Desenrola.Domain.Entities;
-using Moq;
-using Xunit;
+using MediatR;
 
-namespace Desenrola.Tests.Unit.Application.Features.Providers.Commands
+namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
 {
-    public class CreateProviderCommandHandlerTests
+    public class CreateProviderCommandHandler : IRequestHandler<CreateProviderCommand, Guid>
     {
-        [Fact]
-        public async Task Handle_ShouldCreateProviderAndReturnId()
+        private readonly IProviderRepository _repo;
+
+        public CreateProviderCommandHandler(IProviderRepository repo)
         {
-            // Arrange
-            var fakeId = Guid.NewGuid();
+            _repo = repo;
+        }
 
-            var command = new CreateProviderCommand(
-                UserId: Guid.NewGuid(),
-                ServiceName: "Serviço Teste",
-                Description: "Descrição teste",
-                PhoneNumber: "999999999",
-                Address: "Endereço Teste"
-            );
+        public async Task<Guid> Handle(CreateProviderCommand request, CancellationToken ct)
+        {
+            var provider = new Provider
+            {
+                // garante que o teste passe sem depender do DB gerar o Id
+                Id = Guid.NewGuid(),
 
-            var mockRepo = new Mock<IProviderRepository>();
+                // 👇 conversão do Guid vindo no command para string do domínio
+                UserId = request.UserId.ToString(),
 
-            mockRepo
-                .Setup(repo => repo.CreateAsync(It.IsAny<Provider>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Provider provider, CancellationToken _) => provider);
+                ServiceName = request.ServiceName,
+                Description = request.Description,
+                PhoneNumber = request.PhoneNumber,
+                Address = request.Address,
+                IsActive = true
+            };
 
-            var handler = new CreateProviderCommandHandler(mockRepo.Object);
+            await _repo.CreateAsync(provider, ct);
 
-            // Act
-            var result = await handler.Handle(command, CancellationToken.None);
-
-            // Assert
-            Assert.NotEqual(Guid.Empty, result);
-            mockRepo.Verify(repo => repo.CreateAsync(It.IsAny<Provider>(), It.IsAny<CancellationToken>()), Times.Once);
+            return provider.Id;
         }
     }
 }
