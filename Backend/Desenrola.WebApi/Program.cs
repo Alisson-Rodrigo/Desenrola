@@ -2,6 +2,7 @@ using Desenrola.Application;
 using Desenrola.Application.IoC;
 using Desenrola.Infrastructure.IoC;
 using Desenrola.Persistence.IoC;
+using Desenrola.WebApi.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -157,6 +158,8 @@ public class Program {
         app.UseCors("AllowSpecificOrigin"); // use a policy nomeada
 
         app.UseHttpsRedirection();
+
+        app.UseMiddleware<CustomExceptionMiddleware>();
 
         app.UseAuthentication(); // <--- adicionar antes de Authorization
         app.UseAuthorization();
