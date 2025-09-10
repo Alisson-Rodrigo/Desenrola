@@ -1,6 +1,9 @@
 import styles from './FinalizeCadastro.module.css';
-import { FaInfoCircle } from 'react-icons/fa'; // Ícone de exemplo, instale com: npm install react-icons
+import React from 'react';
 
+import { FaInfoCircle } from 'react-icons/fa'; // Ícone de exemplo, instale com: npm install react-icons
+// Correção:
+import Navbar from '../../components/Navbar';
 export default function FinalizeCadastroPage() {
   return (
     

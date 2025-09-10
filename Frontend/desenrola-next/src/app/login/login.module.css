@@ -1,0 +1,254 @@
+/* Login.module.css */
+
+.loginContainer {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+}
+
+/* --- Painel da Esquerda (Gradiente) --- */
+.leftPanel {
+  flex: 1;
+  background: linear-gradient(145deg, #00c4cc, #2deb7c);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.leftPanel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(145deg, rgba(0,196,204,0.9), rgba(45,235,124,0.9));
+  backdrop-filter: blur(10px);
+}
+
+.brandContainer {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.brandContainer h1 {
+  font-size: 4rem;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+  text-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  animation: fadeInUp 1s ease-out;
+}
+
+.brandContainer p {
+  font-size: 1.25rem;
+  margin: 0;
+  font-weight: 400;
+  opacity: 0.95;
+  animation: fadeInUp 1s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- Painel da Direita (Formulário) --- */
+.rightPanel {
+  flex: 1;
+  background-color: #F9FAFB;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.loginCard {
+  background-color: #FFFFFF;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  animation: slideInRight 0.8s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.loginCard h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #1F2937;
+}
+
+.welcomeEmoji {
+  font-size: 1.5rem;
+  margin-left: 8px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.labelWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forgotPassword {
+  font-size: 0.875rem;
+  color: #3B82F6;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.forgotPassword:hover {
+  color: #2563EB;
+  text-decoration: underline;
+}
+
+.formGroup input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background-color: #fff;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #20DF7F;
+  box-shadow: 0 0 0 3px rgba(32, 223, 127, 0.1);
+  transform: translateY(-1px);
+}
+
+.formGroup input::placeholder {
+  color: #9CA3AF;
+}
+
+.loginButton {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #20DF7F, #1cbf6e);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(32, 223, 127, 0.3);
+}
+
+.loginButton:hover {
+  background: linear-gradient(135deg, #1cbf6e, #17a85a);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(32, 223, 127, 0.4);
+}
+
+.loginButton:active {
+  transform: translateY(0);
+}
+
+.loginButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.signupLink {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+
+.signupLink a {
+  color: #3B82F6;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.signupLink a:hover {
+  color: #2563EB;
+  text-decoration: underline;
+}
+
+/* --- Responsividade para Telas Menores --- */
+@media (max-width: 768px) {
+  .loginContainer {
+    flex-direction: column;
+  }
+  
+  .leftPanel {
+    display: none;
+  }
+
+  .rightPanel {
+    flex: 1;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  .loginCard {
+    box-shadow: none;
+    border-radius: 12px;
+    padding: 32px 24px;
+    max-width: 100%;
+  }
+
+  .brandContainer h1 {
+    font-size: 3rem;
+  }
+
+  .brandContainer p {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .loginCard {
+    padding: 24px 20px;
+  }
+
+  .brandContainer h1 {
+    font-size: 2.5rem;
+  }
+}
