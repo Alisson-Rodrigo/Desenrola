@@ -16,6 +16,7 @@ namespace Desenrola.Application.IoC
         {
 
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<ISend, Send>();
 
 
 
