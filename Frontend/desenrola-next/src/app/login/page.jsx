@@ -92,7 +92,7 @@ export default function Login() {
             <div className={styles.formGroup}>
               <div className={styles.labelWrapper}>
                 <label htmlFor="password">Senha</label>
-                <Link href="/forgot-password" className={styles.forgotPassword}>
+                <Link href="/recoverpass" className={styles.forgotPassword}>
                   Esqueci minha senha
                 </Link>
               </div>
