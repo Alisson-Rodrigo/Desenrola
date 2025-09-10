@@ -4,6 +4,8 @@ using Desenrola.Application.Contracts.Infrastructure;
 using Desenrola.Domain.Entities;
 using Desenrola.Infrastructure.Abstractions;
 using Desenrola.Persistence;
+using Desenrola.Application.Contracts.Persistence.Repositories;
+using Desenrola.Persistence.Repositories;
 
 namespace Desenrola.Infrastructure.IoC;
 
@@ -25,6 +27,7 @@ public static class InfrastructureDependecyInjector {
             .AddDefaultTokenProviders();
 
         services.AddScoped<IIdentityAbstractor, IdentityAbstractor>();
+        services.AddScoped<IProviderRepository, ProviderRepository>();
 
         return services;
     }

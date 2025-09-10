@@ -6,10 +6,10 @@ namespace Desenrola.Persistence.Repositories;
 
 public class BaseRepository<T> : IBaseRepository<T> where T : class
 {
-    private readonly AppDbContext _context;
-    protected AppDbContext Context => _context;
+    private readonly DefaultContext _context;
+    protected DefaultContext Context => _context;
 
-    public BaseRepository(AppDbContext context)
+    public BaseRepository(DefaultContext context)
     {
         _context = context;
     }

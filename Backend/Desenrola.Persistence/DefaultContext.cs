@@ -1,21 +1,34 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Desenrola.Domain.Entities;
 
-namespace Desenrola.Persistence;
-
-public class DefaultContext : IdentityDbContext<User>
+namespace Desenrola.Persistence
 {
-    public DefaultContext() { }
-
-    public DefaultContext(DbContextOptions<DefaultContext> options) : base(options) { }
-
-    protected override void OnModelCreating(ModelBuilder builder)
+    public class DefaultContext : IdentityDbContext<User>
     {
-        builder.HasPostgresExtension("uuid-ossp");
-        builder.ApplyConfigurationsFromAssembly(typeof(DefaultContext).Assembly);
+        public DefaultContext(DbContextOptions<DefaultContext> options) : base(options) { }
 
-        base.OnModelCreating(builder);
+        // Tabelas do domínio
+        public DbSet<Provider> Providers => Set<Provider>();
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            // Extensão útil para UUID em outras entidades (opcional)
+            builder.HasPostgresExtension("uuid-ossp");
+
+            // Mapeamento do Provider -> User (UserId deve ser string)
+            builder.Entity<Provider>(entity =>
+            {
+                entity.HasOne(p => p.User)
+                      .WithMany()
+                      .HasForeignKey(p => p.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // Aplica configurações adicionais do assembly (se houver)
+            builder.ApplyConfigurationsFromAssembly(typeof(DefaultContext).Assembly);
+
+            base.OnModelCreating(builder);
+        }
     }
 }

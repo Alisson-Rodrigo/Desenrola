@@ -8,7 +8,7 @@ namespace Desenrola.Persistence.Repositories
     {
         private readonly DbContext _context;
 
-        public ProviderRepository(AppDbContext context) : base(context)
+        public ProviderRepository(DefaultContext context) : base(context)
         {
             _context = context;
         }
