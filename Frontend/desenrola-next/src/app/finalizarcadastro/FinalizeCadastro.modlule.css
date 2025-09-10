@@ -1,0 +1,225 @@
+/* Fundo da página inteira */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 40px 20px;
+  background-color: #f0f8f0; /* Um verde bem claro */
+}
+
+/* Caixa que envolve o formulário */
+.formWrapper {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  max-width: 700px;
+  width: 100%;
+  border: 1px solid #e0e0e0;
+}
+
+/* Cabeçalho do formulário */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.title {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.progressBar {
+  color: #333;
+  font-weight: 500;
+}
+
+/* Estilos gerais para o formulário */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.formRow {
+  display: flex;
+  gap: 20px;
+}
+
+/* Responsividade para a linha do formulário */
+@media (max-width: 600px) {
+  .formRow {
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
+.formGroup label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.formGroup input[type="text"],
+.formGroup input[type="tel"],
+.formGroup select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  box-sizing: border-box; /* Garante que padding não afete a largura total */
+}
+
+.formGroup input:focus,
+.formGroup select:focus {
+  outline: none;
+  border-color: #2e8b57; /* Verde mar */
+  box-shadow: 0 0 0 2px rgba(46, 139, 87, 0.2);
+}
+
+/* Estilo do Tooltip (dica de ajuda) */
+.labelWithTooltip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltipText {
+  visibility: hidden;
+  width: 220px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -110px; /* Metade da largura */
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.tooltip:hover .tooltipText {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Caixa de informação sobre o CAC */
+.infoBox {
+  background-color: #f9f9f9;
+  border-left: 4px solid #2e8b57;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+}
+
+.infoBoxTitle {
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 5px 0;
+}
+
+.infoBox p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Estilo do campo de Upload */
+.fileUploadBox {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s, background-color 0.3s;
+}
+
+.fileUploadBox:hover {
+  border-color: #2e8b57;
+  background-color: #fafffa;
+}
+
+.fileInput {
+  display: none; /* Esconde o input de arquivo padrão */
+}
+
+.fileUploadLabel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  cursor: pointer;
+}
+
+.uploadIcon {
+  font-size: 24px;
+}
+
+.fileTypes {
+  font-size: 12px;
+  color: #999;
+}
+
+/* Botões de ação */
+.formActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.backButton,
+.submitButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.backButton {
+  background-color: transparent;
+  color: #666;
+}
+
+.backButton:hover {
+  background-color: #f0f0f0;
+}
+
+.submitButton {
+  background-color: #2e8b57; /* Verde mar */
+  color: #ffffff;
+}
+
+.submitButton:hover {
+  background-color: #256d44; /* Verde mais escuro */
+}
