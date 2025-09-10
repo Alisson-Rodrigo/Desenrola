@@ -4,10 +4,15 @@ using System.Linq.Expressions;
 
 namespace Desenrola.Persistence.Repositories;
 
-public class BaseRepository<T>(DefaultContext defaultContext) : IBaseRepository<T> where T : class {
-    private readonly DefaultContext _defaultContext = defaultContext;
+public class BaseRepository<T> : IBaseRepository<T> where T : class
+{
+    private readonly AppDbContext _context;
+    protected AppDbContext Context => _context;
 
-    protected DefaultContext Context { get => _defaultContext; }
+    public BaseRepository(AppDbContext context)
+    {
+        _context = context;
+    }
 
     public async Task<T> CreateAsync(T entity, CancellationToken cancellationToken = default) {
         await Context.Set<T>().AddAsync(entity, cancellationToken);
