@@ -1,8 +1,10 @@
-﻿using MediatR;
+﻿using Desenrola.Application.Features.User.Commands.CreateUserCommand;
+using Desenrola.Application.Features.User.Commands.DeleteUserCommand;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using NSwag.Annotations;
-using Desenrola.Application.Features.User.Commands.CreateUserCommand;
 
 namespace Desenrola.WebApi.Controllers;
 
@@ -17,5 +19,17 @@ public class UsersController(IMediator mediator) : Controller {
     public async Task<IActionResult> CreateUser(CreateUserCommand request) {
         CreateUserResult response = await _mediator.Send(request);
         return Created(HttpContext.Request.GetDisplayUrl(), response);
+    }
+
+    [Authorize(Roles = "Customer, Admin")]
+    [HttpDelete]
+    [Route("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeleteUser([FromRoute] string id)
+    {
+        var command = new DeleteUserCommand { };
+        await _mediator.Send(command);
+        return NoContent();
     }
 }
