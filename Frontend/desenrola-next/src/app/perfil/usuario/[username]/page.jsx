@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from 'react';
 import styles from './ClientProfileView.module.css';
 
@@ -76,23 +77,7 @@ const ClientProfileView = () => {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <span className={styles.logoText}>Desenvolva</span>
-        </div>
-        <nav className={styles.nav}>
-          <a href="#" className={styles.navLink}>Home</a>
-          <a href="#" className={styles.navLink}>Recursos</a>
-          <a href="#" className={styles.navLink}>Sobre nós</a>
-          <a href="#" className={styles.navLink}>Contato</a>
-        </nav>
-        <div className={styles.userInfo}>
-          <span className={styles.username}>joao.silva</span>
-          <div className={styles.userAvatar}>JS</div>
-        </div>
-      </header>
-
+     
       <main className={styles.main}>
         {/* Sidebar com perfil */}
         <aside className={styles.sidebar}>
