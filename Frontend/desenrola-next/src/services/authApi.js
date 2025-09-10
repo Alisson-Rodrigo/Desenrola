@@ -37,3 +37,23 @@ export async function login({ username, password }) {
     raw: data,
   };
 }
+export async function forgotPassword(email) {
+  const url = `${BASE_URL}/api/auth/forgot-password?Email=${encodeURIComponent(email)}`;
+  const res = await fetch(url, { method: 'POST' });
+
+  if (!res.ok) {
+    let msg = 'Falha ao solicitar recuperação de senha.';
+    try {
+      const data = await res.json();
+      msg = data?.message || data?.error || msg;
+    } catch {}
+    throw new Error(msg);
+  }
+
+  // a API pode não retornar body; trate como sucesso mesmo sem JSON
+  try {
+    return await res.json();
+  } catch {
+    return { message: 'Solicitação enviada.' };
+  }
+}
