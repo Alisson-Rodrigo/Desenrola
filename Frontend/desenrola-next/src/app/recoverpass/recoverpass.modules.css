@@ -1,0 +1,115 @@
+.recover-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.left-panel {
+  flex: 1;
+  background: linear-gradient(145deg, #00c4cc, #2deb7c);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+.brand-container { text-align: center; }
+.brand-container h1 { font-size: 4rem; margin: 0 0 10px 0; font-weight: 700; }
+.brand-container p { font-size: 1.25rem; margin: 0; font-weight: 400; }
+
+.right-panel {
+  flex: 1;
+  background-color: #F9FAFB;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.recover-card {
+  background-color: #FFFFFF;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.recover-card h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 30px;
+  color: #1F2937;
+}
+
+.recover-card .form-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.recover-card .form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.recover-card .form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 1rem;
+}
+
+.recover-card .form-group input:focus {
+  outline: none;
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.recover-button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: #20DF7F;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.recover-button:hover {
+  background-color: #1cbf6e;
+}
+
+.back-to-login {
+  display: block;
+  margin-top: 25px;
+  font-size: 0.875rem;
+  color: #3B82F6;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back-to-login:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .recover-container { flex-direction: column; }
+  .left-panel { display: none; }
+  .right-panel { flex: 1; }
+  .recover-card { box-shadow: none; border-radius: 0; max-width: 100%; height: 100%; }
+}
