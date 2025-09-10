@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './UserProfile.module.css';
+import Link from "next/link";
 
 const UserProfile = () => {
   // Dados fixos por enquanto
@@ -43,9 +44,11 @@ const UserProfile = () => {
               </a>
             </nav>
             
-            <button className={styles.btnSecondary}>
-              Solicitar Convite de Desenvolvedor
-            </button>
+          <Link href="/finalizarcadastro">
+  <button className={styles.btnSecondary}>
+    Solicitar Convite de Desenvolvedor
+  </button>
+</Link>
           </div>
         </aside>
 
