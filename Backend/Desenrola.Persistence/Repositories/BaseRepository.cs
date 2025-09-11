@@ -20,12 +20,12 @@ public class BaseRepository<T> : IBaseRepository<T> where T : class
         return entity;
     }
 
-    public async void Update(T entity) {
+    public async Task Update(T entity) {
         Context.Set<T>().Update(entity);
         await Context.SaveChangesAsync();
     }
 
-    public async void Delete(T entity) {
+    public async Task Delete(T entity) {
         Context.Set<T>().Remove(entity);
         await Context.SaveChangesAsync();
     }

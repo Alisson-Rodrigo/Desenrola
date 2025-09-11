@@ -27,43 +27,36 @@ namespace Desenrola.Application.Services
             _logger = logger;
         }
 
-        public async Task<Domain.Entities.User> UserLogged()
+        public async Task<Domain.Entities.User?> UserLogged()
         {
-            try
+            var userId = _httpContextAccessor.HttpContext?.User?
+                .FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
             {
-                var userId = _httpContextAccessor.HttpContext?.User?
-                    .FindFirstValue(ClaimTypes.NameIdentifier);
-
-                if (string.IsNullOrEmpty(userId))
-                {
-                    _logger.LogWarning("Claim NameIdentifier não encontrado no token");
-                    throw new UnauthorizedAccessException("Usuário não autenticado");
-                }
-
-                var user = await _identityAbstractor.FindUserByIdAsync(userId);
-
-                if (user == null)
-                {
-                    _logger.LogError("Usuário com ID {UserId} não encontrado", userId);
-                    throw new KeyNotFoundException("Usuário não encontrado");
-                }
-
-                return user;
+                _logger.LogWarning("Claim NameIdentifier não encontrado no token");
+                return null; // ✅ só retorna null
             }
-            catch (Exception ex)
+
+            var user = await _identityAbstractor.FindUserByIdAsync(userId);
+
+            if (user == null)
             {
-                _logger.LogError(ex, "Erro ao obter usuário logado");
-                throw;
+                _logger.LogWarning("Usuário com ID {UserId} não encontrado", userId);
+                return null; // ✅ só retorna null
             }
+
+            return user;
         }
 
         public async Task<bool> IsInRole(string role)
         {
             var user = await UserLogged();
+            if (user == null) return false;
+
             var roles = await _identityAbstractor.GetRolesAsync(user);
-            Console.WriteLine(roles.FirstOrDefault()?.ToString());
             return roles.Contains(role);
         }
-
     }
+
 }

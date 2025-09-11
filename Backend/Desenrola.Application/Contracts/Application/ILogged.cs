@@ -9,7 +9,8 @@ namespace Desenrola.Application.Contracts.Application
 {
     public interface ILogged
     {
-        Task<Domain.Entities.User> UserLogged();
+        Task<User> UserLogged();
         Task<bool> IsInRole(string role);
     }
+
 }
