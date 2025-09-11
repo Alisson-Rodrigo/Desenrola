@@ -27,7 +27,7 @@ public class UsersController(IMediator mediator) : Controller {
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> UpdateUser([FromBody] UpdateUserCommand request)
+    public async Task<IActionResult> UpdateUser([FromForm] UpdateUserCommand request)
     {
         await _mediator.Send(request);
         return NoContent();
@@ -35,13 +35,12 @@ public class UsersController(IMediator mediator) : Controller {
 
     [Authorize(Roles = "Customer, Admin")]
     [HttpDelete]
-    [Route("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> DeleteUser([FromRoute] string id)
+    public async Task<IActionResult> DeleteUser([FromForm] DeleteUserCommand command)
     {
-        var command = new DeleteUserCommand { };
-        await _mediator.Send(command);
+        var response = new DeleteUserCommand { };
+        await _mediator.Send(response);
         return NoContent();
     }
 

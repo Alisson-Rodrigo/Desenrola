@@ -27,11 +27,11 @@ public interface IBaseRepository<T> where T : class {
     /// Updates an entity entry on the database
     /// </summary>
     /// <param name="entity"> The entity to be added </param>
-    void Update(T entity);
+    Task Update(T entity);
 
     /// <summary>
     /// Deletes one entry from the database
     /// </summary>
     /// <param name="entity"> The entity to be deleted </param>
-    void Delete(T entity);
+    Task Delete(T entity);
 }

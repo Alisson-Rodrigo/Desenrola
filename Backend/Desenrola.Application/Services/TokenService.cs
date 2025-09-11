@@ -28,9 +28,9 @@ namespace Desenrola.Application.Services
 
         public string GenerateJwtToken(Domain.Entities.User user, IList<string> roles)
         {
-            var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!);
-            var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
-            var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!);
+            var issuer = _configuration["Jwt:Issuer"];
+            var audience = _configuration["Jwt:Audience"];
 
 
 
@@ -67,9 +67,9 @@ namespace Desenrola.Application.Services
 
         public async Task<string> GeneratePasswordResetToken(Domain.Entities.User user)
         {
-            var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!);
-            var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
-            var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!);
+            var issuer = _configuration["Jwt:Issuer"];
+            var audience = _configuration["Jwt:Audience"];
 
 
             var identityToken = await _identityAbstractor.GeneratePasswordResetTokenAsync(user);
@@ -109,9 +109,9 @@ namespace Desenrola.Application.Services
             principal = null!;
             try
             {
-                var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!);
-                var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER");
-                var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+                var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"]!);
+                var issuer = _configuration["Jwt:Issuer"];
+                var audience = _configuration["Jwt:Audience"];
 
 
                 var tokenHandler = new JwtSecurityTokenHandler();
