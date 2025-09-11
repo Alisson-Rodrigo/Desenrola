@@ -5,6 +5,14 @@ using MediatR;
 
 namespace Desenrola.Application.Features.User.Commands.DeleteUserCommand
 {
+
+    /// <summary>
+    /// Manipulador responsável pela exclusão de usuários.
+    /// </summary>
+    /// <remarks>
+    /// Esse handler identifica o usuário autenticado através do serviço <see cref="ILogged"/>,
+    /// valida se ele está autenticado e o remove do repositório (<see cref="IUserRepository"/>).
+    /// </remarks>
     public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Unit>
     {
         private readonly IUserRepository _userRepository;

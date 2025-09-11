@@ -13,6 +13,15 @@ using System.Threading.Tasks;
 
 namespace Desenrola.Application.Services
 {
+
+    /// <summary>
+    /// Serviço responsável pela geração e validação de tokens JWT e de redefinição de senha.
+    /// </summary>
+    /// <remarks>
+    /// Utiliza configurações do <c>appsettings.json</c> (seção <c>Jwt</c>) para emitir tokens JWT
+    /// e integra-se com o <see cref="IIdentityAbstractor"/> e <see cref="IDistributedCache"/> 
+    /// para lidar com tokens de recuperação de senha.
+    /// </remarks>
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;

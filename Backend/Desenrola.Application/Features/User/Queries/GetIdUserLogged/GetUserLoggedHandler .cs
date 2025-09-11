@@ -6,6 +6,14 @@ using MediatR;
 
 namespace Desenrola.Application.Features.User.Queries.GetIdUserLogged
 {
+    /// <summary>
+    /// Manipulador responsável por recuperar as informações do usuário atualmente autenticado.
+    /// </summary>
+    /// <remarks>
+    /// Esse handler utiliza o serviço <see cref="ILogged"/> para obter o usuário logado a partir
+    /// do contexto HTTP e retorna suas informações básicas encapsuladas em um 
+    /// <see cref="GetUserLoggedResult"/>.
+    /// </remarks>
     public class GetUserLoggedHandler : IRequestHandler<GetIdUserLoggedQuery, GetUserLoggedResult>
     {
         private readonly ILogged _logged;

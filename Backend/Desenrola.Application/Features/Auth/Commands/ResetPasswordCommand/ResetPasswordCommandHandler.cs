@@ -11,6 +11,14 @@ using System.Threading.Tasks;
 
 namespace Desenrola.Application.Features.Auth.Commands.ResetPasswordCommand
 {
+
+    /// <summary>
+    /// Manipulador responsável por processar o comando de redefinição de senha.
+    /// </summary>
+    /// <remarks>
+    /// Esse handler valida o comando recebido, verifica a validade do token de recuperação, 
+    /// identifica o usuário pelo email contido no token e reseta a senha utilizando o Identity.
+    /// </remarks>
     public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, Unit>
     {
         private readonly IIdentityAbstractor _identityAbstractor;

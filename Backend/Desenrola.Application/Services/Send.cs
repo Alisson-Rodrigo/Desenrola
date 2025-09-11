@@ -10,6 +10,14 @@ using System.Threading.Tasks;
 
 namespace Desenrola.Application.Services
 {
+
+    /// <summary>
+    /// Serviço responsável pelo envio de e-mails na aplicação.
+    /// </summary>
+    /// <remarks>
+    /// Atualmente implementa o envio de e-mail para recuperação de senha,
+    /// utilizando configurações fornecidas via <see cref="IConfiguration"/>.
+    /// </remarks>
     public class Send : ISend
     {
         private readonly IConfiguration _configuration;
