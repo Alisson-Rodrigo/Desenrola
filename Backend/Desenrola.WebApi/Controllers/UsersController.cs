@@ -38,7 +38,7 @@ public class UsersController(IMediator mediator) : Controller {
     [HttpDelete]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> DeleteUser([FromForm] DeleteUserCommand command)
+    public async Task<IActionResult> DeleteUser()
     {
         var response = new DeleteUserCommand { };
         await _mediator.Send(response);
