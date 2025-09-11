@@ -35,16 +35,11 @@ namespace Desenrola.Application.Features.User.Commands.UpdateUserCommand
                 throw new BadRequestException("Usuário não autenticado");
             }
 
-            if (userLogged.Id != command.Id)
-            {
-                throw new BadRequestException("Você não tem permissão para atualizar outro usuário.");
-            }
-
             // Buscar o usuário atual
-            var existingUser = await _userRepository.GetById(command.Id);
+            var existingUser = await _userRepository.GetById(userLogged.Id);
             if (existingUser == null)
             {
-                throw new BadRequestException($"Usuário com Id {command.Id} não encontrado.");
+                throw new BadRequestException($"Usuário não encontrado.");
             }
 
             // 🔑 Mapeamento do comando -> entidade
