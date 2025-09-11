@@ -2,6 +2,7 @@
 using Desenrola.Application.Features.User.Commands.DeleteUserCommand;
 using Desenrola.Application.Features.User.Commands.UpdateUserCommand;
 using Desenrola.Application.Features.User.Queries.GetByIdQueries;
+using Desenrola.Application.Features.User.Queries.GetIdUserLogged;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -59,4 +60,14 @@ public class UsersController(IMediator mediator) : Controller {
 
         return Ok(result);
     }
+
+    [Authorize(Roles = "Customer, Admin")]
+    [HttpGet("profile")]
+    [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetIdUserLogged()
+    {
+        var id = await _mediator.Send(new GetIdUserLoggedQuery());
+        return Ok(id);
+    }
+
 }
