@@ -5,11 +5,18 @@ using MediatR;
 
 namespace Desenrola.Application.Features.Auth.Commands.LoginCommand;
 
+
+/// <summary>
+/// Manipulador responsável por processar a autenticação de usuários.
+/// </summary>
+/// <remarks>
+/// Esse handler valida as credenciais do usuário utilizando o <see cref="IIdentityAbstractor"/>,
+/// e em caso de sucesso, gera um token JWT através do <see cref="ITokenService"/>.
+/// </remarks>
 public class LoginCommandHandler(IIdentityAbstractor identityAbstractor, ITokenService tokenService) : IRequestHandler<LoginCommand, LoginResponse>
 {
     private readonly IIdentityAbstractor _identityAbstractor = identityAbstractor;
     private readonly ITokenService _tokenService = tokenService;
-
 
     public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
     {

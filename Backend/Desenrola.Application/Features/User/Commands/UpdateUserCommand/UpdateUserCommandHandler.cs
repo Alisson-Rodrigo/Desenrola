@@ -6,6 +6,15 @@ using MediatR;
 
 namespace Desenrola.Application.Features.User.Commands.UpdateUserCommand
 {
+
+    /// <summary>
+    /// Manipulador responsável pela atualização de dados de usuários.
+    /// </summary>
+    /// <remarks>
+    /// Esse handler garante que o usuário esteja autenticado e só possa atualizar seus próprios dados.
+    /// Ele busca o usuário atual no repositório, aplica as alterações recebidas no comando
+    /// e persiste as modificações.
+    /// </remarks>
     public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Unit>
     {
         private readonly IUserRepository _userRepository;

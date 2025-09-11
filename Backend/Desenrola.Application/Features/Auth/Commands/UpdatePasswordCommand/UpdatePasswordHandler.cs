@@ -11,6 +11,15 @@ using System.Threading.Tasks;
 
 namespace Desenrola.Application.Features.Auth.Commands.UpdatePasswordCommand
 {
+
+    /// <summary>
+    /// Manipulador responsável por iniciar o fluxo de atualização de senha.
+    /// </summary>
+    /// <remarks>
+    /// Esse handler valida o email informado, gera um token de recuperação de senha 
+    /// e envia um link de redefinição para o usuário via email.
+    /// </remarks>
+
     public class UpdatePasswordHandler : IRequestHandler<UpdatePasswordCommand, Unit>
     {
         private readonly IIdentityAbstractor _identityAbstractor;

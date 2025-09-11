@@ -11,6 +11,13 @@ using System.Threading.Tasks;
 
 namespace Desenrola.Application.Services
 {
+    /// <summary>
+    /// Serviço responsável por recuperar informações do usuário autenticado a partir do contexto HTTP.
+    /// </summary>
+    /// <remarks>
+    /// Esse serviço utiliza as <see cref="Claims"/> do token JWT presente no contexto da requisição 
+    /// para identificar o usuário logado e obter seus dados através do <see cref="IIdentityAbstractor"/>.
+    /// </remarks>
     public class Logged : ILogged
     {
         private readonly IIdentityAbstractor _identityAbstractor;
