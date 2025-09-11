@@ -1,10 +1,16 @@
-import Navbar from '../components/Navbar';
+// src/app/page.js
+'use client';
 
-export default function Home() {
+import Navbar from '../components/Navbar';
+import { withAuth } from '../hooks/withAuth';
+
+function HomePage() {
   return (
     <div>
       <Navbar />
-    
+   
     </div>
   );
 }
+
+export default withAuth(HomePage);
