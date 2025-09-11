@@ -5,6 +5,13 @@ using MediatR;
 
 namespace Desenrola.Application.Features.User.Queries.GetByIdQueries
 {
+    /// <summary>
+    /// Manipulador responsável por buscar um usuário pelo seu ID.
+    /// </summary>
+    /// <remarks>
+    /// Esse handler valida se o usuário está autenticado, recupera o usuário solicitado
+    /// do repositório e retorna as informações principais em um <see cref="GetByIdResultQueries"/>.
+    /// </remarks>
     public class GetByIdHandlerQueries : IRequestHandler<GetByIdQueries, GetByIdResultQueries>
     {
         private readonly ILogged _logged;
