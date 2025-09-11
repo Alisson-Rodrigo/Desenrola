@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 namespace Desenrola.Application.Features.User.Commands.DeleteUserCommand
 {
     public class DeleteUserCommand : IRequest<Unit>
-    {    }
+    {}
 }
