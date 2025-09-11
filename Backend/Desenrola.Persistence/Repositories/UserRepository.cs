@@ -13,7 +13,6 @@ public class UserRepository : BaseRepository<User>, IUserRepository
     public async Task<User?> GetById(string id)
     {
         return await Context.Users
-            .AsNoTracking() // não rastrear, melhora performance em consultas
             .FirstOrDefaultAsync(u => u.Id == id);
     }
     public async Task UpdateAsync(User user)
