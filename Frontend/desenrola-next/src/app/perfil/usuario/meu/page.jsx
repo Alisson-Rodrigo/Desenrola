@@ -1,6 +1,8 @@
 import React from 'react';
 import styles from './UserProfile.module.css';
 import Link from "next/link";
+import Navbar from '../../../../components/Navbar';
+
 
 const UserProfile = () => {
   // Dados fixos por enquanto
@@ -17,7 +19,7 @@ const UserProfile = () => {
   return (
     <div className={styles.container}>
   
-
+<Navbar />
       {/* Main Content */}
       <main className={styles.main}>
         {/* Sidebar */}

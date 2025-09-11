@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, Menu, X, User, Settings, LogOut } from 'lucide-react';
-import { jwtDecode } from 'jwt-decode'; // 👈 importar a função
+import { jwtDecode } from 'jwt-decode'; // 
 import styles from './Navbar.module.css';
 
 export default function Navbar() {

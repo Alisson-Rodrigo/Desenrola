@@ -8,7 +8,8 @@ export default function FinalizeCadastroPage() {
   return (
     
     <div className={styles.container}>
-        <Navbar />
+      
+      <Navbar />
       <div className={styles.formWrapper}>
         <div className={styles.header}>
           <h1 className={styles.title}>Finalize seu cadastro como prestador</h1>
