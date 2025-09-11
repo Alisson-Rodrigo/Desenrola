@@ -1,5 +1,7 @@
 ﻿using Desenrola.Application.Features.User.Commands.CreateUserCommand;
 using Desenrola.Application.Features.User.Commands.DeleteUserCommand;
+using Desenrola.Application.Features.User.Commands.UpdateUserCommand;
+using Desenrola.Application.Features.User.Queries.GetByIdQueries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -22,6 +24,16 @@ public class UsersController(IMediator mediator) : Controller {
     }
 
     [Authorize(Roles = "Customer, Admin")]
+    [HttpPut]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateUser([FromBody] UpdateUserCommand request)
+    {
+        await _mediator.Send(request);
+        return NoContent();
+    }
+
+    [Authorize(Roles = "Customer, Admin")]
     [HttpDelete]
     [Route("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -31,5 +43,21 @@ public class UsersController(IMediator mediator) : Controller {
         var command = new DeleteUserCommand { };
         await _mediator.Send(command);
         return NoContent();
+    }
+
+    [Authorize(Roles = "Customer, Admin")]
+    [HttpGet]
+    [Route("{id}")]
+    [ProducesResponseType(typeof(GetByIdResultQueries), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById([FromRoute] string id)
+    {
+        var query = new GetByIdQueries { Id = id };
+        var result = await _mediator.Send(query);
+
+        if (result == null)
+            return NotFound();
+
+        return Ok(result);
     }
 }
