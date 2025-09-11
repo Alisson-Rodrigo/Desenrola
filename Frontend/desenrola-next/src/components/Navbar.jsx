@@ -95,9 +95,7 @@ export default function Navbar() {
               <Link href="/perfil/usuario/meu" className={styles.dropdownItem}>
                 <User size={16} /> Meu Perfil
               </Link>
-              <Link href="/configuracoes" className={styles.dropdownItem}>
-                <Settings size={16} /> Configurações
-              </Link>
+             
               <div className={styles.dropdownDivider}></div>
               <button
                 className={`${styles.dropdownItem} ${styles.danger}`}
