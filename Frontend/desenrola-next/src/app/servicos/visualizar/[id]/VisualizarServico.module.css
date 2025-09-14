@@ -325,6 +325,386 @@
   font-weight: 600;
 }
 
+/* ===========================================
+   MODAL DA AGENDA
+   ========================================== */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  max-width: 56rem;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.modalIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #16a34a;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease;
+  color: #6b7280;
+}
+
+.closeButton:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.closeButton svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.agendaContent {
+  padding: 2rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.agendaDay {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.agendaDay:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dayHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.dayTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+}
+
+.dayDate {
+  font-size: 0.875rem;
+  color: #6b7280;
+  background: #f9fafb;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+}
+
+.horariosGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .horariosGrid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.horarioButton {
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.horarioButton.disponivel {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.horarioButton.disponivel:hover {
+  background: #16a34a;
+  color: white;
+  border-color: #16a34a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.horarioButton.indisponivel {
+  background: #f3f4f6;
+  color: #9ca3af;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.statusIcon {
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.modalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  gap: 1rem;
+}
+
+.btnOutline {
+  background: transparent;
+  color: #374151;
+  padding: 0.75rem 2rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  border: 2px solid #d1d5db;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnOutline:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* ===========================================
+   RESPONSIVIDADE DA MODAL
+   ========================================== */
+
+@media (max-width: 640px) {
+  .modalContent {
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+  
+  .modalHeader,
+  .agendaContent,
+  .modalFooter {
+    padding: 1.5rem;
+  }
+  
+  .modalTitle {
+    font-size: 1.25rem;
+  }
+  
+  .horariosGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .horarioButton {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+  
+  .modalFooter {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+  
+  .btnOutline,
+  .modalFooter .btnPrimary {
+    width: 100%;
+  }
+}
+
+/* ===========================================
+   MODAL DE SOLICITAÇÃO
+   ========================================== */
+
+.solicitacaoContent {
+  padding: 2rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.servicoResumo {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 2rem;
+  border: 1px solid #bbf7d0;
+}
+
+.resumoTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #166534;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.resumoTitle::before {
+  content: "📋";
+  font-size: 1rem;
+}
+
+.resumoInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.resumoItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #bbf7d0;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.resumoItem:last-child {
+  border-bottom: none;
+}
+
+.resumoItem strong {
+  color: #166534;
+  font-weight: 600;
+}
+
+.solicitacaoForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formLabel {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.formInput {
+  padding: 0.75rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.formInput::placeholder {
+  color: #9ca3af;
+}
+
+.formTextarea {
+  padding: 0.75rem 1rem;
+  border: 2px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: white;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.formTextarea:focus {
+  outline: none;
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.formTextarea::placeholder {
+  color: #9ca3af;
+}
+
+/* ===========================================
+   RESPONSIVIDADE DA MODAL DE SOLICITAÇÃO
+   ========================================== */
+
+@media (max-width: 640px) {
+  .solicitacaoContent {
+    padding: 1.5rem;
+  }
+  
+  .servicoResumo {
+    padding: 1rem;
+  }
+  
+  .resumoItem {
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-start;
+  }
+  
+  .formInput,
+  .formTextarea {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
 .infoTitle {
   font-size: 1.25rem;
   font-weight: 700;
