@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import styles from './RecoverPassword.module.css';
-import { forgotPassword } from '../../services/authApi';
+import { forgotPassword } from '../../../services/authApi';
 
 export default function RecoverPassword() {
   const [email, setEmail] = useState('');
@@ -80,7 +80,7 @@ export default function RecoverPassword() {
             </p>
           )}
 
-          <Link href="/login" className={styles.backToLogin}>
+          <Link href="/auth/login" className={styles.backToLogin}>
             Voltar para login
           </Link>
         </div>

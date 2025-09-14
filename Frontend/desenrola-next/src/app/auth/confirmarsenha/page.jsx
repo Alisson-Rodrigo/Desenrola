@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './confirmarsenha.module.css';
-import { resetPassword } from '../../services/authApi';
+import { resetPassword } from '../../../services/authApi';
 
 export default function ConfirmNewPassword() {
   const [formData, setFormData] = useState({ password: '', confirmPassword: '' });
@@ -41,7 +41,7 @@ export default function ConfirmNewPassword() {
         text: 'Senha redefinida com sucesso! Redirecionando para login...',
       });
 
-      setTimeout(() => router.push('/login'), 2500);
+      setTimeout(() => router.push('/auth/login'), 2500);
     } catch (err) {
       setMessage({ type: 'error', text: err.message || 'Erro ao redefinir senha.' });
     } finally {

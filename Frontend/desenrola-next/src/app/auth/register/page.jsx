@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import styles from './Register.module.css';
-import { registerUser } from '../../services/userApi';
+import { registerUser } from '../../../services/userApi';
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -160,7 +160,7 @@ export default function Register() {
           )}
 
           <p className={styles.loginLink}>
-            Já tem uma conta? <Link href="/login">Entrar</Link>
+            Já tem uma conta? <Link href="/auth/login">Entrar</Link>
           </p>
         </div>
       </div>

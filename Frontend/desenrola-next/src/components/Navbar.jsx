@@ -47,7 +47,7 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
-    router.push('auth/login');
+    router.push('/auth/login');
   };
 
   return (
@@ -61,7 +61,7 @@ export default function Navbar() {
 
         {/* Navigation Links - Desktop */}
         <div className={styles.nav}>
-          <Link href="/dashboard" className={`${styles.navLink} ${styles.active}`}>
+          <Link href="/" className={`${styles.navLink} ${styles.active}`}>
             Dashboard
           </Link>
           <Link href="/servicos" className={styles.navLink}>
