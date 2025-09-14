@@ -16,8 +16,7 @@ const SolicitacaoServicos = () => {
   const [formData, setFormData] = useState({
     categoria: "Eletricista",
     titulo: "Troca de disjuntor",
-    descricao:
-      "Realizo reparos hidráulicos, conserto de vazamentos e instalações de torneiras, registros e chuveiros. Atendimento rápido e de qualidade.",
+    descricao: "Preciso da troca de um disjuntor que está queimado no quadro de energia.",
     endereco: "Rua das Flores, 123 - Centro, Picos/PI",
     cep: "64600-000",
     data: "2025-09-20",

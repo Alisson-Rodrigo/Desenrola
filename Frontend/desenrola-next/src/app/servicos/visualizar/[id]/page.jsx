@@ -10,7 +10,8 @@ export default function VisualizarServico({ params }) {
   const servico = {
     id,
     titulo: "Conserto de Encanamento",
-    descricao: "Preciso de um encanador para consertar um vazamento na pia da cozinha. O problema aconteceu ontem de manhã e está causando desperdício de água. Preciso de um profissional experiente e confiável.",
+    descricao:
+    "Realizo reparos hidráulicos, conserto de vazamentos e instalações de torneiras, registros e chuveiros. Atendimento rápido e de qualidade.",
     categoria: "Encanamento",
     endereco: "Rua das Flores, 123 - Centro",
     prestador: {
