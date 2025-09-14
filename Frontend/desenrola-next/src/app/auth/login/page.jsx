@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './login.module.css';
-import { login } from '../../services/authApi';
+import { login } from '../../../services/authApi';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -79,7 +79,7 @@ export default function LoginPage() {
             <div className={styles.formGroup}>
               <div className={styles.labelWrapper}>
                 <label htmlFor="password">Senha</label>
-                <a className={styles.forgotPassword} href="/recoverpass">
+                <a className={styles.forgotPassword} href="/auth/recoverpass">
                   Esqueci a senha
                 </a>
               </div>
@@ -112,7 +112,7 @@ export default function LoginPage() {
           </form>
 
           <div className={styles.signupLink}>
-            Novo por aqui? <a href="/register">Criar conta</a>
+            Novo por aqui? <a href="/auth/register">Criar conta</a>
           </div>
         </div>
       </div>
