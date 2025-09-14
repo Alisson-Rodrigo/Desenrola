@@ -47,7 +47,7 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
-    router.push('/login');
+    router.push('auth/login');
   };
 
   return (
