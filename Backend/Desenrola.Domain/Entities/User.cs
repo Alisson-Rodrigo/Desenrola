@@ -10,6 +10,9 @@ public class User : IdentityUser
     public virtual Provider? Provider { get; set; }
 
     public bool IsActive { get; set; } = true;
+    public string? ImageProfile { get; set; } = string.Empty;
+
+    public string ImgUrl { get; set; } = string.Empty;
 
     public User() : base() { }
 }

@@ -16,6 +16,8 @@ public class CreateUserCommand : IRequest<CreateUserResult> {
             UserName = UserName,
             Email = Email,
             Name = Name,
+            IsActive = true,
+            ImageProfile = string.Empty,
         };
     }
 }

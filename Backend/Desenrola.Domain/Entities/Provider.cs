@@ -12,6 +12,8 @@ namespace Desenrola.Domain.Entities
         public required string RG { get; set; }
         public required string DocumentPhotoUrl { get; set; } // link/arquivo armazenado
         public required string Address { get; set; }
+        public string? ImageProfile { get; set; } = string.Empty;
+
 
         // Dados profissionais
         public string ServiceName { get; set; } = string.Empty;
