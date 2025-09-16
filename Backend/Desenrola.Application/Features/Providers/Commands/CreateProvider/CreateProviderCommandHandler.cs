@@ -5,6 +5,7 @@ using Desenrola.Domain.Exception;
 using MediatR;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
+using Microsoft.AspNetCore.Hosting; // precisa importar
 
 namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
 {
@@ -13,22 +14,21 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
         private readonly IProviderRepository _providerRepository;
         private readonly ILogged _logged;
         private readonly ICPF _cpfValidator;
+        private readonly IWebHostEnvironment _env;
 
-        // Caminho físico local
-        private readonly string _uploadPath =
-            @"C:\Users\PuroLight\source\repos\Alisson-Rodrigo\Desenrola\Backend\Desenrola.WebApi\wwwroot\imagens\providers";
-
-        // URL pública local
-        private readonly string _publicBaseUrl = "https://localhost:5001/imagens/providers";
+        // URL pública base (ajuste porta se necessário)
+        private readonly string _publicBaseUrl = "https://localhost:7014/imagens/providers";
 
         public CreateProviderCommandHandler(
             IProviderRepository providerRepository,
             ILogged logged,
-            ICPF cpfValidator)
+            ICPF cpfValidator,
+            IWebHostEnvironment env)
         {
             _providerRepository = providerRepository;
             _logged = logged;
             _cpfValidator = cpfValidator;
+            _env = env;
         }
 
         public async Task<Guid> Handle(CreateProviderCommand request, CancellationToken cancellationToken)
@@ -44,8 +44,9 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult);
 
-            // Cria diretório se não existir
-            Directory.CreateDirectory(_uploadPath);
+            // Caminho físico dinâmico dentro de wwwroot
+            var uploadPath = Path.Combine(_env.WebRootPath, "imagens", "providers");
+            Directory.CreateDirectory(uploadPath);
 
             var imagensUrls = new List<string>();
 
@@ -55,7 +56,7 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
                 {
                     var nameFileNotExtension = Path.GetFileNameWithoutExtension(imagem.FileName);
                     var nameFile = $"{Guid.NewGuid()}_{nameFileNotExtension}.webp";
-                    var caminhoWebP = Path.Combine(_uploadPath, nameFile);
+                    var caminhoWebP = Path.Combine(uploadPath, nameFile);
 
                     using (var inputStream = imagem.OpenReadStream())
                     using (var image = await Image.LoadAsync(inputStream, cancellationToken))
@@ -64,6 +65,7 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
                         await image.SaveAsync(caminhoWebP, encoder, cancellationToken);
                     }
 
+                    // URL acessível externamente
                     var url = $"{_publicBaseUrl}/{nameFile}";
                     imagensUrls.Add(url);
                 }
