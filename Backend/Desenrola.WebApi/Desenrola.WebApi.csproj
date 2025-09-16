@@ -26,4 +26,8 @@
     <ProjectReference Include="..\Desenrola.Persistence\Desenrola.Persistence.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\imagens\providers\documents\" />
+  </ItemGroup>
+
 </Project>
