@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Navbar from '../../../../../components/Navbar'; // 1. IMPORTAÇÃO DA NAVBAR
-import styles from "./GerenciarServicos.module.css";
+import Navbar from '../../../../../../components/Navbar'; // 1. IMPORTAÇÃO DA NAVBAR
+import styles from "./GerenciarServicos.module.css";import styles from "./GerenciarServicos.module.css";
 
 export default function GerenciarServicos() {
   const [filtroStatus, setFiltroStatus] = useState("todos");
