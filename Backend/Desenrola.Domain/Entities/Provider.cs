@@ -1,3 +1,5 @@
+using Desenrola.Domain.Enums;
+
 namespace Desenrola.Domain.Entities
 {
     public class Provider
@@ -18,6 +20,7 @@ namespace Desenrola.Domain.Entities
         public string ServiceName { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
+        public required List<ServiceCategory> Categories { get; set; }
 
         // Status
         public bool IsActive { get; set; } = true;

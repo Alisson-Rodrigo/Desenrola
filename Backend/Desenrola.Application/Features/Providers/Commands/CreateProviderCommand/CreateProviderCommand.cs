@@ -1,3 +1,4 @@
+using Desenrola.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
@@ -10,6 +11,7 @@ public record CreateProviderCommand(
     string Address,
     string ServiceName,
     string Description,
-    string PhoneNumber
+    string PhoneNumber,
+    List<ServiceCategory> Categories
 ) : IRequest<Guid>;
 

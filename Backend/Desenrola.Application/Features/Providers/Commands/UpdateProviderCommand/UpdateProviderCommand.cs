@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Desenrola.Domain.Enums;
+using MediatR;
 
 namespace Desenrola.Application.Features.Providers.Commands.UpdateProvider;
 
@@ -9,5 +10,7 @@ public record UpdateProviderCommand(
     string Address,
     string ServiceName,
     string Description,
-    string PhoneNumber
+    string PhoneNumber,
+    List<ServiceCategory> Categories
+
 ) : IRequest<Guid>;
