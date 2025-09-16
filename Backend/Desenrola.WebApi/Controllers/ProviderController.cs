@@ -18,7 +18,7 @@ namespace Desenrola.WebApi.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> CreateProvider(CreateProviderCommand request)
+        public async Task<IActionResult> CreateProvider([FromForm] CreateProviderCommand request)
         {
             Guid response = await _mediator.Send(request);
             return Created(HttpContext.Request.GetDisplayUrl(), response);

@@ -10,7 +10,7 @@ namespace Desenrola.Domain.Entities
         // Dados de identidade e segurança
         public required string CPF { get; set; }
         public required string RG { get; set; }
-        public required string DocumentPhotoUrl { get; set; } // link/arquivo armazenado
+        public required List<string> DocumentPhotoUrl { get; set; } // link/arquivo armazenado
         public required string Address { get; set; }
         public string? ImageProfile { get; set; } = string.Empty;
 

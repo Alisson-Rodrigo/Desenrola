@@ -22,10 +22,8 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
                 .NotEmpty().WithMessage("O RG é obrigatório.")
                 .MaximumLength(20).WithMessage("O RG deve ter no máximo 20 caracteres.");
 
-            RuleFor(x => x.DocumentPhotoUrl)
-                .NotEmpty().WithMessage("A foto do documento é obrigatória.")
-                .Must(uri => Uri.IsWellFormedUriString(uri, UriKind.RelativeOrAbsolute))
-                .WithMessage("A URL da foto do documento não é válida.");
+            RuleFor(x => x.DocumentPhotos)
+                .NotEmpty().WithMessage("A foto do documento é obrigatória.");
 
             RuleFor(x => x.Address)
                 .NotEmpty().WithMessage("O endereço é obrigatório.");

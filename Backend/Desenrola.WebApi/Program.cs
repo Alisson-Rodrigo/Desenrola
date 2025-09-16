@@ -155,6 +155,8 @@ public class Program {
             app.UseSwaggerUI();
         }
 
+        app.UseStaticFiles(); // habilita wwwroot
+
         app.UseCors("AllowSpecificOrigin"); // use a policy nomeada
 
         app.UseHttpsRedirection();
