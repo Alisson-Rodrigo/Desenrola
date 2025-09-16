@@ -20,5 +20,11 @@ namespace Desenrola.Persistence.Repositories
                 .AsNoTracking()
                 .ToListAsync();
         }
+
+        public async Task<Provider?> GetByIdAsync(Guid id)
+        {
+            return await _context.Set<Provider>()
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
     }
 }
