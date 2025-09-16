@@ -40,9 +40,7 @@ export default function Navbar() {
       try {
         setUser(JSON.parse(userStorage));
         return;
-      } catch (_) {
-        // se der erro no JSON, ignora e tenta pelo token
-      }
+      } catch (_) {}
     }
 
     const token = localStorage.getItem('auth_token');
@@ -66,6 +64,7 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
+    setUser(null);
     router.push('/auth/login');
   };
 
@@ -93,37 +92,46 @@ export default function Navbar() {
 
         {/* User Section */}
         <div className={styles.userSection}>
-          <div 
-            className={styles.userProfile} 
-            onClick={toggleDropdown}
-            ref={dropdownRef}
-          >
-            {/* Avatar: iniciais do nome */}
-            <div className={styles.avatar}>
-              {user?.name ? user.name.substring(0, 2).toUpperCase() : "??"}
-            </div>
-            <span className={styles.userName}>{user?.name || "Usuário"}</span>
-            <ChevronDown className={styles.dropdownIcon} />
-
-            {/* Dropdown Menu */}
-            <div className={`${styles.dropdown} ${isDropdownOpen ? styles.open : ''}`}>
-              <div className={styles.dropdownHeader}>
-                <h3>{user?.name || "Usuário"}</h3>
-                <p>{user?.email || "email@dominio.com"}</p>
+          {user ? (
+            <div 
+              className={styles.userProfile} 
+              onClick={toggleDropdown}
+              ref={dropdownRef}
+            >
+              {/* Avatar: iniciais do nome */}
+              <div className={styles.avatar}>
+                {user?.name ? user.name.substring(0, 2).toUpperCase() : "??"}
               </div>
-              <Link href="/perfil/usuario/meu" className={styles.dropdownItem}>
-                <User size={16} /> Meu Perfil
-              </Link>
-              
-              <div className={styles.dropdownDivider}></div>
-              <button
-                className={`${styles.dropdownItem} ${styles.danger}`}
-                onClick={handleLogout}
-              >
-                <LogOut size={16} /> Sair
-              </button>
+              <span className={styles.userName}>{user?.name || "Usuário"}</span>
+              <ChevronDown className={styles.dropdownIcon} />
+
+              {/* Dropdown Menu */}
+              <div className={`${styles.dropdown} ${isDropdownOpen ? styles.open : ''}`}>
+                <div className={styles.dropdownHeader}>
+                  <h3>{user?.name || "Usuário"}</h3>
+                  <p>{user?.email || "email@dominio.com"}</p>
+                </div>
+                <Link href="/perfil/usuario/meu" className={styles.dropdownItem}>
+                  <User size={16} /> Meu Perfil
+                </Link>
+                
+                <div className={styles.dropdownDivider}></div>
+                <button
+                  className={`${styles.dropdownItem} ${styles.danger}`}
+                  onClick={handleLogout}
+                >
+                  <LogOut size={16} /> Sair
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <button
+              className={styles.loginButton}
+              onClick={() => router.push('/auth/login')}
+            >
+              Entrar
+            </button>
+          )}
 
           {/* Mobile Menu Button */}
           <button 
@@ -140,6 +148,14 @@ export default function Navbar() {
         <Link href="/" className={styles.mobileNavLink}>Dashboard</Link>
         <Link href="/servicos" className={styles.mobileNavLink}>Serviços</Link>
         <Link href="/clientes" className={styles.mobileNavLink}>Clientes</Link>
+        {!user && (
+          <button
+            className={styles.mobileNavLogin}
+            onClick={() => router.push('/auth/login')}
+          >
+            Entrar
+          </button>
+        )}
       </div>
     </nav>
   );
