@@ -13,29 +13,43 @@ namespace Desenrola.Persistence
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            // Extensão útil para UUID em outras entidades (opcional)
+            // Extensão útil para UUID em outras entidades (Postgres)
             builder.HasPostgresExtension("uuid-ossp");
 
-            // Mapeamento do Provider -> User (UserId deve ser string)
+            // Mapeamento do Provider
             builder.Entity<Provider>(entity =>
             {
                 entity.HasKey(p => p.Id);
 
+                entity.Property(p => p.Id)
+                      .HasDefaultValueSql("uuid_generate_v4()");
+
                 entity.Property(p => p.UserId)
                       .IsRequired();
 
-                entity.HasOne(p => p.User)
-                      .WithMany()
-                      .HasForeignKey(p => p.UserId)   // FK string
-                      .HasPrincipalKey(u => u.Id)     // PK string (Identity)
-                      .OnDelete(DeleteBehavior.Restrict);
+                entity.Property(p => p.CPF)
+                      .HasMaxLength(11)
+                      .IsRequired();
 
-                // opcional: gerar Guid no banco
-                // entity.Property(p => p.Id).HasDefaultValueSql("uuid_generate_v4()");
+                entity.Property(p => p.RG)
+                      .HasMaxLength(20)
+                      .IsRequired();
+
+                entity.Property(p => p.DocumentPhotoUrl)
+                      .IsRequired();
+
+                entity.Property(p => p.Address)
+                      .IsRequired();
+
+                // Relacionamento 1:1 User <-> Provider
+                entity.HasOne(p => p.User)
+                      .WithOne(u => u.Provider)
+                      .HasForeignKey<Provider>(p => p.UserId)
+                      .HasPrincipalKey<User>(u => u.Id)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
-
-            // Aplica configurações adicionais do assembly (se houver)
+            // Aplica configurações adicionais se houver
             builder.ApplyConfigurationsFromAssembly(typeof(DefaultContext).Assembly);
 
             base.OnModelCreating(builder);
