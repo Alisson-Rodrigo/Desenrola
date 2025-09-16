@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -7,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Desenrola.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class FixImageProfileProvider3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,6 +36,8 @@ namespace Desenrola.Persistence.Migrations
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    ImageProfile = table.Column<string>(type: "text", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -101,8 +104,8 @@ namespace Desenrola.Persistence.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "text", nullable: false),
-                    ProviderKey = table.Column<string>(type: "text", nullable: false),
+                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    ProviderKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<string>(type: "text", nullable: false)
                 },
@@ -146,8 +149,8 @@ namespace Desenrola.Persistence.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "text", nullable: false),
-                    LoginProvider = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
+                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -159,6 +162,33 @@ namespace Desenrola.Persistence.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Providers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    CPF = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: false),
+                    RG = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    DocumentPhotoUrl = table.Column<List<string>>(type: "text[]", nullable: false),
+                    Address = table.Column<string>(type: "text", nullable: false),
+                    ServiceName = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: false),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false),
+                    IsVerified = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Providers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Providers_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
@@ -197,6 +227,12 @@ namespace Desenrola.Persistence.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Providers_UserId",
+                table: "Providers",
+                column: "UserId",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -216,6 +252,9 @@ namespace Desenrola.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Providers");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

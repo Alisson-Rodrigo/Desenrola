@@ -15,9 +15,4 @@ public class UserRepository : BaseRepository<User>, IUserRepository
         return await Context.Users
             .FirstOrDefaultAsync(u => u.Id == id);
     }
-    public async Task UpdateAsync(User user)
-    {
-        Context.Users.Update(user);
-        await Context.SaveChangesAsync();
-    }
 }
