@@ -18,6 +18,8 @@ namespace Desenrola.Application.IoC
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<ISend, Send>();
             services.AddScoped<ILogged, Logged>();
+            services.AddScoped<ICPF, CPF>();
+
 
 
 

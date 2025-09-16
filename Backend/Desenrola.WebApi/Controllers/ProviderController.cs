@@ -14,6 +14,7 @@ namespace Desenrola.WebApi.Controllers
     {
         private readonly IMediator _mediator = mediator;
 
+        [Authorize]
         [HttpPost]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status400BadRequest)]
