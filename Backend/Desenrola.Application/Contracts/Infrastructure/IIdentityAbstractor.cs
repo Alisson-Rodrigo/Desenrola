@@ -108,4 +108,10 @@ public interface IIdentityAbstractor
     public Task<IdentityResult> ResetPasswordAsync(User user, string decodedToken, string newPassword);
     Task<(IEnumerable<User>, int)> GetPagedUsersAsync(int page, int pageSize);
 
+
+    // 🔑 Métodos novos para atualização
+    Task<IdentityResult> SetUserNameAsync(User user, string newUserName);
+    Task<IdentityResult> SetEmailAsync(User user, string newEmail);
+    Task<IdentityResult> UpdateUserAsync(User user);
+
 }
