@@ -48,7 +48,7 @@ namespace Desenrola.Application.Features.User.Commands.UpdateUserCommand
             existingUser.Email = command.Email;
 
 
-            await _userRepository.UpdateAsync(existingUser);
+            await _userRepository.Update(existingUser);
 
             return Unit.Value;
         }

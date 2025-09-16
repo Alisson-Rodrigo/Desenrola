@@ -36,7 +36,9 @@ namespace Desenrola.Persistence
                       .IsRequired();
 
                 entity.Property(p => p.DocumentPhotoUrl)
+                      .HasColumnType("text[]")   // 👈 força o tipo Postgres
                       .IsRequired();
+
 
                 entity.Property(p => p.Address)
                       .IsRequired();
