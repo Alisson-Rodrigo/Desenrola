@@ -9,7 +9,8 @@ namespace Desenrola.Application.Contracts.Infrastructure;
 /// This is a abstraction of the Identity library, creating methods that will interact with 
 /// it to create and update users
 /// </summary>
-public interface IIdentityAbstractor {
+public interface IIdentityAbstractor
+{
     /// <summary>
     /// Finds a <see cref="User"/> through its
     /// ID asynchronously
@@ -98,4 +99,13 @@ public interface IIdentityAbstractor {
     /// A <see cref="Task{IdentityResult}"/>
     /// </returns>
     Task<IdentityResult> DeleteUser(User user);
+
+    Task<SignInResult> CheckPasswordSignInAsync(User user, string password);
+    Task<User?> FindByNameAsync(string username);
+    Task<IList<string>> GetRolesAsync(User user);
+    Task<string> GeneratePasswordResetTokenAsync(User user);
+
+    public Task<IdentityResult> ResetPasswordAsync(User user, string decodedToken, string newPassword);
+    Task<(IEnumerable<User>, int)> GetPagedUsersAsync(int page, int pageSize);
+
 }

@@ -7,8 +7,12 @@ using Desenrola.Domain.Exception;
 namespace Desenrola.Application.Features.User.Commands.CreateUserCommand;
 
 /// <summary>
-/// Command handler for the creation of <see cref="Domain.Entities.User"/>
+/// Manipulador responsável pela criação de novos usuários.
 /// </summary>
+/// <remarks>
+/// Esse handler valida os dados recebidos, verifica se o email já está em uso,
+/// cria o usuário no Identity, atribui uma role e retorna o resultado da criação.
+/// </remarks>
 public class CreateUserCommandHandler(IIdentityAbstractor identityAbstractor) : IRequestHandler<CreateUserCommand, CreateUserResult> {
     private readonly IIdentityAbstractor _identityAbstractor = identityAbstractor;
 
@@ -18,6 +22,13 @@ public class CreateUserCommandHandler(IIdentityAbstractor identityAbstractor) : 
 
         if(!validationResult.IsValid) {
             throw new BadRequestException(validationResult);
+        }
+
+        // Check if the user already exists
+        Domain.Entities.User? existingUser = await _identityAbstractor.FindUserByEmailAsync(request.Email);
+        if (existingUser != null)
+        {
+            throw new BadRequestException($"Email: {request.Email} em uso.");
         }
 
         Domain.Entities.User newUser = request.AssignTo();

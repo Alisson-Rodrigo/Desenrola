@@ -1,0 +1,546 @@
+/**
+ * GerenciarServicos.module.css
+ * 
+ * Estilos CSS para a tela do prestador gerenciar serviços
+ * Seguindo o padrão de design do ProfilePage
+ */
+
+/* ===========================================
+   LAYOUT PRINCIPAL
+   ========================================== */
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  padding: 2rem 0;
+}
+
+.maxWidth {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+  .maxWidth {
+    padding: 0 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .maxWidth {
+    padding: 0 2rem;
+  }
+}
+
+/* ===========================================
+   HEADER DA PÁGINA
+   ========================================== */
+
+.pageHeader {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .headerContent {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+  }
+}
+
+.pageTitle {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.pageSubtitle {
+  color: #6b7280;
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+.headerStats {
+  display: flex;
+  gap: 1rem;
+}
+
+.statCard {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  text-align: center;
+  min-width: 80px;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+/* ===========================================
+   FILTROS
+   ========================================== */
+
+.filtrosContainer {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.filtroButtons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filtroButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filtroButton.ativo {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
+  border-color: #16a34a;
+}
+
+.filtroButton.inativo {
+  background: #f9fafb;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.filtroButton.inativo:hover {
+  background: #f3f4f6;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.filtroCount {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.filtroButton.inativo .filtroCount {
+  background: #16a34a;
+  color: white;
+}
+
+/* ===========================================
+   CONTAINER DE SERVIÇOS
+   ========================================== */
+
+.servicosContainer {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+/* ===========================================
+   ESTADO VAZIO
+   ========================================== */
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.emptyTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.5rem 0;
+}
+
+.emptyText {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* ===========================================
+   LISTA DE SERVIÇOS
+   ========================================== */
+
+.servicosList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.servicoCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.servicoCard:hover {
+  border-color: #16a34a;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.1);
+}
+
+/* ===========================================
+   HEADER DO CARD
+   ========================================== */
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.servicoInfo {
+  flex: 1;
+}
+
+.servicoTitulo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.75rem 0;
+}
+
+.servicoPreco {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #16a34a;
+  white-space: nowrap;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.statusBadge.pendente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.statusBadge.aceito {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.statusBadge.recusado {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.statusIcon {
+  font-size: 0.875rem;
+}
+
+/* ===========================================
+   CONTEÚDO DO CARD
+   ========================================== */
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.clienteInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.clienteAvatar {
+  width: 3rem;
+  height: 3rem;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.clienteDetalhes {
+  flex: 1;
+}
+
+.clienteNome {
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.clienteContato {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+@media (min-width: 640px) {
+  .clienteContato {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+
+.telefone, .email {
+  display: flex;
+  align-items: center;
+}
+
+.servicoDetalhes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .servicoDetalhes {
+    flex-direction: row;
+    gap: 2rem;
+  }
+}
+
+.detalheItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.detalheIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+.observacoes {
+  background: #f0fdf4;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid #16a34a;
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.5;
+}
+
+.observacoes strong {
+  color: #166534;
+}
+
+/* ===========================================
+   AÇÕES DO CARD
+   ========================================== */
+
+.cardActions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+@media (max-width: 640px) {
+  .cardActions {
+    flex-direction: column;
+  }
+}
+
+.btnAceitar {
+  flex: 1;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btnAceitar:hover {
+  background: linear-gradient(135deg, #15803d, #166534);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+.btnRecusar {
+  flex: 1;
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btnRecusar:hover {
+  background: linear-gradient(135deg, #b91c1c, #991b1b);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.buttonIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ===========================================
+   FOOTER DO CARD
+   ========================================== */
+
+.cardFooter {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.dataSolicitacao {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* ===========================================
+   RESPONSIVIDADE
+   ========================================== */
+
+@media (max-width: 640px) {
+  .container {
+    padding: 1rem 0;
+  }
+  
+  .pageHeader,
+  .filtrosContainer,
+  .servicosContainer {
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+  }
+  
+  .pageTitle {
+    font-size: 1.875rem;
+  }
+  
+  .headerStats {
+    justify-content: center;
+  }
+  
+  .cardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .servicoPreco {
+    font-size: 1.25rem;
+  }
+  
+  .clienteInfo {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+}
+
+/* ===========================================
+   ANIMAÇÕES
+   ========================================== */
+
+.servicoCard {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filtroButton {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
