@@ -9,7 +9,7 @@ export function withAuth(Component) {
 
     useEffect(() => {
       const token = localStorage.getItem('auth_token');
-      if (!token) router.replace('/login');
+      if (!token) router.replace('/auth/login');
     }, [router]);
 
     return <Component {...props} />;
