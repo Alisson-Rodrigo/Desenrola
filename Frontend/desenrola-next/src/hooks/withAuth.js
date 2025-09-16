@@ -1,21 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-/**
- * HOC para proteger páginas.
- * - Permite visualizar sempre.
- * - Passa `hasToken` para o componente, que decide o que renderizar.
- */
 export function withAuth(Component) {
   return function ProtectedPage(props) {
-    const [hasToken, setHasToken] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
       const token = localStorage.getItem('auth_token');
-      setHasToken(!!token);
-    }, []);
+      if (!token) router.replace('/auth/login');
+    }, [router]);
 
-    return <Component {...props} hasToken={hasToken} />;
+    return <Component {...props} />;
   };
 }

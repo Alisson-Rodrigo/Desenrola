@@ -236,22 +236,3 @@
     font-size: 2.5rem;
   }
 }
-.errorText {
-  color: #d32f2f;
-  background-color: #fdecea;
-  border: 1px solid #f5c2c7;
-  padding: 10px;
-  border-radius: 6px;
-  margin-top: 15px;
-  font-size: 14px;
-}
-
-.successText {
-  color: #2e7d32;
-  background-color: #e8f5e9;
-  border: 1px solid #a5d6a7;
-  padding: 10px;
-  border-radius: 6px;
-  margin-top: 15px;
-  font-size: 14px;
-}
