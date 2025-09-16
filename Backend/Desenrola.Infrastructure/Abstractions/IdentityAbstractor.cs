@@ -40,6 +40,22 @@ public class IdentityAbstractor : IIdentityAbstractor
         return await _signInManager.CheckPasswordSignInAsync(user, password, false);
     }
 
+    public async Task<IdentityResult> SetUserNameAsync(User user, string newUserName)
+    {
+        return await _userManager.SetUserNameAsync(user, newUserName);
+    }
+
+    public async Task<IdentityResult> SetEmailAsync(User user, string newEmail)
+    {
+        return await _userManager.SetEmailAsync(user, newEmail);
+    }
+
+    public async Task<IdentityResult> UpdateUserAsync(User user)
+    {
+        return await _userManager.UpdateAsync(user);
+    }
+
+
     public async Task<IdentityResult> ResetPasswordAsync(User user, string decodedToken, string newPassword)
     {
         return await _userManager.ResetPasswordAsync(user, decodedToken, newPassword);
