@@ -78,6 +78,7 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
                 RG = request.RG,
                 DocumentPhotoUrl = imagensUrls,
                 Address = request.Address,
+                Categories = request.Categories,
                 ServiceName = request.ServiceName,
                 Description = request.Description,
                 PhoneNumber = request.PhoneNumber,

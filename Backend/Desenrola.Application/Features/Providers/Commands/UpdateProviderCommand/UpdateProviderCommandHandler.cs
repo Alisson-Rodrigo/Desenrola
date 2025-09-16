@@ -44,6 +44,7 @@ namespace Desenrola.Application.Features.Providers.Commands.UpdateProvider
             provider.CPF = request.CPF;
             provider.RG = request.RG;
             provider.Address = request.Address;
+            provider.Categories = request.Categories;
             provider.ServiceName = request.ServiceName;
             provider.Description = request.Description;
             provider.PhoneNumber = request.PhoneNumber;
