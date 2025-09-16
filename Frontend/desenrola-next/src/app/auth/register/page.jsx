@@ -23,14 +23,43 @@ export default function Register() {
     setForm((prev) => ({ ...prev, [id]: value }));
   }
 
+  // Traduz mensagens do backend para PT-BR
+  function traduzirMensagem(msg) {
+    return msg
+      .replace(
+        'Passwords must have at least one non alphanumeric character.',
+        'A senha deve ter pelo menos um caractere não alfanumérico (ex: !, @, #, $).'
+      )
+      .replace(
+        "Passwords must have at least one lowercase ('a'-'z').",
+        'A senha deve ter pelo menos uma letra minúscula (a-z).'
+      )
+      .replace(
+        "Passwords must have at least one uppercase ('A'-'Z').",
+        'A senha deve ter pelo menos uma letra maiúscula (A-Z).'
+      );
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setMessage({ type: null, text: '' });
 
-    if (!form.userName || !form.fullName || !form.email || !form.password || !form.confirmPassword) {
+    if (
+      !form.userName ||
+      !form.fullName ||
+      !form.email ||
+      !form.password ||
+      !form.confirmPassword
+    ) {
       setMessage({ type: 'error', text: 'Preencha todos os campos obrigatórios.' });
       return;
     }
+
+    if (form.password.length < 6) {
+      setMessage({ type: 'error', text: 'O campo senha precisa ter, pelo menos, 6 caracteres.' });
+      return;
+    }
+
     if (form.password !== form.confirmPassword) {
       setMessage({ type: 'error', text: 'As senhas não coincidem.' });
       return;
@@ -44,11 +73,39 @@ export default function Register() {
         email: form.email,
         password: form.password,
         passwordConfirmation: form.confirmPassword,
-        role: 1, // sempre 1
+        role: 1,
       });
       setMessage({ type: 'success', text: 'Conta criada com sucesso!' });
     } catch (err) {
-      setMessage({ type: 'error', text: err.message || 'Erro ao registrar.' });
+      let errorText = 'Erro ao registrar.';
+
+      if (err?.response?.data?.message) {
+        errorText = err.response.data.message;
+      } else if (typeof err?.response?.data === 'string') {
+        errorText = err.response.data;
+      } else if (err.message) {
+        errorText = err.message;
+      }
+
+      // Se vier JSON {"message":"..."} → pega só o texto
+      try {
+        const parsed = JSON.parse(errorText);
+        if (parsed?.message) {
+          errorText = parsed.message;
+        }
+      } catch (_) {
+        // não era JSON válido, segue como string
+      }
+
+      // separa mensagens por linhas ou "|"
+      let mensagens = errorText
+        .split(/\r?\n|\|/g)
+        .map((m) => traduzirMensagem(m.trim()))
+        .filter((m) => m.length > 0);
+
+      errorText = mensagens.join('\n');
+
+      setMessage({ type: 'error', text: errorText });
     } finally {
       setLoading(false);
     }
@@ -68,7 +125,6 @@ export default function Register() {
           <h2>Criar conta</h2>
 
           <form onSubmit={handleSubmit}>
-            {/* Username */}
             <div className={styles.formGroup}>
               <label htmlFor="userName">Usuário</label>
               <input
@@ -80,7 +136,6 @@ export default function Register() {
               />
             </div>
 
-            {/* Nome completo */}
             <div className={styles.formGroup}>
               <label htmlFor="fullName">Nome completo</label>
               <input
@@ -92,7 +147,6 @@ export default function Register() {
               />
             </div>
 
-            {/* Email */}
             <div className={styles.formGroup}>
               <label htmlFor="email">E-mail</label>
               <input
@@ -104,7 +158,6 @@ export default function Register() {
               />
             </div>
 
-            {/* Telefone */}
             <div className={styles.formGroup}>
               <label htmlFor="phone">Telefone</label>
               <input
@@ -116,7 +169,6 @@ export default function Register() {
               />
             </div>
 
-            {/* Senha */}
             <div className={styles.formGroup}>
               <label htmlFor="password">Senha</label>
               <input
@@ -128,7 +180,6 @@ export default function Register() {
               />
             </div>
 
-            {/* Confirmar senha */}
             <div className={styles.formGroup}>
               <label htmlFor="confirmPassword">Confirmar senha</label>
               <input
@@ -146,17 +197,17 @@ export default function Register() {
           </form>
 
           {message.text && (
-            <p
+            <div
               className={
                 message.type === 'error'
-                  ? styles.errorText
-                  : message.type === 'success'
-                  ? styles.successText
-                  : ''
+                  ? styles.errorText // vermelho
+                  : styles.successText // verde
               }
             >
-              {message.text}
-            </p>
+              {message.text.split('\n').map((line, i) => (
+                <p key={i}>{line}</p>
+              ))}
+            </div>
           )}
 
           <p className={styles.loginLink}>
