@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './Register.module.css';
 import { registerUser } from '../../../services/userApi';
@@ -39,6 +39,17 @@ export default function Register() {
         'A senha deve ter pelo menos uma letra maiúscula (A-Z).'
       );
   }
+
+  // Prefetch para rotas comuns
+  useEffect(() => {
+    // pré-carrega a tela de login
+    if (typeof window !== 'undefined') {
+      import('next/navigation').then(({ useRouter }) => {
+        const router = useRouter();
+        router.prefetch('/auth/login');
+      });
+    }
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -97,7 +108,7 @@ export default function Register() {
         // não era JSON válido, segue como string
       }
 
-      // separa mensagens por linhas ou "|"
+      // separa por linhas ou por "|"
       let mensagens = errorText
         .split(/\r?\n|\|/g)
         .map((m) => traduzirMensagem(m.trim()))
@@ -200,8 +211,8 @@ export default function Register() {
             <div
               className={
                 message.type === 'error'
-                  ? styles.errorText // vermelho
-                  : styles.successText // verde
+                  ? styles.errorText
+                  : styles.successText
               }
             >
               {message.text.split('\n').map((line, i) => (
