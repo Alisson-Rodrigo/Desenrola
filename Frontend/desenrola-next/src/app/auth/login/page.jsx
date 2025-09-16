@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import styles from './login.module.css';
 import { login } from '../../../services/authApi';
 
@@ -14,15 +13,8 @@ export default function LoginPage() {
 
   function handleChange(e) {
     const { id, value } = e.target;
-    setForm((prev) => ({ ...prev, [id]: value }));
+    setForm(prev => ({ ...prev, [id]: value }));
   }
-
-  // Prefetch para rotas mais usadas
-  useEffect(() => {
-    router.prefetch('/auth/register');
-    router.prefetch('/auth/recoverpass');
-    router.prefetch('/');
-  }, [router]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -40,36 +32,16 @@ export default function LoginPage() {
         password: form.password,
       });
 
-      // Armazena token (ideal: httpOnly cookie via backend)
+      // Armazena token (alternativa mais segura: cookie httpOnly via backend)
       localStorage.setItem('auth_token', token);
       if (user) localStorage.setItem('auth_user', JSON.stringify(user));
 
       setMessage({ type: 'success', text: 'Login realizado com sucesso!' });
 
-      // Agora já está pré-carregado
-      router.push('/');
+      // Redireciona (ajuste o destino conforme sua app)
+      router.push('/'); 
     } catch (err) {
-      let errorText = 'Erro ao autenticar.';
-
-      if (err?.response?.data?.message) {
-        errorText = err.response.data.message;
-      } else if (typeof err?.response?.data === 'string') {
-        errorText = err.response.data;
-      } else if (err.message) {
-        errorText = err.message;
-      }
-
-      // Se vier JSON {"message":"..."} → extrai só o texto
-      try {
-        const parsed = JSON.parse(errorText);
-        if (parsed?.message) {
-          errorText = parsed.message;
-        }
-      } catch (_) {
-        // não era JSON válido
-      }
-
-      setMessage({ type: 'error', text: errorText });
+      setMessage({ type: 'error', text: err.message || 'Erro ao autenticar.' });
     } finally {
       setLoading(false);
     }
@@ -88,9 +60,7 @@ export default function LoginPage() {
       {/* Painel Direito (Formulário) */}
       <div className={styles.rightPanel}>
         <div className={styles.loginCard}>
-          <h2>
-            Entrar <span className={styles.welcomeEmoji}>👋</span>
-          </h2>
+          <h2>Entrar <span className={styles.welcomeEmoji}>👋</span></h2>
 
           <form onSubmit={handleSubmit} noValidate>
             <div className={styles.formGroup}>
@@ -109,9 +79,9 @@ export default function LoginPage() {
             <div className={styles.formGroup}>
               <div className={styles.labelWrapper}>
                 <label htmlFor="password">Senha</label>
-                <Link className={styles.forgotPassword} href="/auth/recoverpass">
+                <a className={styles.forgotPassword} href="/auth/recoverpass">
                   Esqueci a senha
-                </Link>
+                </a>
               </div>
               <input
                 id="password"
@@ -134,7 +104,6 @@ export default function LoginPage() {
                   marginTop: 12,
                   fontSize: '.95rem',
                   color: message.type === 'error' ? '#b91c1c' : '#065f46',
-                  whiteSpace: 'pre-line', // permite múltiplas linhas
                 }}
               >
                 {message.text}
@@ -143,7 +112,7 @@ export default function LoginPage() {
           </form>
 
           <div className={styles.signupLink}>
-            Novo por aqui? <Link href="/auth/register">Criar conta</Link>
+            Novo por aqui? <a href="/auth/register">Criar conta</a>
           </div>
         </div>
       </div>
