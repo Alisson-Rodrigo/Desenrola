@@ -26,5 +26,14 @@ namespace Desenrola.Persistence.Repositories
             return await _context.Set<Provider>()
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
+
+        public IQueryable<Provider> QueryAllWithIncludes()
+        {
+            return _context.Set<Provider>()
+                .Include(p => p.User)       // inclui o User (se precisar do nome/email do usuário)
+                .Include(p => p.Services)   // inclui os serviços do prestador
+                .AsNoTracking()
+                .AsQueryable();
+        }
     }
 }
