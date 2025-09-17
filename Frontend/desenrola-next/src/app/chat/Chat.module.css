@@ -1,0 +1,250 @@
+/* src/app/styles/Chat.module.css */
+
+/* --- SUA NOVA PALETA DE CORES --- */
+:root {
+  --primary-green: #00A988;
+  --sent-bubble-bg: #D8F3E9;
+  --received-bubble-bg: #EFF2EF;
+  --panel-background: #EFF2EF;
+  --app-background: #F8FCF8;
+  --border-gray: #E1E4E1;
+  --text-primary: #1A1D1A;
+  --text-secondary: #6A6F6A;
+  --white: #ffffff;
+}
+
+.chatContainer {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--app-background);
+}
+
+.contactList {
+  width: 350px;
+  border-right: 1px solid var(--border-gray);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  background-color: var(--white);
+}
+
+.contactHeader {
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--panel-background);
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.contactHeader h2 {
+  font-size: 20px;
+  color: var(--text-primary);
+}
+
+.contactHeader svg {
+  font-size: 22px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.searchBar {
+  padding: 8px 12px;
+  background-color: var(--panel-background);
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.searchBar input {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--white);
+  outline: none;
+  color: var(--text-primary);
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  cursor: pointer;
+  gap: 15px;
+}
+
+.contactItem.active {
+  background-color: var(--panel-background);
+}
+
+.contactItem:hover {
+  background-color: var(--panel-background);
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.contactInfo {
+  flex-grow: 1;
+  overflow: hidden;
+}
+
+.contactInfoTop {
+  display: flex;
+  justify-content: space-between;
+}
+
+.contactInfoTop h3 {
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.contactInfoTop span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.contactInfo p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chatWindow {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--app-background);
+}
+
+.chatHeader {
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: var(--panel-background);
+  border-bottom: 1px solid var(--border-gray);
+}
+
+.chatHeaderInfo h3 {
+  font-size: 16px;
+  color: var(--text-primary);
+}
+
+.chatHeaderInfo p {
+  font-size: 13px;
+  color: var(--primary-green); /* Status "Online" agora usa a cor de acento */
+}
+
+.messagesContainer {
+  flex-grow: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.messageWrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 70%;
+}
+
+.receivedWrapper {
+  align-self: flex-start;
+}
+
+.sentWrapper {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.messageBubble {
+  padding: 8px 12px;
+  border-radius: 8px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  position: relative;
+  color: var(--text-primary);
+}
+
+.receivedWrapper .messageBubble {
+  background-color: var(--received-bubble-bg);
+}
+
+.sentWrapper .messageBubble {
+  background-color: var(--sent-bubble-bg);
+}
+
+/* --- PONTINHAS (TAILS) COM AS NOVAS CORES --- */
+.messageBubble::before {
+  content: "";
+  position: absolute;
+  bottom: 0px;
+  height: 20px;
+}
+
+.receivedWrapper .messageBubble::before {
+  left: -8px;
+  width: 20px;
+  background-color: var(--received-bubble-bg);
+  clip-path: path("M0 20L20 0L20 20L0 20Z");
+}
+
+.sentWrapper .messageBubble::before {
+  right: -8px;
+  width: 20px;
+  background-color: var(--sent-bubble-bg);
+  clip-path: path("M0 0L20 20L0 20L0 0Z");
+}
+
+.messageSenderAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.inputArea {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: var(--panel-background);
+  gap: 15px;
+}
+
+.inputArea svg {
+  font-size: 24px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.inputArea input {
+  flex-grow: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  font-size: 15px;
+  background-color: var(--white);
+  color: var(--text-primary);
+}
+
+.sendButton {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
