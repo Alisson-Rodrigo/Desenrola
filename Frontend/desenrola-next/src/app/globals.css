@@ -47,3 +47,107 @@ a {
 ::-webkit-scrollbar-thumb:hover {
   background: #38a169;
 }
+
+
+.home-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 1rem; /* espaçamento vertical */
+}
+
+.home-title {
+  font-size: 2.5rem; /* ~40px */
+  font-weight: bold;
+  color: #166534; /* verde escuro */
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .home-title {
+    font-size: 3rem; /* aumenta em telas médias */
+  }
+}
+
+.home-subtitle {
+  font-size: 1.25rem; /* ~20px */
+  color: #15803d; /* verde médio */
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 9999px; /* arredondado */
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  margin-top: 1rem;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  color: #374151;
+  padding: 0.5rem;
+}
+
+.search-input::placeholder {
+  color: #9ca3af; /* cinza claro */
+}
+
+.search-button {
+  background: #16a34a; /* verde */
+  border: none;
+  color: #fff;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.search-button:hover {
+  background: #15803d; /* verde mais escuro */
+}
+
+.login-overlay {
+  position: absolute;
+  inset: 0; /* ocupa a tela inteira */
+  background-color: rgba(0, 0, 0, 0.6); /* fundo escuro translúcido */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff; /* texto branco */
+  z-index: 50;
+  text-align: center;
+  padding: 1rem;
+}
+
+.login-overlay p {
+  font-size: 1.125rem; /* ~18px */
+  margin-bottom: 1rem;
+}
+
+.login-overlay button {
+  background-color: #16a34a; /* verde */
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.login-overlay button:hover {
+  background-color: #15803d; /* verde mais escuro */
+}
