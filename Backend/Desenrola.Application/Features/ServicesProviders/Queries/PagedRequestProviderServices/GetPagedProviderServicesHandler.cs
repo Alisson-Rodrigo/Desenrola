@@ -38,7 +38,7 @@ namespace Desenrola.Application.Features.ServicesProviders.Queries.PagedRequestP
 
             // ✅ usa ToListAsync
             var items = await query
-                .OrderByDescending(s => s.CreatedAt)
+                .OrderByDescending(s => s.CreatedOn)
                 .Skip((request.Page - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .Select(s => new ProviderServiceResult(s))

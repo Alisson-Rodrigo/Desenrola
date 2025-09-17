@@ -1,10 +1,11 @@
-﻿using Desenrola.Domain.Enums;
+﻿using Desenrola.Domain.Abstract;
+using Desenrola.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Desenrola.Domain.Entities
 {
-    public class ProviderService
+    public class ProviderService : BaseEntity
     {
 
         // FK para Provider

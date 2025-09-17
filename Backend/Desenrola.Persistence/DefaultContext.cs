@@ -92,7 +92,7 @@ namespace Desenrola.Persistence
                 entity.Property(s => s.IsAvailable)
                       .HasDefaultValue(true);
 
-                entity.Property(s => s.CreatedAt)
+                entity.Property(s => s.CreatedOn)
                       .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
             });
 
