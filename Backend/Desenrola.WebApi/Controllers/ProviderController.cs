@@ -66,7 +66,7 @@ namespace Desenrola.WebApi.Controllers
         [Authorize(Roles = "Admin")]
         [HttpGet("pending")]
         [ProducesResponseType(typeof(PagedResultPendingProviders), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetPendingProviders([FromQuery] PagedRequestPendingProviders request)
+        public async Task<IActionResult> GetPendingProviders([FromForm] PagedRequestPendingProviders request)
         {
             var result = await _mediator.Send(request);
             return Ok(result);
@@ -76,7 +76,7 @@ namespace Desenrola.WebApi.Controllers
         [HttpGet("profile/specify")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetProviderProfile(GetProviderProfileByIdQuery request)
+        public async Task<IActionResult> GetProviderProfile([FromForm]GetProviderProfileByIdQuery request)
         {
             var result = await _mediator.Send(request);
             return Ok(result);
