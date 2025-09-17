@@ -3,7 +3,7 @@ namespace Desenrola.Application.Contracts.Persistance.Repositories
 {
     public interface IProviderRepository : IBaseRepository<Provider>
     {
-        public Task<Provider?> GetByUserIdAsync(string userId);
+        Task<List<Provider>> GetByUserIdAsync(string userId);
 
         Task<Provider?> GetByIdAsync(Guid id);
 
