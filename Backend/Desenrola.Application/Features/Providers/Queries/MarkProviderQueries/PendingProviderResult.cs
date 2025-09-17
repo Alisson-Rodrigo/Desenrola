@@ -14,6 +14,10 @@ namespace Desenrola.Application.Features.Providers.Queries.MarkProviderQueries
         public string RG { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public List<string> ImageDocuments { get; set; }
+
+        public DateTime DateCreated { get; set; }
         public bool IsActive { get; set; }
         public bool IsVerified { get; set; }
 
@@ -23,6 +27,9 @@ namespace Desenrola.Application.Features.Providers.Queries.MarkProviderQueries
             Id = provider.Id;
             CPF = provider.CPF;
             RG = provider.RG;
+            Name = provider.ServiceName;
+            ImageDocuments = provider.DocumentPhotoUrl;
+            DateCreated = provider.CreatedOn;
             Address = provider.Address;
             PhoneNumber = provider.PhoneNumber;
             IsActive = provider.IsActive;
