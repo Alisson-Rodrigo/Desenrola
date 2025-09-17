@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <Folder Include="Features\Providers\Queries\" />
+    <Folder Include="Features\ServicesProviders\Commands\" />
+    <Folder Include="Features\ServicesProviders\Queries\" />
   </ItemGroup>
 
 </Project>

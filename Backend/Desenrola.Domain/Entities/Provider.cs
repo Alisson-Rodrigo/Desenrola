@@ -26,6 +26,9 @@ namespace Desenrola.Domain.Entities
         public bool IsActive { get; set; } = true;
         public bool IsVerified { get; set; } = false; // verificação de documentos
 
+        public virtual List<ProviderService> Services { get; set; } = new();
+
+
 
         // Navegação
         public virtual User User { get; set; } = null!;

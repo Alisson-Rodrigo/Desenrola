@@ -10,13 +10,16 @@ namespace Desenrola.Persistence
 
         // Tabelas do domínio
         public DbSet<Provider> Providers => Set<Provider>();
+        public DbSet<ProviderService> ProviderServices => Set<ProviderService>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             // Extensão útil para UUID em outras entidades (Postgres)
             builder.HasPostgresExtension("uuid-ossp");
 
+            // --------------------------
             // Mapeamento do Provider
+            // --------------------------
             builder.Entity<Provider>(entity =>
             {
                 entity.HasKey(p => p.Id);
@@ -36,9 +39,8 @@ namespace Desenrola.Persistence
                       .IsRequired();
 
                 entity.Property(p => p.DocumentPhotoUrl)
-                      .HasColumnType("text[]")   // 👈 força o tipo Postgres
+                      .HasColumnType("text[]")   // Postgres array de strings
                       .IsRequired();
-
 
                 entity.Property(p => p.Address)
                       .IsRequired();
@@ -49,6 +51,49 @@ namespace Desenrola.Persistence
                       .HasForeignKey<Provider>(p => p.UserId)
                       .HasPrincipalKey<User>(u => u.Id)
                       .OnDelete(DeleteBehavior.Restrict);
+
+                // Relacionamento 1:N Provider -> ProviderServices
+                entity.HasMany(p => p.Services)
+                      .WithOne(s => s.Provider)
+                      .HasForeignKey(s => s.ProviderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // --------------------------
+            // Mapeamento do ProviderService
+            // --------------------------
+            builder.Entity<ProviderService>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                entity.Property(s => s.Id)
+                      .HasDefaultValueSql("uuid_generate_v4()");
+
+                entity.Property(s => s.Title)
+                      .HasMaxLength(100)
+                      .IsRequired();
+
+                entity.Property(s => s.Description)
+                      .HasMaxLength(500)
+                      .IsRequired();
+
+                entity.Property(s => s.Price)
+                      .HasColumnType("decimal(10,2)");
+
+                entity.Property(s => s.ImageUrls)
+                      .HasColumnType("text[]");
+
+                entity.Property(s => s.Category)
+                      .IsRequired();
+
+                entity.Property(s => s.IsActive)
+                      .HasDefaultValue(true);
+
+                entity.Property(s => s.IsAvailable)
+                      .HasDefaultValue(true);
+
+                entity.Property(s => s.CreatedAt)
+                      .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
             });
 
             // Aplica configurações adicionais se houver
