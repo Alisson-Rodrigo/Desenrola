@@ -1,6 +1,5 @@
-using Desenrola.Application.Contracts.Persistance.Repositories;
 using Desenrola.Domain.Entities;
-namespace Desenrola.Application.Contracts.Persistence.Repositories
+namespace Desenrola.Application.Contracts.Persistance.Repositories
 {
     public interface IProviderRepository : IBaseRepository<Provider>
     {

@@ -1,6 +1,5 @@
 ﻿using Desenrola.Application.Contracts.Infrastructure;
 using Desenrola.Application.Contracts.Persistance.Repositories;
-using Desenrola.Application.Contracts.Persistence.Repositories;
 using Desenrola.Domain.Entities;
 using Desenrola.Infrastructure.Abstractions;
 using Desenrola.Persistence;
