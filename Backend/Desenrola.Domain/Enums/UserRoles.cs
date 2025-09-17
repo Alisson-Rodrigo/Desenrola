@@ -6,4 +6,6 @@ public enum UserRoles {
     Admin = 0,
     [Description("Customer")]
     Customer = 1,
+    [Description("Provider")]
+    Provider = 2,
 }

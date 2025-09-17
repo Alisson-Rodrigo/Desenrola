@@ -18,7 +18,7 @@ namespace Desenrola.WebApi.Controllers
             _mediator = mediator;
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Provider")]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -29,7 +29,7 @@ namespace Desenrola.WebApi.Controllers
         }
 
         // 🔹 Atualizar serviço
-        [Authorize]
+        [Authorize(Roles = "Admin, Provider")]
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -40,7 +40,7 @@ namespace Desenrola.WebApi.Controllers
             return Ok(response);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Provider")]
         [HttpDelete]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -50,6 +50,7 @@ namespace Desenrola.WebApi.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "Customer, Admin, Provider")]
         [Authorize]
         [HttpGet("paged")]
         [ProducesResponseType(typeof(PagedResultProviderServices), StatusCodes.Status200OK)]
