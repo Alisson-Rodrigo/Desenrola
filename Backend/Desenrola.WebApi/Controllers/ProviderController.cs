@@ -3,6 +3,7 @@ using Desenrola.Application.Features.Providers.Commands.DeleteProviderCommand;
 using Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCcommad;
 using Desenrola.Application.Features.Providers.Commands.UpdateProvider;
 using Desenrola.Application.Features.Providers.Queries.MarkProviderQueries;
+using Desenrola.Application.Features.ServicesProviders.Commands.UpdateServiceProviderCommand;
 using Desenrola.Application.Features.User.Commands.CreateUserCommand;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -69,5 +70,6 @@ namespace Desenrola.WebApi.Controllers
             var result = await _mediator.Send(request);
             return Ok(result);
         }
+
     }
 }

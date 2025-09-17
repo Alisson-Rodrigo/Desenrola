@@ -16,5 +16,10 @@ namespace Desenrola.Persistence.Repositories
         {
             _context = context;
         }
+
+        public async Task<ProviderService?> GetByIdAsync(Guid id)
+        {
+            return await _context.ProviderServices.FindAsync(id);
+        }
     }
 }
