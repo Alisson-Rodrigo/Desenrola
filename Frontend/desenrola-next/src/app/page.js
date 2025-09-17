@@ -1,48 +1,67 @@
 'use client';
 
+import { useState } from 'react';
 import Navbar from '../components/Navbar';
 import { withAuth } from '../hooks/withAuth';
 import { useRouter } from 'next/navigation';
+import { Search } from 'lucide-react'; // ícone da lupa
 
 function HomePage({ hasToken }) {
   const router = useRouter();
+  const [query, setQuery] = useState('');
+  const [showOverlay, setShowOverlay] = useState(false); // controla overlay
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+
+    if (!hasToken) {
+      // só mostra a mensagem quando tentar interagir
+      setShowOverlay(true);
+      return;
+    }
+
+    console.log('Buscando categoria:', query);
+    // futuramente: fetch(`/api/servicos?categoria=${query}`)
+  };
+
+  const handleInputChange = (e) => {
+    if (!hasToken) {
+      setShowOverlay(true);
+      return;
+    }
+    setQuery(e.target.value);
+  };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className="relative min-h-screen bg-gray-50">
       <Navbar />
 
-      <main style={{ padding: "2rem" }}>
-        <h1>Bem-vindo à Home</h1>
-        <p>Este conteúdo é visível, mas só interativo se você estiver logado.</p>
-      </main>
+      <section className="home-section">
+        <h1 className="home-title">Encontre o serviço que você precisa</h1>
+        <p className="home-subtitle">
+          Conectando você aos melhores profissionais de Picos-PI com qualidade e confiança
+        </p>
 
-      {!hasToken && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundColor: "rgba(0,0,0,0.6)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            zIndex: 50,
-          }}
-        >
-          <p style={{ fontSize: "18px", marginBottom: "12px" }}>
-            Você precisa estar logado para interagir.
-          </p>
-          <button
-            onClick={() => router.push("/auth/login")}
-            style={{
-              padding: "8px 16px",
-              backgroundColor: "#10b981",
-              borderRadius: "6px",
-              fontWeight: "bold",
-              cursor: "pointer",
-            }}
-          >
+        {/* Barra de busca */}
+        <form onSubmit={handleSearch} className="search-bar">
+          <input
+            type="text"
+            placeholder="Buscar por categoria (Ex: elétrica, pintura...) ou prestador"
+            value={query}
+            onChange={handleInputChange}
+            className="search-input"
+          />
+          <button type="submit" className="search-button">
+            <Search size={20} />
+          </button>
+        </form>
+      </section>
+
+      {/* Overlay só aparece quando o usuário tenta interagir sem login */}
+      {showOverlay && !hasToken && (
+        <div className="login-overlay">
+          <p>Você precisa estar logado para interagir.</p>
+          <button onClick={() => router.push('/auth/login')}>
             Ir para Login
           </button>
         </div>
