@@ -1,5 +1,5 @@
 ﻿using Desenrola.Application.Contracts.Application;
-using Desenrola.Application.Contracts.Persistence.Repositories;
+using Desenrola.Application.Contracts.Persistance.Repositories;
 using MediatR;
 
 namespace Desenrola.Application.Features.Providers.Commands.DeleteProviderCommand

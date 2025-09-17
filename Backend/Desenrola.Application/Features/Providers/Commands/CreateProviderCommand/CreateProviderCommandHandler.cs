@@ -1,11 +1,11 @@
 using Desenrola.Application.Contracts.Application;
-using Desenrola.Application.Contracts.Persistence.Repositories;
 using Desenrola.Domain.Entities;
 using Desenrola.Domain.Exception;
 using MediatR;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Webp;
-using Microsoft.AspNetCore.Hosting; // precisa importar
+using Microsoft.AspNetCore.Hosting;
+using Desenrola.Application.Contracts.Persistance.Repositories; // precisa importar
 
 namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
 {
