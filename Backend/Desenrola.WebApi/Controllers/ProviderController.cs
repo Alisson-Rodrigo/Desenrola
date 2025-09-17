@@ -1,5 +1,6 @@
 ﻿using Desenrola.Application.Features.Providers.Commands.CreateProvider;
 using Desenrola.Application.Features.Providers.Commands.DeleteProviderCommand;
+using Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCcommad;
 using Desenrola.Application.Features.Providers.Commands.UpdateProvider;
 using Desenrola.Application.Features.User.Commands.CreateUserCommand;
 using MediatR;
@@ -43,6 +44,17 @@ namespace Desenrola.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteProvider([FromForm] DeleteProviderCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
+        }
+
+        [Authorize(Roles = "Admin")] // 👈 apenas admin pode verificar
+        [HttpPost("mark-provider")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> VerifyProvider(MarkProviderVerifyCommand request)
         {
             await _mediator.Send(request);
             return NoContent();
