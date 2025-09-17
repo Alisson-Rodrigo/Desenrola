@@ -43,14 +43,14 @@
 .textarea:focus,
 .select:focus {
   outline: none;
-  border-color: #f97316; /* orange-500 */
+  border-color: #000000; /* orange-500 */
   background-color: #fff;
   box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.3);
 }
 
 .button {
-  background-color: #ea580c; /* orange-600 */
-  color: #fff;
+  background-color: #16a34a;/* orange-600 */
+  color: #000000;
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 8px;
@@ -61,12 +61,13 @@
 }
 
 .button:hover {
-  background-color: #c2410c; /* orange-700 */
+  background-color: #15803d; /* orange-700 */
 }
 
 .aviso {
   background-color: #fef9c3; /* amarelo claro */
-  color: #92400e; /* marrom escuro */
+  color: #ffffff; /* marrom escuro */
+  background: linear-gradient(135deg, #16a34a, #15803d);
   padding: 1rem;
   border-radius: 8px;
   text-align: center;
