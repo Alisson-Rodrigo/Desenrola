@@ -4,22 +4,21 @@ FROM node:20-alpine
 # Evita problemas de fuso/locale em logs
 ENV TZ=America/Fortaleza
 
-# Define pasta de trabalho
+# Dependências extras que ajudam no hot reload / Turbopack
+RUN apk add --no-cache libc6-compat bash git curl python3 make g++
+
+# Pasta de trabalho
 WORKDIR /app
 
-# Copiar apenas arquivos de dependências (para cache mais eficiente)
+# Copia só dependências primeiro
 COPY package*.json ./
 
-# Instalar dependências (respeitando lockfile se existir)
-RUN npm install --frozen-lockfile || npm install
+# Instala dependências
+RUN npm install
 
-# Variáveis padrão para o Next.js
+# Variáveis padrão
 ENV HOST=0.0.0.0
 ENV PORT=3000
 EXPOSE 3000
 
-# Em dev, o código será montado via volume no docker-compose,
-# então não copiamos o restante aqui.
-
-# Iniciar o servidor Next em modo dev
-CMD ["npm", "run", "dev"]
+# Em dev, o código é montado via volume
