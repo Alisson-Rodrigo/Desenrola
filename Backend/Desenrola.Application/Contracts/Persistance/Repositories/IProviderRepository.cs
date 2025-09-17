@@ -7,5 +7,8 @@ namespace Desenrola.Application.Contracts.Persistance.Repositories
 
         Task<Provider?> GetByIdAsync(Guid id);
 
+        public IQueryable<Provider> QueryAllWithIncludes();
+
+
     }
 }

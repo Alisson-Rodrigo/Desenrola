@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Providers\Queries\" />
     <Folder Include="Features\ServicesProviders\Queries\" />
   </ItemGroup>
 
