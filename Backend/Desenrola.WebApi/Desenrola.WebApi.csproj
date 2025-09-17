@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\imagens\providers\documents\" />
+    <Folder Include="wwwroot\imagens\providers\services\" />
   </ItemGroup>
 
 </Project>

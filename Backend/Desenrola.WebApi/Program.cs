@@ -116,11 +116,12 @@ public class Program {
         {
             options.AddPolicy("AdminOnly", policy =>
                 policy.RequireRole("Admin"));
-
             options.AddPolicy("UserOnly", policy =>
                 policy.RequireRole("User"));
             options.AddPolicy("CustomerOnly", policy =>
                 policy.RequireRole("Customer"));
+            options.AddPolicy("ProviderOnly", policy =>
+                policy.RequireRole("Provider"));
         });
 
         // Add Mediatr to program
@@ -144,8 +145,6 @@ public class Program {
 
             });
         });
-
-
 
         var app = builder.Build();
 

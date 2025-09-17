@@ -17,7 +17,7 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
         private readonly IWebHostEnvironment _env;
 
         // URL pública base (ajuste porta se necessário)
-        private readonly string _publicBaseUrl = "https://localhost:7014/imagens/providers";
+        private readonly string _publicBaseUrl = "https://localhost:7014/imagens/providers/documents/";
 
         public CreateProviderCommandHandler(
             IProviderRepository providerRepository,
