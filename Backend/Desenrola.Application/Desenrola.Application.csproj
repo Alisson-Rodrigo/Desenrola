@@ -21,4 +21,8 @@
     <ProjectReference Include="..\Desenrola.Domain\Desenrola.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Providers\Queries\" />
+  </ItemGroup>
+
 </Project>
