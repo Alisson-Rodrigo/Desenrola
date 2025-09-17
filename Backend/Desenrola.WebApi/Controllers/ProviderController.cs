@@ -66,7 +66,7 @@ namespace Desenrola.WebApi.Controllers
         [Authorize(Roles = "Admin")]
         [HttpGet("pending")]
         [ProducesResponseType(typeof(PagedResultPendingProviders), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetPendingProviders([FromForm] PagedRequestPendingProviders request)
+        public async Task<IActionResult> GetPendingProviders([FromQuery] PagedRequestPendingProviders request)
         {
             var result = await _mediator.Send(request);
             return Ok(result);
