@@ -20,19 +20,19 @@ namespace Desenrola.WebApi.Controllers
     {
         private readonly IMediator _mediator = mediator;
 
-        [Authorize]
+        [Authorize(Roles = "Customer, Admin, Provider")]
         [HttpPost]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateProvider([FromForm] CreateProviderCommand request)
         {
             Guid response = await _mediator.Send(request);
             return Ok(response);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Provider")]
         [HttpPut]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateProvider([FromForm] UpdateProviderCommand request)
@@ -42,7 +42,7 @@ namespace Desenrola.WebApi.Controllers
 
         }
 
-        [Authorize]
+        [Authorize(Roles = "Admin, Provider")]
         [HttpDelete]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -52,7 +52,7 @@ namespace Desenrola.WebApi.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Admin")] // 👈 apenas admin pode verificar
+        [Authorize(Roles = "Admin")]
         [HttpPost("mark-provider")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -72,7 +72,7 @@ namespace Desenrola.WebApi.Controllers
             return Ok(result);
         }
 
-        [Authorize]
+        [Authorize(Roles = "Customer, Admin, Provider")]
         [HttpGet("profile/specify")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

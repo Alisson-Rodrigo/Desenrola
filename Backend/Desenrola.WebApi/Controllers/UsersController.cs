@@ -24,7 +24,7 @@ public class UsersController(IMediator mediator) : Controller {
         return Created(HttpContext.Request.GetDisplayUrl(), response);
     }
 
-    [Authorize(Roles = "Customer, Admin")]
+    [Authorize(Roles = "Customer, Admin, Provider")]
     [HttpPut]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -34,7 +34,7 @@ public class UsersController(IMediator mediator) : Controller {
         return NoContent();
     }
 
-    [Authorize(Roles = "Customer, Admin")]
+    [Authorize(Roles = "Customer, Admin, Provider")]
     [HttpDelete]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -45,7 +45,7 @@ public class UsersController(IMediator mediator) : Controller {
         return NoContent();
     }
 
-    [Authorize(Roles = "Customer, Admin")]
+    [Authorize(Roles = "Customer, Admin, Provider")]
     [HttpGet]
     [Route("{id}")]
     [ProducesResponseType(typeof(GetByIdResultQueries), StatusCodes.Status200OK)]
@@ -61,7 +61,7 @@ public class UsersController(IMediator mediator) : Controller {
         return Ok(result);
     }
 
-    [Authorize(Roles = "Customer, Admin")]
+    [Authorize(Roles = "Customer, Admin, Provider")]
     [HttpGet("profile")]
     [ProducesResponseType(typeof(string), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetIdUserLogged()
