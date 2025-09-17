@@ -1,5 +1,6 @@
 ﻿using Desenrola.Application.Features.ServicesProviders.Commands.CreateServiceProviderCommand;
 using Desenrola.Application.Features.ServicesProviders.Commands.UpdateServiceProviderCommand;
+using Desenrola.Application.Features.ServicesProviders.Queries.PagedRequestProviderServices;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,6 +48,15 @@ namespace Desenrola.WebApi.Controllers
         {
             await _mediator.Send(request);
             return NoContent();
+        }
+
+        [Authorize]
+        [HttpGet("paged")]
+        [ProducesResponseType(typeof(PagedResultProviderServices), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPagedServices([FromQuery] PagedRequestProviderServices request)
+        {
+            var result = await _mediator.Send(request);
+            return Ok(result);
         }
 
     }
