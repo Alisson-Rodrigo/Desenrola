@@ -1,17 +1,27 @@
 ﻿using Desenrola.Application.Contracts.Persistance.Repositories;
 using Desenrola.Domain.Exception;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 
+// 👇 resolve ambiguidade
+using DomainUser = Desenrola.Domain.Entities.User;
 
 namespace Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCcommad
 {
     public class MarkProviderVerifyCommandHandler : IRequestHandler<MarkProviderVerifyCommand, Unit>
     {
         private readonly IProviderRepository _providerRepository;
+        private readonly IUserRepository _userRepository;
+        private readonly UserManager<DomainUser> _userManager;
 
-        public MarkProviderVerifyCommandHandler(IProviderRepository providerRepository)
+        public MarkProviderVerifyCommandHandler(
+            IProviderRepository providerRepository,
+            IUserRepository userRepository,
+            UserManager<DomainUser> userManager)
         {
             _providerRepository = providerRepository;
+            _userRepository = userRepository;
+            _userManager = userManager;
         }
 
         public async Task<Unit> Handle(MarkProviderVerifyCommand request, CancellationToken cancellationToken)
@@ -25,15 +35,30 @@ namespace Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCc
             var provider = await _providerRepository.GetByIdAsync(request.Id);
 
             if (provider == null)
-                throw new BadRequestException($"Prestador não foi encontrado.");
+                throw new BadRequestException("Prestador não foi encontrado.");
 
             if (provider.IsVerified)
                 throw new BadRequestException("Prestador já está verificado.");
 
+            // ✅ Marca como verificado
             provider.IsVerified = true;
-            provider.IsActive = true; // opcional: ativa automaticamente ao verificar
+            provider.IsActive = true;
 
             await _providerRepository.Update(provider);
+
+            // ✅ Atualiza role do usuário
+            var user = await _userRepository.GetById(provider.UserId);
+            if (user == null)
+                throw new BadRequestException("Usuário não encontrado para este prestador.");
+
+            // Verifica se já tem a role
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Contains("Provider"))
+            {
+                var result = await _userManager.AddToRoleAsync(user, "Provider");
+                if (!result.Succeeded)
+                    throw new BadRequestException("Erro ao adicionar role Provider ao usuário.");
+            }
 
             return Unit.Value;
         }
