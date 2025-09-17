@@ -2,6 +2,7 @@
 using Desenrola.Application.Features.Providers.Commands.DeleteProviderCommand;
 using Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCcommad;
 using Desenrola.Application.Features.Providers.Commands.UpdateProvider;
+using Desenrola.Application.Features.Providers.Queries.GetProviderProfileByIdQueries;
 using Desenrola.Application.Features.Providers.Queries.MarkProviderQueries;
 using Desenrola.Application.Features.ServicesProviders.Commands.UpdateServiceProviderCommand;
 using Desenrola.Application.Features.User.Commands.CreateUserCommand;
@@ -66,6 +67,16 @@ namespace Desenrola.WebApi.Controllers
         [HttpGet("pending")]
         [ProducesResponseType(typeof(PagedResultPendingProviders), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPendingProviders([FromQuery] PagedRequestPendingProviders request)
+        {
+            var result = await _mediator.Send(request);
+            return Ok(result);
+        }
+
+        [Authorize]
+        [HttpGet("profile/specify")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetProviderProfile(GetProviderProfileByIdQuery request)
         {
             var result = await _mediator.Send(request);
             return Ok(result);

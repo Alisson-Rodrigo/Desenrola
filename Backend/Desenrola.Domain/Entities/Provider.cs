@@ -30,7 +30,7 @@ namespace Desenrola.Domain.Entities
 
 
 
-        // Navegação
+        // Navegaçãoacc
         public virtual User User { get; set; } = null!;
     }
 }
