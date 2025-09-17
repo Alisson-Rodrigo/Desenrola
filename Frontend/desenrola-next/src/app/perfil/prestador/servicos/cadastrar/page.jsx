@@ -4,6 +4,40 @@ import { useState } from 'react';
 import Navbar from '../../../../../components/Navbar';
 import styles from "./CadastrarServico.module.css";
 
+
+/**
+CadastrarServico - Página de cadastro de novos serviços.
+
+permite que o usuário cadastre um serviço preenchendo título, descrição, preço,
+categoria, disponibilidade e opcionalmente uma foto ilustrativa. 
+Valida o formato da imagem e mostra uma pré-visualização antes do envio.
+
+O que faz:
+- Mostra um formulário para cadastro de serviço.
+- Permite enviar título, descrição, preço, categoria, disponibilidade e uma foto.
+- Faz validação do tipo de imagem (somente JPG, JPEG, PNG, GIF).
+- Exibe mensagens de sucesso ou erro durante o processo.
+- Limpa o formulário e remove a pré-visualização após envio.
+
+Estados internos:
+- form (objeto): armazena os dados do serviço (titulo, descricao, preco, categoria, disponibilidade, foto).
+- mensagem (string): mostra feedback de erro ou sucesso para o usuário.
+- preview (string|null): armazena a URL da pré-visualização da imagem.
+
+Funções principais:
+- handleChange: atualiza o estado do formulário e valida arquivos de imagem.
+- handleSubmit: processa o envio do formulário, exibe mensagem de sucesso e limpa os campos.
+
+Dependências:
+- Navbar: componente de navegação superior.
+- styles (CSS Module): estilização da página.
+
+
+*/
+
+
+
+
 export default function CadastrarServico() {
   const [form, setForm] = useState({
     titulo: '',
