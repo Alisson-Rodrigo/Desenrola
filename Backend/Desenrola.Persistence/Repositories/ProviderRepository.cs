@@ -13,13 +13,12 @@ namespace Desenrola.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<List<Provider>> GetByUserIdAsync(string userId)
+        public async Task<Provider?> GetByUserIdAsync(string userId)
         {
-            return await _context.Set<Provider>()
-                .Where(p => p.UserId == userId)
-                .AsNoTracking()
-                .ToListAsync();
+            return await _context.Providers
+                .FirstOrDefaultAsync(p => p.UserId == userId);
         }
+
 
         public async Task<Provider?> GetByIdAsync(Guid id)
         {
