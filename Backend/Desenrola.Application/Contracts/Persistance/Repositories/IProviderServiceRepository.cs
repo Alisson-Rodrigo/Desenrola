@@ -9,5 +9,7 @@ namespace Desenrola.Application.Contracts.Persistance.Repositories
 {
     public interface IProviderServiceRepository : IBaseRepository<ProviderService>
     {
+        public Task<ProviderService?> GetByIdAsync(Guid id);
+
     }
 }
