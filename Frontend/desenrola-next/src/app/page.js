@@ -6,6 +6,36 @@ import { withAuth } from '../hooks/withAuth';
 import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react'; // ícone da lupa
 
+/**
+Index - Página inicial do sistema.
+
+mostra a tela principal onde o usuário pode buscar serviços ou prestadores.
+Se o usuário não estiver logado, aparece uma sobreposição (overlay) pedindo para fazer login.
+
+O que faz:
+- Mostra o título e subtítulo da página inicial.
+- Renderiza a Navbar no topo.
+- Exibe uma barra de busca por categoria ou prestador.
+  - Se o usuário não estiver logado, aparece o aviso de login.
+  - Se estiver logado, pode digitar e buscar normalmente.
+- Exibe um botão que leva o usuário para a página de login quando necessário.
+
+Propriedades (Props):
+- hasToken (boolean): indica se o usuário está autenticado.
+
+Estados internos:
+- showOverlay (boolean): controla a exibição da mensagem de login.
+
+Hooks usados:
+- useRouter: faz o redirecionamento para a tela de login.
+
+Dependências:
+- Navbar: componente de navegação.
+- withAuth: HOC que adiciona informações de autenticação.
+- Search (lucide-react): ícone de lupa usado no botão da busca.
+
+*/
+
 function HomePage({ hasToken }) {
   const router = useRouter();
   const [query, setQuery] = useState('');

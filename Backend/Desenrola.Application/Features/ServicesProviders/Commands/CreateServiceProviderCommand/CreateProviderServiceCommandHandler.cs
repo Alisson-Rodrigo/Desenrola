@@ -39,8 +39,7 @@ namespace Desenrola.Application.Features.ServicesProviders.Commands.CreateServic
                 throw new BadRequestException("Usuário não encontrado.");
 
             // Busca o prestador vinculado ao usuário logado
-            var providers = await _providerRepository.GetByUserIdAsync(user.Id);
-            var provider = providers.FirstOrDefault();
+            var provider = await _providerRepository.GetByUserIdAsync(user.Id);
 
             if (provider == null)
                 throw new BadRequestException("Prestador não encontrado para este usuário.");
