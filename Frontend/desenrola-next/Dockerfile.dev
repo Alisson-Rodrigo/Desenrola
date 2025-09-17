@@ -1,24 +1,34 @@
-# Imagem base leve do Node
 FROM node:20-alpine
 
-# Evita problemas de fuso/locale em logs
 ENV TZ=America/Fortaleza
 
-# Dependências extras que ajudam no hot reload / Turbopack
+# Dependências extras para hot reload
 RUN apk add --no-cache libc6-compat bash git curl python3 make g++
 
-# Pasta de trabalho
 WORKDIR /app
 
-# Copia só dependências primeiro
+# Instalar dependências primeiro
 COPY package*.json ./
-
-# Instala dependências
 RUN npm install
 
-# Variáveis padrão
+# Copiar código e dar permissões corretas
+COPY . .
+
+# Criar diretórios necessários e dar permissões
+RUN mkdir -p .next && \
+    chmod -R 755 /app && \
+    chown -R node:node /app
+
+# Usar usuário node (já existe na imagem)
+USER node
+
+# Variáveis de ambiente para desenvolvimento
+ENV NODE_ENV=development
 ENV HOST=0.0.0.0
 ENV PORT=3000
+ENV NEXT_TELEMETRY_DISABLED=1
+
 EXPOSE 3000
 
-# Em dev, o código é montado via volume
+# Comando padrão (pode ser sobrescrito no docker-compose)
+CMD ["npm", "run", "dev"]
