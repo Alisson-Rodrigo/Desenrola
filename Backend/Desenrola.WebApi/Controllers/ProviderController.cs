@@ -76,7 +76,7 @@ namespace Desenrola.WebApi.Controllers
         [HttpGet("profile/specify")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetProviderProfile([FromForm]GetProviderProfileByIdQuery request)
+        public async Task<IActionResult> GetProviderProfile([FromQuery]GetProviderProfileByIdQuery request)
         {
             var result = await _mediator.Send(request);
             return Ok(result);
