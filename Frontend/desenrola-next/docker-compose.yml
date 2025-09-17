@@ -7,15 +7,18 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .:/app              # monta seu código
-      - /app/node_modules  # preserva node_modules do container
+      - .:/app                # monta só o código-fonte
+      - /app/node_modules     # impede node_modules do host de pesar
+      - /app/.next            # evita sincronizar cache de build
     environment:
       - NODE_ENV=development
       - HOST=0.0.0.0
       - NEXT_TELEMETRY_DISABLED=1
-      - NEXT_DISABLE_TURBOPACK=1
+      # ⚡ Ativar TurboPack para builds mais rápidos
+      - NEXT_DISABLE_TURBOPACK=0
+      # 🔄 Se notar lentidão no hot reload, mantenha polling
       - WATCHPACK_POLLING=true
-      - WATCHPACK_POLLING_INTERVAL=200
+      - WATCHPACK_POLLING_INTERVAL=500
       - CHOKIDAR_USEPOLLING=true
-      - CHOKIDAR_INTERVAL=200
-    # command: ["npm","run","dev"]  # opcional (já está no CMD do Dockerfile)
+      - CHOKIDAR_INTERVAL=500
+    command: ["npm","run","dev"]  # força rodar em modo dev
