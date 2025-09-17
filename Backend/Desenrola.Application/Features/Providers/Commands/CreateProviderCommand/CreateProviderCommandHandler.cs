@@ -44,7 +44,6 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
             if (!validationResult.IsValid)
                 throw new BadRequestException(validationResult);
 
-            // Caminho físico dinâmico dentro de wwwroot
             var uploadPath = Path.Combine(_env.WebRootPath, "imagens", "providers", "documents");
             Directory.CreateDirectory(uploadPath);
 

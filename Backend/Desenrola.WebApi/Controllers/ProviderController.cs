@@ -1,4 +1,5 @@
 ﻿using Desenrola.Application.Features.Providers.Commands.CreateProvider;
+using Desenrola.Application.Features.Providers.Commands.DeleteProviderCommand;
 using Desenrola.Application.Features.Providers.Commands.UpdateProvider;
 using Desenrola.Application.Features.User.Commands.CreateUserCommand;
 using MediatR;
@@ -34,6 +35,17 @@ namespace Desenrola.WebApi.Controllers
         {
             Guid response = await _mediator.Send(request);
             return Ok(response);
+
+        }
+
+        [Authorize]
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteProvider([FromForm] DeleteProviderCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
         }
     }
 }
