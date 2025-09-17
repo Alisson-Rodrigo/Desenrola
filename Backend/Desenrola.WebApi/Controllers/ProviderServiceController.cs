@@ -19,7 +19,7 @@ namespace Desenrola.WebApi.Controllers
 
         [Authorize]
         [HttpPost]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateService([FromForm] CreateProviderServiceCommand request)
         {
@@ -30,13 +30,23 @@ namespace Desenrola.WebApi.Controllers
         // 🔹 Atualizar serviço
         [Authorize]
         [HttpPut]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UpdateService([FromForm] UpdateProviderServiceCommand request)
         {
             var response = await _mediator.Send(request);
             return Ok(response);
+        }
+
+        [Authorize]
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteService([FromForm] UpdateProviderServiceCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
         }
 
     }
