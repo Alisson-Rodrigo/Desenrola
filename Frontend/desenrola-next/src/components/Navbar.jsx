@@ -2,19 +2,19 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, Menu, X, User, Settings, LogOut } from 'lucide-react';
-import { jwtDecode } from 'jwt-decode'; // 
+import { ChevronDown, Menu, X, User, LogOut } from 'lucide-react';
+import { jwtDecode } from 'jwt-decode';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState(null); // 👈 estado para usuário
+  const [user, setUser] = useState(null);
   const dropdownRef = useRef(null);
   const router = useRouter();
 
+  // Fecha dropdown ao clicar fora
   useEffect(() => {
-    // Fecha dropdown ao clicar fora
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
@@ -24,8 +24,25 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Prefetch das rotas principais
   useEffect(() => {
-    // Recupera token e decodifica
+    router.prefetch('/');
+    router.prefetch('/servicos');
+    router.prefetch('/clientes');
+    router.prefetch('/perfil/usuario/meu');
+    router.prefetch('/auth/login');
+  }, [router]);
+
+  // Função para carregar usuário do localStorage
+  function loadUser() {
+    const userStorage = localStorage.getItem('auth_user');
+    if (userStorage) {
+      try {
+        setUser(JSON.parse(userStorage));
+        return;
+      } catch (_) {}
+    }
+
     const token = localStorage.getItem('auth_token');
     if (token) {
       try {
@@ -38,7 +55,18 @@ export default function Navbar() {
       } catch (err) {
         console.error("Erro ao decodificar token:", err);
       }
+    } else {
+      setUser(null);
     }
+  }
+
+  // Recupera usuário inicial e escuta alterações no localStorage
+  useEffect(() => {
+    loadUser();
+
+    // Escuta qualquer alteração no localStorage
+    window.addEventListener("storage", loadUser);
+    return () => window.removeEventListener("storage", loadUser);
   }, []);
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
@@ -47,7 +75,10 @@ export default function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
+    setUser(null);
     router.push('/auth/login');
+    // dispara evento de storage para atualizar em tempo real
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (
@@ -74,37 +105,46 @@ export default function Navbar() {
 
         {/* User Section */}
         <div className={styles.userSection}>
-          <div 
-            className={styles.userProfile} 
-            onClick={toggleDropdown}
-            ref={dropdownRef}
-          >
-            {/* Avatar: iniciais do nome */}
-            <div className={styles.avatar}>
-              {user?.name ? user.name.substring(0,2).toUpperCase() : "??"}
-            </div>
-            <span className={styles.userName}>{user?.name || "Usuário"}</span>
-            <ChevronDown className={styles.dropdownIcon} />
-
-            {/* Dropdown Menu */}
-            <div className={`${styles.dropdown} ${isDropdownOpen ? styles.open : ''}`}>
-              <div className={styles.dropdownHeader}>
-                <h3>{user?.name || "Usuário"}</h3>
-                <p>{user?.email || "email@dominio.com"}</p>
+          {user ? (
+            <div 
+              className={styles.userProfile} 
+              onClick={toggleDropdown}
+              ref={dropdownRef}
+            >
+              {/* Avatar: iniciais do nome */}
+              <div className={styles.avatar}>
+                {user?.name ? user.name.substring(0, 2).toUpperCase() : "??"}
               </div>
-              <Link href="/perfil/usuario/meu" className={styles.dropdownItem}>
-                <User size={16} /> Meu Perfil
-              </Link>
-             
-              <div className={styles.dropdownDivider}></div>
-              <button
-                className={`${styles.dropdownItem} ${styles.danger}`}
-                onClick={handleLogout}
-              >
-                <LogOut size={16} /> Sair
-              </button>
+              <span className={styles.userName}>{user?.name || "Usuário"}</span>
+              <ChevronDown className={styles.dropdownIcon} />
+
+              {/* Dropdown Menu */}
+              <div className={`${styles.dropdown} ${isDropdownOpen ? styles.open : ''}`}>
+                <div className={styles.dropdownHeader}>
+                  <h3>{user?.name || "Usuário"}</h3>
+                  <p>{user?.email || "email@dominio.com"}</p>
+                </div>
+                <Link href="/perfil/usuario/meu" className={styles.dropdownItem}>
+                  <User size={16} /> Meu Perfil
+                </Link>
+                
+                <div className={styles.dropdownDivider}></div>
+                <button
+                  className={`${styles.dropdownItem} ${styles.danger}`}
+                  onClick={handleLogout}
+                >
+                  <LogOut size={16} /> Sair
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <button
+              className={styles.loginButton}
+              onClick={() => router.push('/auth/login')}
+            >
+              Entrar
+            </button>
+          )}
 
           {/* Mobile Menu Button */}
           <button 
@@ -118,9 +158,17 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
-        <Link href="/dashboard" className={styles.mobileNavLink}>Dashboard</Link>
+        <Link href="/" className={styles.mobileNavLink}>Dashboard</Link>
         <Link href="/servicos" className={styles.mobileNavLink}>Serviços</Link>
         <Link href="/clientes" className={styles.mobileNavLink}>Clientes</Link>
+        {!user && (
+          <button
+            className={styles.mobileNavLogin}
+            onClick={() => router.push('/auth/login')}
+          >
+            Entrar
+          </button>
+        )}
       </div>
     </nav>
   );
