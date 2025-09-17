@@ -47,3 +47,34 @@ a {
 ::-webkit-scrollbar-thumb:hover {
   background: #38a169;
 }
+
+
+.home-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 5rem 1rem; /* espaçamento vertical */
+}
+
+.home-title {
+  font-size: 2.5rem; /* ~40px */
+  font-weight: bold;
+  color: #166534; /* verde escuro */
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .home-title {
+    font-size: 3rem; /* aumenta em telas médias */
+  }
+}
+
+.home-subtitle {
+  font-size: 1.25rem; /* ~20px */
+  color: #15803d; /* verde médio */
+  max-width: 600px;
+  margin: 0 auto;
+}
