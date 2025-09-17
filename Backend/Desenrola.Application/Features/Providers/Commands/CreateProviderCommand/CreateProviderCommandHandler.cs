@@ -38,6 +38,10 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
             if (user == null)
                 throw new BadRequestException("Usuário não encontrado.");
 
+            var existingProvider = await _providerRepository.GetByUserIdAsync(user.Id);
+            if (existingProvider != null)
+                throw new BadRequestException("O usuário já possui um cadastro como prestador.");
+
             var validator = new CreateProviderCommandValidator(_cpfValidator);
             var validationResult = await validator.ValidateAsync(request, cancellationToken);
 
