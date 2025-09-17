@@ -2,6 +2,7 @@
 using Desenrola.Application.Features.Providers.Commands.DeleteProviderCommand;
 using Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCcommad;
 using Desenrola.Application.Features.Providers.Commands.UpdateProvider;
+using Desenrola.Application.Features.Providers.Queries.MarkProviderQueries;
 using Desenrola.Application.Features.User.Commands.CreateUserCommand;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -58,6 +59,15 @@ namespace Desenrola.WebApi.Controllers
         {
             await _mediator.Send(request);
             return NoContent();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("pending")]
+        [ProducesResponseType(typeof(PagedResultPendingProviders), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetPendingProviders([FromQuery] PagedRequestPendingProviders request)
+        {
+            var result = await _mediator.Send(request);
+            return Ok(result);
         }
     }
 }
