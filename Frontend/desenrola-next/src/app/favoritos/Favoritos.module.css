@@ -1,0 +1,371 @@
+/* src/app/favoritos/Favoritos.module.css */
+:root {
+  --primary-green: #4CAF50;
+  --light-green-bg: #F1F8E9;
+  --dark-text: #333;
+  --light-text: #757575;
+  --border-color: #E0E0E0;
+  --white: #fff;
+  --star-yellow: #FFC107;
+  --shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.pageWrapper {
+  background-color: var(--light-green-bg);
+  min-height: 100vh;
+  font-family: sans-serif;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: var(--white);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.navLogo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary-green);
+}
+
+.navLinks {
+  display: flex;
+  gap: 2rem;
+}
+
+.navLinks a {
+  text-decoration: none;
+  color: var(--dark-text);
+  font-weight: 500;
+  padding-bottom: 5px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.navLinks a:hover, .navLinks .activeLink {
+  color: var(--primary-green);
+  border-bottom-color: var(--primary-green);
+}
+
+.navUser {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--primary-green);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-weight: 500;
+  color: var(--dark-text);
+}
+
+.userPlan {
+  font-size: 0.8rem;
+  background-color: var(--star-yellow);
+  color: var(--dark-text);
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.mainContent {
+  padding: 2rem;
+}
+
+.favoritesHeader {
+  background-color: var(--white);
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  margin: 0 auto 2rem auto;
+  max-width: 900px;
+  box-shadow: var(--shadow);
+}
+
+.headerIcon {
+  color: var(--primary-green);
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.favoritesHeader h1 {
+  font-size: 2rem;
+  color: var(--dark-text);
+  margin-bottom: 0.5rem;
+}
+
+.favoritesHeader p {
+  color: var(--light-text);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto 2rem auto;
+}
+
+.statCard {
+  background-color: var(--primary-green);
+  color: var(--white);
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+.statCard h2 {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.statCard p {
+  margin: 0;
+  font-weight: 500;
+}
+
+.providersSection {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.providersHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.providersHeader h2 {
+  font-size: 1.8rem;
+  color: var(--dark-text);
+}
+
+.filterButtons {
+  display: flex;
+  gap: 0.5rem;
+  background-color: var(--white);
+  padding: 5px;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.filterButton {
+  border: none;
+  background-color: transparent;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.filterButton.activeFilter, .filterButton:hover {
+  background-color: var(--primary-green);
+  color: var(--white);
+}
+
+.providersGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.providerCard {
+  background-color: var(--white);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  border: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.providerCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cardAvatar {
+  position: relative;
+  flex-shrink: 0;
+}
+.cardAvatar img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid var(--primary-green);
+}
+.onlineIndicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  border: 2px solid var(--white);
+}
+
+.cardInfo {
+  flex-grow: 1;
+}
+.cardInfo h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--dark-text);
+  font-weight: 600;
+}
+.cardInfo p, .cardInfo span {
+  color: var(--light-text);
+  font-size: 0.9rem;
+  margin: 2px 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cardInfo span svg {
+  font-size: 0.8rem;
+}
+
+.cardHeartIcon {
+  color: var(--primary-green);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.cardRating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--dark-text);
+  font-size: 0.9rem;
+}
+
+.cardRating svg {
+  color: var(--star-yellow);
+}
+
+.cardStats {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 0;
+}
+.cardStats div span {
+  display: block;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--dark-text);
+}
+.cardStats div p {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--light-text);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cardSpecialties h4 {
+  margin: 0 0 0.8rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.cardSpecialties div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tag {
+  background-color: #E8F5E9;
+  color: #388E3C;
+  padding: 5px 12px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid #C8E6C9;
+}
+
+.cardButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+  margin-top: auto;
+}
+
+.buttonPrimary, .buttonSecondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.buttonPrimary {
+  background-color: var(--primary-green);
+  color: var(--white);
+  border-color: var(--primary-green);
+}
+.buttonPrimary:hover {
+  background-color: #388E3C;
+  border-color: #388E3C;
+}
+
+.buttonSecondary {
+  background-color: var(--white);
+  color: var(--primary-green);
+  border-color: var(--primary-green);
+}
+.buttonSecondary:hover {
+  background-color: var(--light-green-bg);
+}
+
+@media (max-width: 768px) {
+  .navLinks {
+    display: none;
+  }
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
