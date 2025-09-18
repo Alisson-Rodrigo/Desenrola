@@ -51,14 +51,20 @@ namespace Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCc
             if (user == null)
                 throw new BadRequestException("Usuário não encontrado para este prestador.");
 
-            // Verifica se já tem a role
+            // Remove todas as roles atuais
             var roles = await _userManager.GetRolesAsync(user);
-            if (!roles.Contains("Provider"))
+            if (roles.Any())
             {
-                var result = await _userManager.AddToRoleAsync(user, "Provider");
-                if (!result.Succeeded)
-                    throw new BadRequestException("Erro ao adicionar role Provider ao usuário.");
+                var removeResult = await _userManager.RemoveFromRolesAsync(user, roles);
+                if (!removeResult.Succeeded)
+                    throw new BadRequestException("Erro ao remover roles existentes do usuário.");
             }
+
+            // Adiciona apenas a role "Provider"
+            var addResult = await _userManager.AddToRoleAsync(user, "Provider");
+            if (!addResult.Succeeded)
+                throw new BadRequestException("Erro ao atribuir role 'Provider' ao usuário.");
+
 
 
             return Unit.Value;
