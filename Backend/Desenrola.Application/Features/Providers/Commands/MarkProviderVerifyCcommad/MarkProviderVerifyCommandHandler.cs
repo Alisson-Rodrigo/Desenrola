@@ -8,6 +8,13 @@ using DomainUser = Desenrola.Domain.Entities.User;
 
 namespace Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCcommad
 {
+
+    /// <summary>
+    /// Handler responsável por processar o comando <see cref="MarkProviderVerifyCommand"/>, 
+    /// validando os dados, marcando o prestador como verificado e ativo, 
+    /// e atualizando as permissões do usuário no sistema para a role "Provider".
+    /// </summary>
+
     public class MarkProviderVerifyCommandHandler : IRequestHandler<MarkProviderVerifyCommand, Unit>
     {
         private readonly IProviderRepository _providerRepository;

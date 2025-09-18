@@ -4,6 +4,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Desenrola.Application.Features.ServicesProviders.Queries.PagedRequestProviderServices
 {
+    /// <summary>
+    /// Handler responsável por processar o comando <see cref="PagedRequestProviderServices"/>, 
+    /// retornando uma lista paginada de serviços de prestadores. 
+    /// Permite aplicar filtros por prestador específico, busca textual (título e descrição) 
+    /// e exibir apenas serviços ativos. 
+    /// Retorna um <see cref="PagedResultProviderServices"/> contendo os serviços e metadados da paginação.
+    /// </summary>
+
     public class GetPagedProviderServicesHandler : IRequestHandler<PagedRequestProviderServices, PagedResultProviderServices>
     {
         private readonly IProviderServiceRepository _serviceRepository;

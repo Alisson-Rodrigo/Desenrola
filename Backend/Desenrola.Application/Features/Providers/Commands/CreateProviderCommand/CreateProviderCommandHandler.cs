@@ -9,6 +9,10 @@ using Desenrola.Application.Contracts.Persistance.Repositories; // precisa impor
 
 namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
 {
+    /// <summary>
+    /// Handler responsável por processar o comando <see cref="CreateProviderCommand"/> 
+    /// e realizar o cadastro de um novo prestador de serviços.
+    /// </summary>
     public class CreateProviderCommandHandler : IRequestHandler<CreateProviderCommand, Guid>
     {
         private readonly IProviderRepository _providerRepository;
@@ -18,6 +22,14 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
 
         // URL pública base (ajuste porta se necessário)
         private readonly string _publicBaseUrl = "https://localhost:7014/imagens/providers/documents/";
+
+        /// <summary>
+        /// Construtor que inicializa as dependências necessárias.
+        /// </summary>
+        /// <param name="providerRepository">Repositório para persistência de prestadores.</param>
+        /// <param name="logged">Serviço para recuperar o usuário logado.</param>
+        /// <param name="cpfValidator">Serviço para validação de CPF.</param>
+        /// <param name="env">Ambiente web para manipulação de diretórios e arquivos.</param>
 
         public CreateProviderCommandHandler(
             IProviderRepository providerRepository,
@@ -31,6 +43,16 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
             _env = env;
         }
 
+        /// <summary>
+        /// Manipula o comando de criação de prestador de serviços.
+        /// </summary>
+        /// <param name="request">Comando contendo os dados do prestador a ser criado.</param>
+        /// <param name="cancellationToken">Token de cancelamento assíncrono.</param>
+        /// <returns>Retorna o <see cref="Guid"/> do prestador criado.</returns>
+        /// <exception cref="BadRequestException">
+        /// Lançada quando o usuário não é encontrado, já possui cadastro como prestador
+        /// ou os dados fornecidos não são válidos.
+        /// </exception>
         public async Task<Guid> Handle(CreateProviderCommand request, CancellationToken cancellationToken)
         {
             var user = await _logged.UserLogged();

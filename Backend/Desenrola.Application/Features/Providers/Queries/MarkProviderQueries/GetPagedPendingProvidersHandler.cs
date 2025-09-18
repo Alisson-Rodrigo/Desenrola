@@ -5,6 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Desenrola.Application.Features.Providers.Queries.MarkProviderQueries
 {
+
+    /// <summary>
+    /// Handler responsável por processar o comando <see cref="PagedRequestPendingProviders"/>, 
+    /// retornando uma lista paginada de prestadores que ainda não foram verificados. 
+    /// Permite aplicar filtros de pesquisa (CPF, RG, endereço, telefone) e 
+    /// restringir resultados apenas para prestadores ativos.
+    /// Retorna um <see cref="PagedResultPendingProviders"/> contendo os dados da página solicitada.
+    /// </summary>
+
     public class GetPagedPendingProvidersHandler : IRequestHandler<PagedRequestPendingProviders, PagedResultPendingProviders>
     {
         private readonly IProviderRepository _providerRepository;

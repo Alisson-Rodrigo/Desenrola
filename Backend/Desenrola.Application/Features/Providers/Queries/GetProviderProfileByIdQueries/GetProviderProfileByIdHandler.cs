@@ -10,6 +10,14 @@ using System.Threading.Tasks;
 
 namespace Desenrola.Application.Features.Providers.Queries.GetProviderProfileByIdQueries
 {
+
+    /// <summary>
+    /// Handler responsável por processar o comando <see cref="GetProviderProfileByIdQuery"/>, 
+    /// buscando o perfil completo de um prestador a partir de seu ID. 
+    /// Retorna um <see cref="ProviderProfileResult"/> contendo os dados do prestador 
+    /// ou lança exceção caso não seja encontrado.
+    /// </summary>
+
     public class GetProviderProfileByIdHandler : IRequestHandler<GetProviderProfileByIdQuery, ProviderProfileResult>
     {
         private readonly IProviderRepository _providerRepository;

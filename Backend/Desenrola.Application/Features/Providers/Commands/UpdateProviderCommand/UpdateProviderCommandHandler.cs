@@ -5,6 +5,14 @@ using MediatR;
 
 namespace Desenrola.Application.Features.Providers.Commands.UpdateProvider
 {
+
+    /// <summary>
+    /// Handler responsável por processar o comando <see cref="UpdateProviderCommand"/>, 
+    /// permitindo que o prestador logado atualize seus dados cadastrais somente 
+    /// após a verificação da conta. Realiza validação de CPF, checa a 
+    /// associação com o usuário logado e atualiza os campos permitidos.
+    /// </summary>
+
     public class UpdateProviderCommandHandler : IRequestHandler<UpdateProviderCommand, Guid>
     {
         private readonly IProviderRepository _providerRepository;

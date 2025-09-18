@@ -10,6 +10,14 @@ using System.Threading.Tasks;
 
 namespace Desenrola.Application.Features.Providers.Queries.GetProviderProfileQueries
 {
+
+    /// <summary>
+    /// Handler responsável por processar o comando <see cref="GetProviderProfileQuery"/>, 
+    /// recuperando o perfil do prestador associado ao usuário logado. 
+    /// Retorna um <see cref="GetProviderProfileResponse"/> com os dados completos do prestador, 
+    /// ou lança exceção caso o usuário não possua cadastro como prestador.
+    /// </summary>
+
     public class GetProviderProfileQueryHandler : IRequestHandler<GetProviderProfileQuery, GetProviderProfileResponse>
     {
         private readonly ILogged _logged;
