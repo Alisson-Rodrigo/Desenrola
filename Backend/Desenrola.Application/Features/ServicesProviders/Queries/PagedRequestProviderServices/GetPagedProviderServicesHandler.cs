@@ -25,9 +25,10 @@ namespace Desenrola.Application.Features.ServicesProviders.Queries.PagedRequestP
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
                 query = query.Where(s =>
-                    s.Title.Contains(request.Search, StringComparison.OrdinalIgnoreCase) ||
-                    s.Description.Contains(request.Search, StringComparison.OrdinalIgnoreCase));
+                    EF.Functions.ILike(s.Title, $"%{request.Search}%") ||
+                    EF.Functions.ILike(s.Description, $"%{request.Search}%"));
             }
+
 
             // 🔎 apenas ativos
             if (request.OnlyActive.HasValue && request.OnlyActive.Value)
