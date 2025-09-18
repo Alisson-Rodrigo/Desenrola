@@ -1,9 +1,11 @@
 using Desenrola.Application;
 using Desenrola.Application.IoC;
+using Desenrola.Domain.Enums;
 using Desenrola.Infrastructure.IoC;
 using Desenrola.Persistence.IoC;
 using Desenrola.WebApi.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
@@ -145,7 +147,27 @@ public class Program {
             });
         });
 
+        static async Task SeedRolesAsync(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            foreach (var roleName in Enum.GetNames(typeof(UserRoles)))
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+        }
+
         var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var services = scope.ServiceProvider;
+            SeedRolesAsync(services).GetAwaiter().GetResult();
+        }
+
 
         if (app.Environment.IsDevelopment())
         {

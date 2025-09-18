@@ -18,12 +18,6 @@ namespace Desenrola.Persistence
             // Extensão útil para UUID em outras entidades (Postgres)
             builder.HasPostgresExtension("uuid-ossp");
 
-            builder.Entity<IdentityRole>().HasData(
-                new IdentityRole { Id = Guid.NewGuid().ToString(), Name = "Admin", NormalizedName = "ADMIN" },
-                new IdentityRole { Id = Guid.NewGuid().ToString(), Name = "Customer", NormalizedName = "CUSTOMER" },
-                new IdentityRole { Id = Guid.NewGuid().ToString(), Name = "Provider", NormalizedName = "PROVIDER" }
-            );
-
             // --------------------------
             // Mapeamento do Provider
             // --------------------------
