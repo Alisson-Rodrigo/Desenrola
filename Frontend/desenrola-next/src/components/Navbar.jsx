@@ -34,7 +34,7 @@ export default function Navbar() {
     router.prefetch("/perfil/prestador/meu");
     router.prefetch("/auth/login");
     router.prefetch("/admin");
-    router.prefetch("/perfil/prestador/servicos/cadastrar"); // ✅ rota corrigida
+    router.prefetch("/perfil/prestador/servicos/cadastrar");
   }, [router]);
 
   // Normaliza role para string em minúsculo
@@ -43,6 +43,15 @@ export default function Navbar() {
     return String(role).toLowerCase();
   }
 
+  // Função para logout
+  const handleLogout = () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_user");
+    setUser(null);
+    router.push("/auth/login");
+    window.dispatchEvent(new Event("storage"));
+  };
+
   // Carregar usuário do localStorage ou token
   function loadUser() {
     const userStorage = localStorage.getItem("auth_user");
@@ -50,7 +59,6 @@ export default function Navbar() {
       try {
         const userData = JSON.parse(userStorage);
         userData.role = normalizeRole(userData.role);
-        console.log("Dados do usuário do localStorage:", userData);
         setUser(userData);
         return;
       } catch (_) {}
@@ -60,16 +68,23 @@ export default function Navbar() {
     if (token) {
       try {
         const decoded = jwtDecode(token);
+
+        // ✅ Verificação de expiração
+        if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+          console.warn("Token expirado, removendo...");
+          handleLogout();
+          return;
+        }
+
         const userData = {
           name: decoded.unique_name || "",
           email: decoded.email || "",
           role: normalizeRole(decoded.role),
         };
-        console.log("Token decodificado:", decoded);
-        console.log("Dados do usuário processados:", userData);
         setUser(userData);
       } catch (err) {
         console.error("Erro ao decodificar token:", err);
+        handleLogout();
       }
     } else {
       setUser(null);
@@ -84,14 +99,6 @@ export default function Navbar() {
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-
-  const handleLogout = () => {
-    localStorage.removeItem("auth_token");
-    localStorage.removeItem("auth_user");
-    setUser(null);
-    router.push("/auth/login");
-    window.dispatchEvent(new Event("storage"));
-  };
 
   // helper para marcar ativo
   const getLinkClass = (href) =>
@@ -125,7 +132,7 @@ export default function Navbar() {
           {/* Botão Cadastrar Serviço - só aparece para Provider */}
           {isProvider && (
             <Link
-              href="/perfil/prestador/servicos/cadastrar" // ✅ rota corrigida
+              href="/perfil/prestador/servicos/cadastrar"
               className={getLinkClass("/perfil/prestador/servicos/cadastrar")}
             >
               Cadastrar Serviço
@@ -186,7 +193,7 @@ export default function Navbar() {
                 {/* Link Cadastrar Serviço */}
                 {isProvider && (
                   <Link
-                    href="/perfil/prestador/servicos/cadastrar" // ✅ rota corrigida
+                    href="/perfil/prestador/servicos/cadastrar"
                     className={styles.dropdownItem}
                   >
                     <Plus size={16} /> Cadastrar Serviço
@@ -264,7 +271,7 @@ export default function Navbar() {
         {/* Link Cadastrar Serviço */}
         {isProvider && (
           <Link
-            href="/perfil/prestador/servicos/cadastrar" // ✅ rota corrigida
+            href="/perfil/prestador/servicos/cadastrar"
             className={getLinkClass("/perfil/prestador/servicos/cadastrar")}
           >
             Cadastrar Serviço
