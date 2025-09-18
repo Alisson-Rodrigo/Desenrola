@@ -22,23 +22,23 @@ export default function FinalizeCadastroPage() {
   const [error, setError] = useState(null);
   const [debugInfo, setDebugInfo] = useState(null);
 
-  // 🔍 DEBUG: Verificar dados do token ao carregar a página
-  useEffect(() => {
-    const runDebug = async () => {
-      console.log('🔍 === DEBUGGING PROVIDER REGISTRATION ===');
+  // // 🔍 DEBUG: Verificar dados do token ao carregar a página
+  // useEffect(() => {
+  //   const runDebug = async () => {
+  //     console.log('🔍 === DEBUGGING PROVIDER REGISTRATION ===');
       
-      // Debug do token
-      const tokenDebug = debugUserToken();
-      setDebugInfo(tokenDebug);
+  //     // Debug do token
+  //     const tokenDebug = debugUserToken();
+  //     setDebugInfo(tokenDebug);
       
-      // Verificar status atual
-      const providerStatus = await checkProviderStatus();
+  //     // Verificar status atual
+  //     const providerStatus = await checkProviderStatus();
       
-      console.log('🔍 ==========================================');
-    };
+  //     console.log('🔍 ==========================================');
+  //   };
     
-    runDebug();
-  }, []);
+  //   runDebug();
+  // }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

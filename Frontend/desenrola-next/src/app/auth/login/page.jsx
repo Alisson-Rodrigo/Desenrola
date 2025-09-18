@@ -6,6 +6,13 @@ import Link from 'next/link';
 import styles from './login.module.css';
 import { login } from '../../../services/authApi';
 
+// Constantes para as roles (mantém consistência com o backend)
+const USER_ROLES = {
+  ADMIN: 0,
+  CUSTOMER: 1,
+  PROVIDER: 2
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ username: '', password: '' });
@@ -22,6 +29,8 @@ export default function LoginPage() {
     router.prefetch('/auth/register');
     router.prefetch('/auth/recoverpass');
     router.prefetch('/');
+    router.prefetch('/admin');
+    router.prefetch('/provider'); // Se tiver rota para provider
   }, [router]);
 
   async function handleSubmit(e) {
@@ -46,8 +55,17 @@ export default function LoginPage() {
 
       setMessage({ type: 'success', text: 'Login realizado com sucesso!' });
 
-      // Agora já está pré-carregado
-      router.push('/');
+      // --- CÓDIGO MELHORADO ---
+      // Redireciona baseado na role do usuário
+      if (user && user.role === USER_ROLES.ADMIN) {
+        router.push('/admin'); // Administrador vai para painel admin
+      } else if (user && user.role === USER_ROLES.PROVIDER) {
+        router.push('/provider'); // Provider vai para painel do prestador (se existir)
+      } else {
+        router.push('/'); // Customer e outros vão para página principal
+      }
+      // --- FIM DA MODIFICAÇÃO ---
+
     } catch (err) {
       let errorText = 'Erro ao autenticar.';
 
