@@ -16,6 +16,7 @@ namespace Desenrola.Persistence.Repositories
         public async Task<Provider?> GetByUserIdAsync(string userId)
         {
             return await _context.Providers
+                .Include(p => p.User)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
         }
 
