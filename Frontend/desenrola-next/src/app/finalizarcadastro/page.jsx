@@ -22,43 +22,23 @@ export default function FinalizeCadastroPage() {
   const [error, setError] = useState(null);
   const [debugInfo, setDebugInfo] = useState(null);
 
-  // // 🔍 DEBUG: Verificar dados do token ao carregar a página
-  // useEffect(() => {
-  //   const runDebug = async () => {
-  //     console.log('🔍 === DEBUGGING PROVIDER REGISTRATION ===');
-      
-  //     // Debug do token
-  //     const tokenDebug = debugUserToken();
-  //     setDebugInfo(tokenDebug);
-      
-  //     // Verificar status atual
-  //     const providerStatus = await checkProviderStatus();
-      
-  //     console.log('🔍 ==========================================');
-  //   };
-    
-  //   runDebug();
-  // }, []);
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      // Converte Category para número
       [name]: name === 'Category' ? parseInt(value) : value
     }));
   };
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    console.log('Arquivos selecionados:', files); // Debug
+    console.log('Arquivos selecionados:', files);
     setFormData(prev => ({
       ...prev,
       DocumentPhotos: files
     }));
   };
 
-  // 📌 VALIDAÇÃO ANTES DO ENVIO
   const validateForm = () => {
     const errors = [];
     
@@ -70,7 +50,6 @@ export default function FinalizeCadastroPage() {
     if (!formData.PhoneNumber.trim()) errors.push('Telefone é obrigatório');
     if (!formData.Category) errors.push('Categoria é obrigatória');
     
-    // 📌 VALIDAÇÃO CRÍTICA: DocumentPhotos
     if (!formData.DocumentPhotos || formData.DocumentPhotos.length === 0) {
       errors.push('Pelo menos um documento deve ser enviado');
     }
@@ -81,7 +60,6 @@ export default function FinalizeCadastroPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // 📌 VALIDAÇÃO PRÉVIA
     const validationErrors = validateForm();
     if (validationErrors.length > 0) {
       setError({
@@ -102,7 +80,7 @@ export default function FinalizeCadastroPage() {
         throw new Error('Token de autenticação não encontrado. Faça login novamente.');
       }
 
-      console.log('Dados do formulário antes do envio:', formData); // Debug
+      console.log('Dados do formulário antes do envio:', formData);
 
       const result = await submitProviderRegistration(formData, authToken);
 
@@ -112,14 +90,8 @@ export default function FinalizeCadastroPage() {
         data: result
       });
 
-      // Opcional: limpar formulário após sucesso
-      // setFormData({
-      //   CPF: '', RG: '', DocumentPhotos: [], Address: '',
-      //   ServiceName: '', Description: '', PhoneNumber: '', Category: ''
-      // });
-
     } catch (error) {
-      console.error('Erro no cadastro:', error); // Debug
+      console.error('Erro no cadastro:', error);
       setError({
         type: 'error',
         message: error.message || 'Erro desconhecido ao enviar cadastro',
@@ -171,49 +143,59 @@ export default function FinalizeCadastroPage() {
 
       <div className={styles.formWrapper}>
         <div className={styles.formContainer}>
-          <h1 className={styles.title}>Finalize seu cadastro como prestador</h1>
-          <p className={styles.subtitle}>
-            Preencha as informações abaixo para completar seu cadastro.
-          </p>
+          {/* Cabeçalho - CORRIGIDO */}
+          <div className={styles.header}>
+            <h1 className={styles.title}>Finalize seu cadastro como prestador</h1>
+            <p className={styles.subtitle}>
+              Preencha as informações abaixo para completar seu cadastro.
+            </p>
+            <div className={styles.progressBar}>
+              Etapa 2 de 2 - Dados do Prestador
+            </div>
+          </div>
 
-          {/* 🔍 DEBUG INFO (remover em produção) */}
+          {/* Debug Info - CORRIGIDO */}
           {debugInfo && (
-            <div style={{
-              background: '#f0f8ff',
-              border: '1px solid #ddd',
-              padding: '10px',
-              margin: '10px 0',
-              borderRadius: '4px',
-              fontSize: '12px'
-            }}>
-              <strong>🔍 DEBUG INFO:</strong><br />
-              <strong>UserId:</strong> {debugInfo.userId || 'Não encontrado'}<br />
-              <strong>Token exp:</strong> {new Date(debugInfo.fullToken?.exp * 1000).toLocaleString()}<br />
+            <div className={styles.infoBox}>
+              <div className={styles.infoBoxTitle}>🔍 DEBUG INFO:</div>
+              <p><strong>UserId:</strong> {debugInfo.userId || 'Não encontrado'}</p>
+              <p><strong>Token exp:</strong> {new Date(debugInfo.fullToken?.exp * 1000).toLocaleString()}</p>
               <details>
                 <summary>Ver mais detalhes</summary>
-                <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+                <div className={styles.responseData}>
+                  <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+                </div>
               </details>
             </div>
           )}
 
-          {/* Sucesso */}
+          {/* Mensagem de Sucesso - CORRIGIDO */}
           {apiResponse && apiResponse.type === 'success' && (
             <div className={styles.successMessage}>
-              ✅ {apiResponse.message}
+              <div className={styles.messageIcon}>✅</div>
+              <div className={styles.messageContent}>
+                <h3>Sucesso!</h3>
+                
+              </div>
             </div>
           )}
 
-          {/* Erro */}
+          {/* Mensagem de Erro - CORRIGIDO */}
           {error && (
             <div className={styles.errorMessage}>
-              ❌ {error.message}
-              {error.type === 'validation' && error.details && (
-                <ul style={{ marginTop: '8px', marginLeft: '16px' }}>
-                  {error.details.map((err, index) => (
-                    <li key={index}>{err}</li>
-                  ))}
-                </ul>
-              )}
+              <div className={styles.messageIcon}>❌</div>
+              <div className={styles.messageContent}>
+                <h3>Erro</h3>
+                <p>{error.message}</p>
+                {error.type === 'validation' && error.details && (
+                  <ul style={{ marginTop: '8px', marginLeft: '16px' }}>
+                    {error.details.map((err, index) => (
+                      <li key={index}>{err}</li>
+                    ))}
+                  </ul>
+                )}
+               
+              </div>
             </div>
           )}
 
@@ -221,13 +203,22 @@ export default function FinalizeCadastroPage() {
             {/* CPF e RG */}
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label htmlFor="CPF">CPF *</label>
+                <div className={styles.labelWithTooltip}>
+                  <label htmlFor="CPF">CPF *</label>
+                  <div className={styles.tooltip}>
+                    ℹ️
+                    <span className={styles.tooltipText}>
+                      Digite apenas os números do CPF, sem pontos ou traços.
+                    </span>
+                  </div>
+                </div>
                 <input
                   type="text"
                   id="CPF"
                   name="CPF"
                   value={formData.CPF}
                   onChange={handleInputChange}
+                  placeholder="000.000.000-00"
                   required
                 />
               </div>
@@ -239,6 +230,7 @@ export default function FinalizeCadastroPage() {
                   name="RG"
                   value={formData.RG}
                   onChange={handleInputChange}
+                  placeholder="Digite seu RG"
                   required
                 />
               </div>
@@ -253,6 +245,7 @@ export default function FinalizeCadastroPage() {
                 name="Address"
                 value={formData.Address}
                 onChange={handleInputChange}
+                placeholder="Rua, número, bairro, cidade"
                 required
               />
             </div>
@@ -267,6 +260,7 @@ export default function FinalizeCadastroPage() {
                   name="ServiceName"
                   value={formData.ServiceName}
                   onChange={handleInputChange}
+                  placeholder="Ex: João Silva - Eletricista"
                   required
                 />
               </div>
@@ -278,6 +272,7 @@ export default function FinalizeCadastroPage() {
                   name="PhoneNumber"
                   value={formData.PhoneNumber}
                   onChange={handleInputChange}
+                  placeholder="(11) 99999-9999"
                   required
                 />
               </div>
@@ -311,29 +306,60 @@ export default function FinalizeCadastroPage() {
                 value={formData.Description}
                 onChange={handleInputChange}
                 rows="3"
+                placeholder="Descreva seus serviços, experiência e diferenciais..."
                 required
               />
             </div>
 
-            {/* Upload de documentos */}
+            {/* Upload de documentos - CORRIGIDO */}
             <div className={styles.formGroup}>
-              <label htmlFor="DocumentPhotos">Fotos de Documentos *</label>
-              <input
-                type="file"
-                id="DocumentPhotos"
-                name="DocumentPhotos"
-                multiple
-                accept=".png,.jpg,.jpeg,.pdf"
-                onChange={handleFileChange}
-                required
-              />
+              <div className={styles.labelWithTooltip}>
+                <label htmlFor="DocumentPhotos">Fotos de Documentos *</label>
+                <div className={styles.tooltip}>
+                  ℹ️
+                  <span className={styles.tooltipText}>
+                    Envie fotos claras dos seus documentos (RG, CPF, comprovantes).
+                    Formatos aceitos: JPG, PNG, PDF. Máximo 5MB por arquivo.
+                  </span>
+                </div>
+              </div>
+              
+              <div className={styles.infoBox}>
+                <div className={styles.infoBoxTitle}>📄 Documentos Necessários</div>
+                <p>
+                  • RG e CPF (frente e verso)<br/>
+                  • Comprovante de residência<br/>
+                  • Certificados profissionais (se houver)
+                </p>
+              </div>
+
+              <div className={styles.fileUploadBox}>
+                <input
+                  type="file"
+                  id="DocumentPhotos"
+                  name="DocumentPhotos"
+                  multiple
+                  accept=".png,.jpg,.jpeg,.pdf"
+                  onChange={handleFileChange}
+                  className={styles.fileInput}
+                  required
+                />
+                <label htmlFor="DocumentPhotos" className={styles.fileUploadLabel}>
+                  <div className={styles.uploadIcon}>📁</div>
+                  <span>Clique para selecionar arquivos</span>
+                  <div className={styles.fileTypes}>
+                    PNG, JPG, JPEG, PDF (máx. 5MB cada)
+                  </div>
+                </label>
+              </div>
+
               {formData.DocumentPhotos.length > 0 && (
-                <div style={{ marginTop: '8px' }}>
+                <div className={styles.fileList}>
                   <strong>Arquivos selecionados ({formData.DocumentPhotos.length}):</strong>
-                  <ul style={{ marginTop: '4px', marginLeft: '16px' }}>
+                  <ul>
                     {formData.DocumentPhotos.map((file, i) => (
                       <li key={i}>
-                        {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                        📎 {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                       </li>
                     ))}
                   </ul>
@@ -341,13 +367,22 @@ export default function FinalizeCadastroPage() {
               )}
             </div>
 
-            {/* Botões */}
+            {/* Botões - CORRIGIDO */}
             <div className={styles.formActions}>
-              <button type="button" onClick={handleBack} disabled={isSubmitting}>
+              <button 
+                type="button" 
+                onClick={handleBack} 
+                disabled={isSubmitting}
+                className={styles.backButton}
+              >
                 ← Voltar
               </button>
-              <button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Enviando...' : 'Enviar'}
+              <button 
+                type="submit" 
+                disabled={isSubmitting}
+                className={styles.submitButton}
+              >
+                {isSubmitting ? 'Enviando...' : 'Enviar Cadastro'}
               </button>
             </div>
           </form>

@@ -34,15 +34,22 @@ export default function Navbar() {
     router.prefetch("/perfil/prestador/meu");
     router.prefetch("/auth/login");
     router.prefetch("/admin");
-    router.prefetch("/servicos/solicitarservico");
+    router.prefetch("/perfil/prestador/servicos/cadastrar"); // ✅ rota corrigida
   }, [router]);
 
-  // Carregar usuário do localStorage
+  // Normaliza role para string em minúsculo
+  function normalizeRole(role) {
+    if (role === undefined || role === null) return "";
+    return String(role).toLowerCase();
+  }
+
+  // Carregar usuário do localStorage ou token
   function loadUser() {
     const userStorage = localStorage.getItem("auth_user");
     if (userStorage) {
       try {
         const userData = JSON.parse(userStorage);
+        userData.role = normalizeRole(userData.role);
         console.log("Dados do usuário do localStorage:", userData);
         setUser(userData);
         return;
@@ -53,12 +60,12 @@ export default function Navbar() {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        console.log("Token decodificado:", decoded);
         const userData = {
-          name: decoded.unique_name,
-          email: decoded.email,
-          role: decoded.role,
+          name: decoded.unique_name || "",
+          email: decoded.email || "",
+          role: normalizeRole(decoded.role),
         };
+        console.log("Token decodificado:", decoded);
         console.log("Dados do usuário processados:", userData);
         setUser(userData);
       } catch (err) {
@@ -90,21 +97,9 @@ export default function Navbar() {
   const getLinkClass = (href) =>
     `${styles.navLink} ${pathname === href ? styles.active : ""}`;
 
-  // Verificação se é admin
-  const isAdmin =
-    user &&
-    (user.role === 0 ||
-      user.role === "0" ||
-      parseInt(user.role) === 0 ||
-      user.role?.toLowerCase() === "admin");
-
-  // Verificação se é provider
-  const isProvider =
-    user &&
-    (user.role === 2 ||
-      user.role === "2" ||
-      parseInt(user.role) === 2 ||
-      user.role?.toLowerCase() === "provider");
+  // Verificação se é admin ou provider
+  const isAdmin = user && (user.role === "0" || user.role === "admin");
+  const isProvider = user && (user.role === "2" || user.role === "provider");
 
   return (
     <nav className={styles.navbar}>
@@ -130,8 +125,8 @@ export default function Navbar() {
           {/* Botão Cadastrar Serviço - só aparece para Provider */}
           {isProvider && (
             <Link
-              href="/servicos/solicitarservico"
-              className={getLinkClass("/servicos/solicitarservico")}
+              href="/perfil/prestador/servicos/cadastrar" // ✅ rota corrigida
+              className={getLinkClass("/perfil/prestador/servicos/cadastrar")}
             >
               Cadastrar Serviço
             </Link>
@@ -191,7 +186,7 @@ export default function Navbar() {
                 {/* Link Cadastrar Serviço */}
                 {isProvider && (
                   <Link
-                    href="/servicos/solicitarservico"
+                    href="/perfil/prestador/servicos/cadastrar" // ✅ rota corrigida
                     className={styles.dropdownItem}
                   >
                     <Plus size={16} /> Cadastrar Serviço
@@ -269,8 +264,8 @@ export default function Navbar() {
         {/* Link Cadastrar Serviço */}
         {isProvider && (
           <Link
-            href="/servicos/solicitarservico"
-            className={getLinkClass("/servicos/solicitarservico")}
+            href="/perfil/prestador/servicos/cadastrar" // ✅ rota corrigida
+            className={getLinkClass("/perfil/prestador/servicos/cadastrar")}
           >
             Cadastrar Serviço
           </Link>

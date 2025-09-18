@@ -1,4 +1,6 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { 
   Check, 
   User, 
@@ -10,46 +12,109 @@ import {
   Edit
 } from 'lucide-react';
 import styles from './ProfilePage.module.css';
-import Navbar from '../../../../components/Navbar'; // 1. IMPORTAÇÃO DA NAVBAR
+import Navbar from '../../../../components/Navbar'; 
+
+// 🔑 Mapa das categorias baseado no enum do backend
+const categoryMap = {
+  0: "Elétrica",
+  1: "Hidráulica",
+  2: "Pintura",
+  3: "Jardinagem",
+  4: "Limpeza",
+  5: "Reformas e Construção",
+  6: "Tecnologia da Informação (TI)",
+  7: "Transporte e Mudanças",
+  8: "Beleza e Estética",
+  9: "Educação e Aulas Particulares",
+  10: "Saúde e Bem-estar",
+  11: "Serviços Automotivos",
+  12: "Marcenaria e Móveis Planejados",
+  13: "Serralheria",
+  14: "Climatização (Ar-condicionado e Ventilação)",
+  15: "Instalação de Eletrodomésticos",
+  16: "Fotografia e Filmagem",
+  17: "Eventos e Festas",
+  18: "Consultoria Financeira e Contábil",
+  19: "Assistência Técnica (Eletrônicos)",
+  20: "Design e Publicidade",
+  21: "Serviços Jurídicos",
+  22: "Segurança (Câmeras, Alarmes, Portões)",
+  23: "Marketing Digital e Social Media",
+  24: "Consultoria Empresarial",
+  25: "Tradução e Idiomas",
+  26: "Serviços Domésticos Gerais",
+  27: "Manutenção Predial e Industrial",
+  28: "Pet Care (Banho, Tosa e Passeio)",
+  29: "Culinária e Gastronomia",
+};
 
 export default function ProfilePage() {
-  const services = [
-    "Encanamento Residencial",
-    "Vazamentos", 
-    "Instalação de Torneiras",
-    "Desentupimento",
-    "Instalação de Chuveiros",
-    "Reparo de Tubulações",
-    "Manutenção Preventiva"
-  ];
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const stats = [
-    { number: "4.8", label: "Avaliação Média" },
-    { number: "127", label: "Trabalhos Realizados" },
-    { number: "98%", label: "Taxa de Satisfação" },
-    { number: "2", label: "Anos na Plataforma" }
-  ];
+  // 🔑 Busca dados do provider logado
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+          setError('Token não encontrado. Faça login novamente.');
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch("http://localhost:5087/api/provider/profile/myprofile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro ao carregar perfil (${response.status})`);
+        }
+
+        const data = await response.json();
+        setProfile(data);
+      } catch (err) {
+        console.error(err);
+        setError('Erro ao carregar perfil.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  if (loading) {
+    return <p style={{ textAlign: 'center' }}>Carregando perfil...</p>;
+  }
+
+  if (error) {
+    return <p style={{ textAlign: 'center', color: 'red' }}>{error}</p>;
+  }
 
   return (
-    // 2. USAMOS UM FRAGMENTO PARA ENVOLVER A NAVBAR E O RESTO DO CONTEÚDO
     <>
-      <Navbar /> {/* 3. NAVBAR É CHAMADA AQUI, NO TOPO E FORA DO CONTAINER PRINCIPAL */}
+      <Navbar />
 
-      {/* Este container agora agrupa apenas o conteúdo que deve ficar lado a lado */}
       <div className={styles.container}>
         {/* Sidebar */}
         <div className={styles.sidebar}>
           <div className={styles.profileHeader}>
             <div className={styles.avatar}>
-              JP
+              {profile?.serviceName?.[0] || 'U'}
               <div className={styles.statusBadge}></div>
             </div>
-            <h2 className={styles.profileName}>João Pereira</h2>
-            <p className={styles.profileEmail}>joao.pereira@gmail.com</p>
-            <button className={styles.verifyButton}>
-              <Check size={16} />
-              Prestador Verificado
-            </button>
+            <h2 className={styles.profileName}>{profile?.serviceName}</h2>
+            <p className={styles.profileEmail}>{profile?.email}</p>
+            {profile?.isVerified && (
+              <button className={styles.verifyButton}>
+                <Check size={16} />
+                Prestador Verificado
+              </button>
+            )}
           </div>
 
           <nav className={styles.sidebarMenu}>
@@ -61,22 +126,13 @@ export default function ProfilePage() {
               <Wrench size={16} style={{ marginRight: '8px' }} />
               Meus Serviços
             </a>
-            <a href="/solicitacoes" className={styles.menuItem}>
-              <CreditCard size={16} style={{ marginRight: '8px' }} />
-              Solicitações
-            </a>
+          
             <a href="/avaliacoes" className={styles.menuItem}>
               <Star size={16} style={{ marginRight: '8px' }} />
               Avaliações
             </a>
-            <a href="/financeiro" className={styles.menuItem}>
-              <CreditCard size={16} style={{ marginRight: '8px' }} />
-              Financeiro
-            </a>
-            <a href="/seguranca" className={styles.menuItem}>
-              <Settings size={16} style={{ marginRight: '8px' }} />
-              Segurança
-            </a>
+        
+          
           </nav>
 
           <button className={styles.assistanceButton}>
@@ -99,53 +155,35 @@ export default function ProfilePage() {
           <div className={styles.profileInfo}>
             <div className={styles.infoGroup}>
               <span className={styles.infoLabel}>Nome Completo</span>
-              <span className={styles.infoValue}>João Pereira dos Santos</span>
+              <span className={styles.infoValue}>{profile?.serviceName}</span>
             </div>
             
             <div className={styles.infoGroup}>
               <span className={styles.infoLabel}>E-mail</span>
-              <span className={styles.infoValue}>joao.pereira@gmail.com</span>
+              <span className={styles.infoValue}>{profile?.email}</span>
             </div>
             
             <div className={styles.infoGroup}>
               <span className={styles.infoLabel}>Telefone</span>
-              <span className={styles.infoValue}>(85) 98765-4321</span>
+              <span className={styles.infoValue}>{profile?.phoneNumber}</span>
             </div>
             
             <div className={styles.infoGroup}>
               <span className={styles.infoLabel}>CPF</span>
-              <span className={styles.infoValue}>123.456.789-00</span>
+              <span className={styles.infoValue}>{profile?.cpf}</span>
             </div>
             
             <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>Cidade</span>
-              <span className={styles.infoValue}>Picos, Piauí</span>
+              <span className={styles.infoLabel}>Endereço</span>
+              <span className={styles.infoValue}>{profile?.address}</span>
             </div>
             
             <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>Área de Atuação</span>
-              <span className={styles.infoValue}>Centro e Adjacências</span>
+              <span className={styles.infoLabel}>Categorias</span>
+              <span className={styles.infoValue}>
+                {profile?.categories?.map(c => categoryMap[c]).join(', ')}
+              </span>
             </div>
-            
-            <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>Experiência</span>
-              <span className={styles.infoValue}>10+ anos</span>
-            </div>
-            
-            <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>Certificações</span>
-              <span className={styles.infoValue}>CREA-PI 123456789</span>
-            </div>
-          </div>
-
-          {/* Statistics Cards */}
-          <div className={styles.statsGrid}>
-            {stats.map((stat, index) => (
-              <div key={index} className={styles.statCard}>
-                <h3 className={styles.statNumber}>{stat.number}</h3>
-                <p className={styles.statLabel}>{stat.label}</p>
-              </div>
-            ))}
           </div>
 
           {/* Services Section */}
@@ -155,9 +193,9 @@ export default function ProfilePage() {
               Serviços Oferecidos
             </h3>
             <div className={styles.servicesGrid}>
-              {services.map((service, index) => (
+              {profile?.categories?.map((cat, index) => (
                 <span key={index} className={styles.serviceTag}>
-                  {service}
+                  {categoryMap[cat] || `Categoria ${cat}`}
                 </span>
               ))}
             </div>

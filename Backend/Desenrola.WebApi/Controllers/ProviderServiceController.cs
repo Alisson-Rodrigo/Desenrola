@@ -50,8 +50,7 @@ namespace Desenrola.WebApi.Controllers
             return NoContent();
         }
 
-        [Authorize(Roles = "Customer, Admin, Provider")]
-        [Authorize]
+        
         [HttpGet("paged")]
         [ProducesResponseType(typeof(PagedResultProviderServices), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPagedServices([FromQuery] PagedRequestProviderServices request)
