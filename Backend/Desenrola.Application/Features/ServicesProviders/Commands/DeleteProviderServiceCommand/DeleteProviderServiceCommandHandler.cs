@@ -53,7 +53,7 @@ namespace Desenrola.Application.Features.ServicesProviders.Commands.DeleteProvid
 
             // Marca o serviço como inativo (soft delete)
             service.IsActive = false;
-            service.UpdatedAt = DateTime.UtcNow;
+            service.ModifiedOn = DateTime.UtcNow;
 
             await _providerServiceRepository.Update(service);
 

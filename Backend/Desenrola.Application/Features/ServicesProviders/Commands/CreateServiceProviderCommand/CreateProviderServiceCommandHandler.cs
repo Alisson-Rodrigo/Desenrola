@@ -95,7 +95,7 @@ namespace Desenrola.Application.Features.ServicesProviders.Commands.CreateServic
                 ImageUrls = imagensUrls,
                 IsActive = true,
                 IsAvailable = true,
-                CreatedAt = DateTime.UtcNow
+                CreatedOn = DateTime.UtcNow
             };
 
             await _providerServiceRepository.CreateAsync(service);

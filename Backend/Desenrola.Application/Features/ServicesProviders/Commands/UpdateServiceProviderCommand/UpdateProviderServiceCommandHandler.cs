@@ -61,7 +61,7 @@ namespace Desenrola.Application.Features.ServicesProviders.Commands.UpdateServic
             service.Category = request.Category;
             service.IsActive = request.IsActive;
             service.IsAvailable = request.IsAvailable;
-            service.UpdatedAt = DateTime.UtcNow;
+            service.ModifiedOn = DateTime.UtcNow;
 
             await _providerServiceRepository.Update(service);
 

@@ -1,11 +1,10 @@
+using Desenrola.Domain.Abstract;
 using Desenrola.Domain.Enums;
 
 namespace Desenrola.Domain.Entities
 {
-    public class Provider
+    public class Provider : BaseEntity
     {
-        public Guid Id { get; set; }
-
         // FK para User
         public required string UserId { get; set; }
 
@@ -27,8 +26,6 @@ namespace Desenrola.Domain.Entities
         public bool IsVerified { get; set; } = false; // verificação de documentos
 
         public virtual List<ProviderService> Services { get; set; } = new();
-
-
 
         // Navegaçãoacc
         public virtual User User { get; set; } = null!;

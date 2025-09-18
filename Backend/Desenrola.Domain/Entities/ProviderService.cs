@@ -1,12 +1,12 @@
-﻿using Desenrola.Domain.Enums;
+﻿using Desenrola.Domain.Abstract;
+using Desenrola.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Desenrola.Domain.Entities
 {
-    public class ProviderService
+    public class ProviderService : BaseEntity
     {
-        public Guid Id { get; set; }
 
         // FK para Provider
         public Guid ProviderId { get; set; }
@@ -35,9 +35,6 @@ namespace Desenrola.Domain.Entities
         // Disponibilidade momentânea (se pode atender agora)
         public bool IsAvailable { get; set; } = true;
 
-        // Controle de datas
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
 
         // Navegação
         public virtual Provider Provider { get; set; } = null!;

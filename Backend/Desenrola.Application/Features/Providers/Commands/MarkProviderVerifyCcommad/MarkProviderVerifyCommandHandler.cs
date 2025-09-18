@@ -46,8 +46,8 @@ namespace Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCc
 
             await _providerRepository.Update(provider);
 
-            // ✅ Atualiza role do usuário
-            var user = await _userRepository.GetById(provider.UserId);
+            // Atualiza role do usuário
+            var user = await _userManager.FindByIdAsync(provider.UserId);
             if (user == null)
                 throw new BadRequestException("Usuário não encontrado para este prestador.");
 
@@ -59,6 +59,7 @@ namespace Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCc
                 if (!result.Succeeded)
                     throw new BadRequestException("Erro ao adicionar role Provider ao usuário.");
             }
+
 
             return Unit.Value;
         }
