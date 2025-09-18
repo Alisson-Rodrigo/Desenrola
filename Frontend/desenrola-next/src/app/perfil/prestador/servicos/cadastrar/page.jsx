@@ -4,36 +4,6 @@ import { useState } from 'react';
 import Navbar from '../../../../../components/Navbar';
 import styles from "./CadastrarServico.module.css";
 
-
-/**
-CadastrarServico - Página de cadastro de novos serviços.
-
-permite que o usuário cadastre um serviço preenchendo título, descrição, preço,
-categoria, disponibilidade e opcionalmente uma foto ilustrativa. 
-Valida o formato da imagem e mostra uma pré-visualização antes do envio.
-
-O que faz:
-- Mostra um formulário para cadastro de serviço.
-- Permite enviar título, descrição, preço, categoria, disponibilidade e uma foto.
-- Faz validação do tipo de imagem (somente JPG, JPEG, PNG, GIF).
-- Exibe mensagens de sucesso ou erro durante o processo.
-- Limpa o formulário e remove a pré-visualização após envio.
-
-Estados internos:
-- form (objeto): armazena os dados do serviço (titulo, descricao, preco, categoria, foto).
-- mensagem (string): mostra feedback de erro ou sucesso para o usuário.
-- preview (string|null): armazena a URL da pré-visualização da imagem.
-
-Funções principais:
-- handleChange: atualiza o estado do formulário e valida arquivos de imagem.
-- handleSubmit: processa o envio do formulário, exibe mensagem de sucesso e limpa os campos.
-
-Dependências:
-- Navbar: componente de navegação superior.
-- styles (CSS Module): estilização da página.
-
-*/
-
 export default function CadastrarServico() {
   const [form, setForm] = useState({
     titulo: '',
@@ -45,6 +15,41 @@ export default function CadastrarServico() {
 
   const [mensagem, setMensagem] = useState('');
   const [preview, setPreview] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Lista de categorias com ícones
+  const categorias = [
+    { id: "1", nome: "Elétrica", icon: "⚡" },
+    { id: "2", nome: "Hidráulica", icon: "🔧" },
+    { id: "3", nome: "Pintura", icon: "🎨" },
+    { id: "4", nome: "Jardinagem", icon: "🌱" },
+    { id: "5", nome: "Limpeza", icon: "🧽" },
+    { id: "6", nome: "Reformas e Construção", icon: "🏗️" },
+    { id: "7", nome: "Tecnologia da Informação (TI)", icon: "💻" },
+    { id: "8", nome: "Transporte e Mudanças", icon: "🚚" },
+    { id: "9", nome: "Beleza e Estética", icon: "💅" },
+    { id: "10", nome: "Educação e Aulas Particulares", icon: "📚" },
+    { id: "11", nome: "Saúde e Bem-estar", icon: "🏥" },
+    { id: "12", nome: "Serviços Automotivos", icon: "🚗" },
+    { id: "13", nome: "Marcenaria e Móveis Planejados", icon: "🪵" },
+    { id: "14", nome: "Serralheria", icon: "🔨" },
+    { id: "15", nome: "Climatização", icon: "❄️" },
+    { id: "16", nome: "Instalação de Eletrodomésticos", icon: "📺" },
+    { id: "17", nome: "Fotografia e Filmagem", icon: "📸" },
+    { id: "18", nome: "Eventos e Festas", icon: "🎉" },
+    { id: "19", nome: "Consultoria Financeira e Contábil", icon: "💰" },
+    { id: "20", nome: "Assistência Técnica", icon: "🔧" },
+    { id: "21", nome: "Design e Publicidade", icon: "🎯" },
+    { id: "22", nome: "Serviços Jurídicos", icon: "⚖️" },
+    { id: "23", nome: "Segurança", icon: "🛡️" },
+    { id: "24", nome: "Marketing Digital", icon: "📊" },
+    { id: "25", nome: "Consultoria Empresarial", icon: "📈" },
+    { id: "26", nome: "Tradução e Idiomas", icon: "🗣️" },
+    { id: "27", nome: "Serviços Domésticos Gerais", icon: "🏠" },
+    { id: "28", nome: "Manutenção Predial e Industrial", icon: "🏢" },
+    { id: "29", nome: "Pet Care", icon: "🐕" },
+    { id: "30", nome: "Culinária e Gastronomia", icon: "👨‍🍳" }
+  ];
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -55,7 +60,7 @@ export default function CadastrarServico() {
       if (file) {
         const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/jpg"];
         if (!allowedTypes.includes(file.type)) {
-          setMensagem("❌ Formato inválido. Só são aceitos: JPG, JPEG, PNG, GIF.");
+          setMensagem("Formato inválido. Só são aceitos: JPG, JPEG, PNG, GIF.");
           setForm((prev) => ({ ...prev, foto: null }));
           setPreview(null);
           return;
@@ -63,6 +68,7 @@ export default function CadastrarServico() {
 
         setForm((prev) => ({ ...prev, foto: file }));
         setPreview(URL.createObjectURL(file));
+        setMensagem(''); // Limpa mensagem de erro ao selecionar arquivo válido
       }
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
@@ -71,6 +77,7 @@ export default function CadastrarServico() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const formData = new FormData();
@@ -83,23 +90,22 @@ export default function CadastrarServico() {
         formData.append("Images", form.foto);
       }
 
-      // 🔑 Pega o token salvo no localStorage
       const token = localStorage.getItem("auth_token");
 
       const response = await fetch("http://localhost:5087/api/provider/services", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // Token vai no cabeçalho
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
 
       if (!response.ok) {
-        let errorMessage = "❌ Erro ao cadastrar serviço.";
+        let errorMessage = "Erro ao cadastrar serviço.";
         try {
           const error = await response.json();
           console.error("Erro no cadastro:", error);
-          errorMessage += ` (${error.message || "Verifique os dados"})`;
+          errorMessage += ` ${error.message || "Verifique os dados inseridos."}`;
         } catch {
           console.error("Erro no cadastro:", response.status);
         }
@@ -107,151 +113,206 @@ export default function CadastrarServico() {
         return;
       }
 
-      setMensagem("✅ Serviço cadastrado com sucesso!");
+      setMensagem("Serviço cadastrado com sucesso!");
       setForm({ titulo: '', descricao: '', preco: '', categoria: '', foto: null });
       setPreview(null);
 
-      setTimeout(() => setMensagem(''), 5000);
+      setTimeout(() => setMensagem(''), 8000);
     } catch (err) {
       console.error(err);
-      setMensagem("❌ Ocorreu um erro inesperado.");
+      setMensagem("Ocorreu um erro inesperado. Tente novamente.");
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  const getMensagemClass = () => {
+    if (mensagem.includes("sucesso")) return styles.avisoSuccess;
+    if (mensagem.includes("Erro") || mensagem.includes("inválido") || mensagem.includes("inesperado")) return styles.avisoError;
+    return styles.aviso;
   };
 
   return (
     <>
       <Navbar />
-
-      <div className={styles.container}>
-        <h1 className={styles.title}>Cadastrar Novo Serviço</h1>
-
-        {mensagem && (
-          <div className={styles.aviso}>
-            {mensagem}
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div>
-            <label htmlFor="titulo" className={styles.label}>
-              Título do Serviço
-            </label>
-            <input
-              id="titulo"
-              name="titulo"
-              value={form.titulo}
-              onChange={handleChange}
-              className={styles.input}
-              required
-            />
+      
+      <div className={styles.pageWrapper}>
+        <div className={styles.container}>
+          {/* Header */}
+          <div className={styles.header}>
+            <div className={styles.headerIcon}>
+              <span className={styles.iconLarge}>✨</span>
+            </div>
+            <h1 className={styles.title}>Cadastrar Novo Serviço</h1>
+            <p className={styles.subtitle}>
+              Compartilhe seu talento e conecte-se com pessoas que precisam dos seus serviços
+            </p>
           </div>
 
-          <div>
-            <label htmlFor="descricao" className={styles.label}>
-              Descrição
-            </label>
-            <textarea
-              id="descricao"
-              name="descricao"
-              value={form.descricao}
-              onChange={handleChange}
-              rows={4}
-              className={styles.textarea}
-              required
-            />
-          </div>
+          {/* Mensagem de feedback */}
+          {mensagem && (
+            <div className={getMensagemClass()}>
+              <span className={styles.mensagemIcon}>
+                {mensagem.includes("sucesso") ? "✅" : "⚠️"}
+              </span>
+              {mensagem}
+            </div>
+          )}
 
-          <div>
-            <label htmlFor="preco" className={styles.label}>
-              Preço Sugerido (R$)
-            </label>
-            <input
-              id="preco"
-              name="preco"
-              type="number"
-              step="0.01"
-              value={form.preco}
-              onChange={handleChange}
-              className={styles.input}
-              required
-            />
-          </div>
+          {/* Formulário */}
+          <form onSubmit={handleSubmit} className={styles.form}>
+            {/* Título */}
+            <div className={styles.inputGroup}>
+              <label htmlFor="titulo" className={styles.label}>
+                <span className={styles.labelIcon}>📝</span>
+                Título do Serviço
+              </label>
+              <input
+                id="titulo"
+                name="titulo"
+                value={form.titulo}
+                onChange={handleChange}
+                className={styles.input}
+                placeholder="Ex: Instalação elétrica residencial"
+                required
+              />
+            </div>
 
-          <div>
-            <label htmlFor="categoria" className={styles.label}>
-              Categoria
-            </label>
-            <select
-              id="categoria"
-              name="categoria"
-              value={form.categoria}
-              onChange={handleChange}
-              className={styles.select}
-              required
-            >
-              <option value="">Selecione...</option>
-              <option value="1">Elétrica</option>
-              <option value="2">Hidráulica</option>
-              <option value="3">Pintura</option>
-              <option value="4">Jardinagem</option>
-              <option value="5">Limpeza</option>
-              <option value="6">Reformas e Construção</option>
-              <option value="7">Tecnologia da Informação (TI)</option>
-              <option value="8">Transporte e Mudanças</option>
-              <option value="9">Beleza e Estética</option>
-              <option value="10">Educação e Aulas Particulares</option>
-              <option value="11">Saúde e Bem-estar</option>
-              <option value="12">Serviços Automotivos</option>
-              <option value="13">Marcenaria e Móveis Planejados</option>
-              <option value="14">Serralheria</option>
-              <option value="15">Climatização</option>
-              <option value="16">Instalação de Eletrodomésticos</option>
-              <option value="17">Fotografia e Filmagem</option>
-              <option value="18">Eventos e Festas</option>
-              <option value="19">Consultoria Financeira e Contábil</option>
-              <option value="20">Assistência Técnica</option>
-              <option value="21">Design e Publicidade</option>
-              <option value="22">Serviços Jurídicos</option>
-              <option value="23">Segurança</option>
-              <option value="24">Marketing Digital</option>
-              <option value="25">Consultoria Empresarial</option>
-              <option value="26">Tradução e Idiomas</option>
-              <option value="27">Serviços Domésticos Gerais</option>
-              <option value="28">Manutenção Predial e Industrial</option>
-              <option value="29">Pet Care</option>
-              <option value="30">Culinária e Gastronomia</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="foto" className={styles.label}>
-             Caso tenha, adicione uma foto do seu serviço
-            </label>
-            <input
-              id="foto"
-              name="foto"
-              type="file"
-              accept=".jpg,.jpeg,.png,.gif"
-              onChange={handleChange}
-              className={styles.input}
-            />
-            {preview && (
-              <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                <img
-                  src={preview}
-                  alt="Pré-visualização"
-                  style={{ maxWidth: '200px', borderRadius: '8px' }}
-                />
+            {/* Descrição */}
+            <div className={styles.inputGroup}>
+              <label htmlFor="descricao" className={styles.label}>
+                <span className={styles.labelIcon}>📄</span>
+                Descrição Detalhada
+              </label>
+              <textarea
+                id="descricao"
+                name="descricao"
+                value={form.descricao}
+                onChange={handleChange}
+                rows={4}
+                className={styles.textarea}
+                placeholder="Descreva seu serviço, experiência e o que está incluído..."
+                required
+              />
+              <div className={styles.charCount}>
+                {form.descricao.length}/500 caracteres
               </div>
-            )}
-          </div>
+            </div>
 
-          <div style={{ textAlign: 'center' }}>
-            <button type="submit" className={styles.button}>
-              Cadastrar Serviço
-            </button>
-          </div>
-        </form>
+            {/* Grid para Preço e Categoria */}
+            <div className={styles.gridContainer}>
+              {/* Preço */}
+              <div className={styles.inputGroup}>
+                <label htmlFor="preco" className={styles.label}>
+                  <span className={styles.labelIcon}>💰</span>
+                  Preço Sugerido
+                </label>
+                <div className={styles.priceInput}>
+                  <span className={styles.pricePrefix}>R$</span>
+                  <input
+                    id="preco"
+                    name="preco"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form.preco}
+                    onChange={handleChange}
+                    className={styles.inputPrice}
+                    placeholder="0,00"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Categoria */}
+              <div className={styles.inputGroup}>
+                <label htmlFor="categoria" className={styles.label}>
+                  <span className={styles.labelIcon}>🎯</span>
+                  Categoria
+                </label>
+                <select
+                  id="categoria"
+                  name="categoria"
+                  value={form.categoria}
+                  onChange={handleChange}
+                  className={styles.select}
+                  required
+                >
+                  <option value="">Escolha a categoria</option>
+                  {categorias.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.icon} {cat.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Upload de Foto */}
+            <div className={styles.inputGroup}>
+              <label htmlFor="foto" className={styles.label}>
+                <span className={styles.labelIcon}>📷</span>
+                Foto do Serviço (Opcional)
+              </label>
+              
+              <div className={styles.uploadArea}>
+                <input
+                  id="foto"
+                  name="foto"
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.gif"
+                  onChange={handleChange}
+                  className={styles.fileInput}
+                />
+                <div className={styles.uploadContent}>
+                  {preview ? (
+                    <div className={styles.previewContainer}>
+                      <img
+                        src={preview}
+                        alt="Pré-visualização"
+                        className={styles.previewImage}
+                      />
+                      <div className={styles.previewOverlay}>
+                        <span>Clique para alterar</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.uploadPlaceholder}>
+                      <span className={styles.uploadIcon}>📸</span>
+                      <p className={styles.uploadText}>
+                        Clique ou arraste uma imagem aqui
+                      </p>
+                      <p className={styles.uploadSubtext}>
+                        JPG, PNG ou GIF até 5MB
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Botão de Submit */}
+            <div className={styles.submitContainer}>
+              <button 
+                type="submit" 
+                className={styles.submitButton}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <span className={styles.spinner}></span>
+                    Cadastrando...
+                  </>
+                ) : (
+                  <>
+                    <span className={styles.buttonIcon}>🚀</span>
+                    Cadastrar Serviço
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </>
   );

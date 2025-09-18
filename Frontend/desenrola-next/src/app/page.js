@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { withAuth } from '../hooks/withAuth';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 import styles from './HomePage.module.css';
 
 import { 
@@ -76,6 +77,20 @@ function HomePage({ hasToken }) {
     29: "Gastronomia"
   };
 
+  // ✅ Função para verificar expiração do token
+  const isTokenExpired = (token) => {
+    try {
+      const decoded = jwtDecode(token);
+      if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("Erro ao decodificar token:", err);
+      return true;
+    }
+  };
+
   // Função para buscar serviços da API
   const fetchServices = async (page = 1, searchTerm = '', onlyActive = true, providerId = '') => {
     if (!hasToken) {
@@ -83,10 +98,20 @@ function HomePage({ hasToken }) {
       return;
     }
 
+    const token = localStorage.getItem('auth_token');
+
+    // ✅ Verificação de expiração do token
+    if (!token || isTokenExpired(token)) {
+      console.warn("Token expirado ou inválido. Redirecionando para login...");
+      localStorage.removeItem("auth_token");
+      localStorage.removeItem("auth_user");
+      setShowOverlay(true);
+      return;
+    }
+
     setLoading(true);
     
     try {
-      const token = localStorage.getItem('auth_token');
       const params = new URLSearchParams({
         Page: page.toString(),
         PageSize: pageSize.toString(),
@@ -464,7 +489,7 @@ function HomePage({ hasToken }) {
                 ))}
               </div>
               
-              {/* Paginação - CORRIGIDO */}
+              {/* Paginação */}
               {renderPagination()}
             </>
           ) : (

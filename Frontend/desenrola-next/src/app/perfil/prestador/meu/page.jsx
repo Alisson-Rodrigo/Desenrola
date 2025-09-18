@@ -137,7 +137,7 @@ export default function ProfilePage() {
 
           <button className={styles.assistanceButton}>
             <HelpCircle size={16} />
-            Central de Assistência
+            Torne-se Vip
           </button>
         </div>
 
