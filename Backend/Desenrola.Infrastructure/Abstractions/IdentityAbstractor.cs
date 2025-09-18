@@ -66,8 +66,12 @@ public class IdentityAbstractor : IIdentityAbstractor
         return await _userManager.GetRolesAsync(user);
     }
 
-    public async Task<User?> FindUserByIdAsync(string userId) => await _userManager.FindByIdAsync(userId);
-
+    public async Task<User?> FindUserByIdAsync(string userId)
+    {
+        return await _userManager.Users
+            .Include(u => u.Provider) // exemplo: carregar o Provider junto
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
     public async Task<IList<string>> GetUserRolesAsync(User user) => await _userManager.GetRolesAsync(user);
 
     public async Task<IdentityResult> CreateUserAsync(User partnerUser, string password)
