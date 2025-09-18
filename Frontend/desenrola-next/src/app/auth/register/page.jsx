@@ -82,7 +82,7 @@ export default function Register() {
         phone: form.phone,
         password: form.password,
         passwordConfirmation: form.confirmPassword,
-        role: "Customer", // 👈 sempre Customer
+        role: 1, // 👈 sempre 1 (Customer enum value)
       });
       setMessage({ type: 'success', text: 'Conta criada com sucesso!' });
     } catch (err) {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Check,
   X,
@@ -16,7 +16,10 @@ import {
   FileCheck,
   Bell,
   LogOut,
-  Menu
+  Menu,
+  Loader2,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 import styles from './AdminDashboard.module.css'; // CSS Module
@@ -26,6 +29,16 @@ const AdminDashboard = () => {
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [activeSection, setActiveSection] = useState('validacao');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  
+  const [prestadores, setPrestadores] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    totalItems: 0,
+    page: 1,
+    pageSize: 10,
+    totalPages: 0
+  });
 
   const menuItems = [
     { key: 'validacao', label: 'Validação de Prestadores', icon: FileCheck },
@@ -35,59 +48,219 @@ const AdminDashboard = () => {
     { key: 'configuracoes', label: 'Configurações', icon: Settings },
   ];
 
-  const prestadores = [
-    {
-      id: 1,
-      name: "João Santos Silva",
-      cpf: "123.456.789-00",
-      rg: "12.345.678-9",
-      address: "Rua das Palmeiras, 456 - Centro",
-      serviceName: "Encanamento Residencial",
-      description: "Especialista em reparos de encanamento, instalação de torneiras e consertos gerais",
-      phoneNumber: "(89) 99999-2222",
-      documentPhotos: ["/api/placeholder/300/200", "/api/placeholder/300/200", "/api/placeholder/300/200"],
-      submittedAt: "15/12/2024 às 09:30",
-      status: "pendente"
-    },
-    {
-      id: 2,
-      name: "Maria Oliveira Costa",
-      cpf: "987.654.321-00",
-      rg: "98.765.432-1",
-      address: "Av. Principal, 789 - Bairro Novo",
-      serviceName: "Limpeza Doméstica",
-      description: "Serviços completos de limpeza residencial e comercial com produtos próprios",
-      phoneNumber: "(89) 98888-1111",
-      documentPhotos: ["/api/placeholder/300/200", "/api/placeholder/300/200"],
-      submittedAt: "14/12/2024 às 14:15",
-      status: "pendente"
-    },
-    {
-      id: 3,
-      name: "Carlos Mendes",
-      cpf: "456.789.123-00",
-      rg: "45.678.912-3",
-      address: "Rua do Comércio, 321 - Vila Nova",
-      serviceName: "Eletricista Predial",
-      description: "Instalações elétricas prediais, manutenção e reparos em sistemas elétricos",
-      phoneNumber: "(89) 97777-3333",
-      documentPhotos: ["/api/placeholder/300/200", "/api/placeholder/300/200", "/api/placeholder/300/200"],
-      submittedAt: "13/12/2024 às 16:45",
-      status: "aceito"
+  const fetchPendingProviders = async (page = 1, pageSize = 10) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const token = localStorage.getItem('auth_token');
+
+      const response = await fetch(
+        `http://localhost:5087/api/provider/pending?page=${page}&pageSize=${pageSize}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      const mappedProviders = data.items.map(item => ({
+        id: item.id,
+        name: "Nome não informado",
+        cpf: formatCPF(item.cpf),
+        rg: item.rg,
+        address: item.address,
+        serviceName: "Serviço não especificado",
+        description: "Descrição não disponível",
+        phoneNumber: formatPhone(item.phoneNumber),
+        documentPhotos: [],
+        submittedAt: "Data não informada",
+        status: item.isVerified ? 'aceito' : 'pendente',
+        isActive: item.isActive
+      }));
+      
+      setPrestadores(mappedProviders);
+      setPagination({
+        totalItems: data.totalItems,
+        page: data.page,
+        pageSize: data.pageSize,
+        totalPages: data.totalPages
+      });
+      
+    } catch (err) {
+      console.error('Erro ao carregar prestadores:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const formatCPF = (cpf) => {
+    if (!cpf) return '';
+    return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  };
+
+  const formatPhone = (phone) => {
+    if (!phone) return '';
+    return phone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+  };
+
+  useEffect(() => {
+    if (selectedTab === 'pendentes') {
+      fetchPendingProviders(pagination.page, pagination.pageSize);
+    }
+  }, [selectedTab]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      setPagination(prev => ({ ...prev, page: newPage }));
+      fetchPendingProviders(newPage, pagination.pageSize);
+    }
+  };
 
   const filteredPrestadores = prestadores.filter(p => {
     if (selectedTab === 'todos') return true;
-    return p.status === selectedTab;
+    if (selectedTab === 'pendentes') return p.status === 'pendente';
+    if (selectedTab === 'aceitos') return p.status === 'aceito';
+    if (selectedTab === 'rejeitados') return p.status === 'rejeitado';
+    return true;
   });
 
-  const handleApprove = (id) => {
-    console.log('Aprovar prestador:', id);
-  };
+const handleApprove = async (id) => {
+  try {
+    // Mostrar loading state (opcional)
+    setLoading(true);
+    
+    const token = localStorage.getItem('auth_token');
+    
+    if (!token) {
+      throw new Error('Token de autenticação não encontrado');
+    }
 
-  const handleReject = (id) => {
-    console.log('Rejeitar prestador:', id);
+    // Criar FormData conforme esperado pelo endpoint
+    const formData = new FormData();
+    formData.append("Id", id);
+
+    const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`
+        // Não incluir Content-Type quando usando FormData - o browser define automaticamente
+      },
+      body: formData
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erro ${response.status}: ${errorText}`);
+    }
+
+    // Verificar se há resposta JSON
+    const contentType = response.headers.get('content-type');
+    let responseData = null;
+    
+    if (contentType && contentType.includes('application/json')) {
+      responseData = await response.json();
+      console.log('Prestador aprovado com sucesso:', responseData);
+    }
+
+    // Atualizar a lista local imediatamente (otimistic update)
+    setPrestadores(prevPrestadores => 
+      prevPrestadores.map(prestador => 
+        prestador.id === id 
+          ? { ...prestador, status: 'aceito' }
+          : prestador
+      )
+    );
+
+    // Recarregar dados do servidor para garantir consistência
+    await fetchPendingProviders(pagination.page, pagination.pageSize);
+    
+    // Mostrar mensagem de sucesso (opcional)
+    alert('Prestador aprovado com sucesso!');
+
+  } catch (err) {
+    console.error('Erro ao aprovar prestador:', err);
+    alert(`Não foi possível aprovar o prestador: ${err.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
+
+// Função alternativa usando JSON ao invés de FormData (caso o backend aceite)
+const handleApproveJSON = async (id) => {
+  try {
+    setLoading(true);
+    
+    const token = localStorage.getItem('auth_token');
+    
+    if (!token) {
+      throw new Error('Token de autenticação não encontrado');
+    }
+
+    const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ Id: id })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erro ${response.status}: ${errorText}`);
+    }
+
+    const responseData = await response.json();
+    console.log('Prestador aprovado com sucesso:', responseData);
+
+    // Atualizar estado local
+    setPrestadores(prevPrestadores => 
+      prevPrestadores.map(prestador => 
+        prestador.id === id 
+          ? { ...prestador, status: 'aceito' }
+          : prestador
+      )
+    );
+
+    await fetchPendingProviders(pagination.page, pagination.pageSize);
+    alert('Prestador aprovado com sucesso!');
+
+  } catch (err) {
+   
+   
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+  const handleReject = async (id) => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`http://localhost:5087/api/provider/${id}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) throw new Error('Erro ao rejeitar prestador');
+
+      await fetchPendingProviders(pagination.page, pagination.pageSize);
+    } catch (err) {
+      console.error(err);
+      alert('Não foi possível rejeitar o prestador.');
+    }
   };
 
   const openDocumentModal = (photos, prestadorName) => {
@@ -96,6 +269,54 @@ const AdminDashboard = () => {
 
   const closeDocumentModal = () => {
     setSelectedDocument(null);
+  };
+
+  const PaginationComponent = () => {
+    if (pagination.totalPages <= 1) return null;
+
+    const startItem = (pagination.page - 1) * pagination.pageSize + 1;
+    const endItem = Math.min(pagination.page * pagination.pageSize, pagination.totalItems);
+
+    return (
+      <div className={styles['pagination-container']}>
+        <div className={styles['pagination-info']}>
+          Mostrando {startItem} a {endItem} de {pagination.totalItems} resultados
+        </div>
+        <div className={styles['pagination-controls']}>
+          <button
+            onClick={() => handlePageChange(pagination.page - 1)}
+            disabled={pagination.page === 1}
+            className={styles['pagination-button']}
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Anterior
+          </button>
+          
+          <div className={styles['pagination-pages']}>
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(pageNum => (
+              <button
+                key={pageNum}
+                onClick={() => handlePageChange(pageNum)}
+                className={`${styles['pagination-page']} ${
+                  pageNum === pagination.page ? styles.active : ''
+                }`}
+              >
+                {pageNum}
+              </button>
+            ))}
+          </div>
+          
+          <button
+            onClick={() => handlePageChange(pagination.page + 1)}
+            disabled={pagination.page === pagination.totalPages}
+            className={styles['pagination-button']}
+          >
+            Próximo
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    );
   };
 
   const ValidacaoContent = () => (
@@ -111,15 +332,16 @@ const AdminDashboard = () => {
         <div className={styles['tabs-border']}>
           <nav className={styles['tabs-nav']}>
             {[
-              { key: 'pendentes', label: 'Pendentes', count: prestadores.filter(p => p.status === 'pendente').length },
-              { key: 'aceitos', label: 'Aceitos', count: prestadores.filter(p => p.status === 'aceito').length },
-              { key: 'rejeitados', label: 'Rejeitados', count: prestadores.filter(p => p.status === 'rejeitado').length },
-              { key: 'todos', label: 'Todos', count: prestadores.length }
+              { key: 'pendentes', label: 'Pendentes', count: selectedTab === 'pendentes' ? pagination.totalItems : 0 },
+              { key: 'aceitos', label: 'Aceitos', count: 0 },
+              { key: 'rejeitados', label: 'Rejeitados', count: 0 },
+              { key: 'todos', label: 'Todos', count: 0 }
             ].map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setSelectedTab(tab.key)}
                 className={`${styles['tab-button']} ${selectedTab === tab.key ? styles.active : ''}`}
+                disabled={loading}
               >
                 {tab.label}
                 <span className={`${styles['tab-count']} ${selectedTab === tab.key ? styles.active : ''}`}>
@@ -131,80 +353,112 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className={styles['prestadores-list']}>
-        {filteredPrestadores.map((prestador) => (
-          <div key={prestador.id} className={styles['prestador-card']}>
-            <div className={styles['prestador-grid']}>
-              <div className={styles['prestador-info']}>
-                <div className={styles['prestador-header']}>
-                  <h3 className={styles['prestador-name']}>{prestador.name}</h3>
-                  <span className={`${styles['status-badge']} ${styles[prestador.status]}`}>
-                    {prestador.status}
-                  </span>
-                </div>
+      {error && (
+        <div className={styles['error-message']}>
+          <X className="w-5 h-5" />
+          Erro ao carregar dados: {error}
+          <button 
+            onClick={() => fetchPendingProviders(pagination.page, pagination.pageSize)}
+            className={styles['retry-button']}
+          >
+            Tentar novamente
+          </button>
+        </div>
+      )}
 
-                <div className={styles['prestador-details']}>
-                  <div className={styles['detail-item']}>
-                    <CreditCard className={styles['detail-icon']} />
-                    <span>CPF: {prestador.cpf}</span>
-                  </div>
-                  <div className={styles['detail-item']}>
-                    <FileText className={styles['detail-icon']} />
-                    <span>RG: {prestador.rg}</span>
-                  </div>
-                  <div className={styles['detail-item']}>
-                    <Phone className={styles['detail-icon']} />
-                    <span>{prestador.phoneNumber}</span>
-                  </div>
-                  <div className={`${styles['detail-item']} ${styles.address}`}>
-                    <MapPin className={`${styles['detail-icon']} ${styles.address}`} />
-                    <span>{prestador.address}</span>
-                  </div>
-                </div>
+      {loading ? (
+        <div className={styles['loading-container']}>
+          <Loader2 className={`${styles['loading-icon']} animate-spin`} />
+          <p>Carregando prestadores...</p>
+        </div>
+      ) : (
+        <>
+          <div className={styles['prestadores-list']}>
+            {filteredPrestadores.map((prestador) => (
+              <div key={prestador.id} className={styles['prestador-card']}>
+                <div className={styles['prestador-grid']}>
+                  <div className={styles['prestador-info']}>
+                    <div className={styles['prestador-header']}>
+                      <h3 className={styles['prestador-name']}>{prestador.name}</h3>
+                      <div className={styles['status-badges']}>
+                        <span className={`${styles['status-badge']} ${styles[prestador.status]}`}>
+                          {prestador.status}
+                        </span>
+                        {!prestador.isActive && (
+                          <span className={`${styles['status-badge']} ${styles.inactive}`}>
+                            Inativo
+                          </span>
+                        )}
+                      </div>
+                    </div>
 
-                <div>
-                  <h4 className={styles['service-name']}>{prestador.serviceName}</h4>
-                  <p className={styles['service-description']}>{prestador.description}</p>
-                </div>
+                    <div className={styles['prestador-details']}>
+                      <div className={styles['detail-item']}>
+                        <CreditCard className={styles['detail-icon']} />
+                        <span>CPF: {prestador.cpf}</span>
+                      </div>
+                      <div className={styles['detail-item']}>
+                        <FileText className={styles['detail-icon']} />
+                        <span>RG: {prestador.rg}</span>
+                      </div>
+                      <div className={styles['detail-item']}>
+                        <Phone className={styles['detail-icon']} />
+                        <span>{prestador.phoneNumber}</span>
+                      </div>
+                      <div className={`${styles['detail-item']} ${styles.address}`}>
+                        <MapPin className={`${styles['detail-icon']} ${styles.address}`} />
+                        <span>{prestador.address}</span>
+                      </div>
+                    </div>
 
-                <div className={styles['prestador-footer']}>
-                  <span className={styles['submitted-date']}>Enviado em: {prestador.submittedAt}</span>
-                  <div>
-                    <button
-                      onClick={() => openDocumentModal(prestador.documentPhotos, prestador.name)}
-                      className={styles['view-documents']}
-                    >
-                      <Eye />
-                      Ver Documentos ({prestador.documentPhotos.length})
-                    </button>
+                    <div>
+                      <h4 className={styles['service-name']}>{prestador.serviceName}</h4>
+                      <p className={styles['service-description']}>{prestador.description}</p>
+                    </div>
+
+                    <div className={styles['prestador-footer']}>
+                      <span className={styles['submitted-date']}>Enviado em: {prestador.submittedAt}</span>
+                      <div>
+                        <button
+                          onClick={() => openDocumentModal(prestador.documentPhotos, prestador.name)}
+                          className={styles['view-documents']}
+                          disabled={prestador.documentPhotos.length === 0}
+                        >
+                          <Eye />
+                          Ver Documentos ({prestador.documentPhotos.length})
+                        </button>
+                      </div>
+                    </div>
                   </div>
+
+                  {prestador.status === 'pendente' && (
+                    <div className={styles['prestador-actions']}>
+                      <button
+                        onClick={() => handleApprove(prestador.id)}
+                        className={`${styles['action-button']} ${styles['approve-button']}`}
+                      >
+                        <Check />
+                        Aprovar
+                      </button>
+                      <button
+                        onClick={() => handleReject(prestador.id)}
+                        className={`${styles['action-button']} ${styles['reject-button']}`}
+                      >
+                        <X />
+                        Rejeitar
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
-
-              {prestador.status === 'pendente' && (
-                <div className={styles['prestador-actions']}>
-                  <button
-                    onClick={() => handleApprove(prestador.id)}
-                    className={`${styles['action-button']} ${styles['approve-button']}`}
-                  >
-                    <Check />
-                    Aprovar
-                  </button>
-                  <button
-                    onClick={() => handleReject(prestador.id)}
-                    className={`${styles['action-button']} ${styles['reject-button']}`}
-                  >
-                    <X />
-                    Rejeitar
-                  </button>
-                </div>
-              )}
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      {filteredPrestadores.length === 0 && (
+          <PaginationComponent />
+        </>
+      )}
+
+      {!loading && filteredPrestadores.length === 0 && !error && (
         <div className={styles['empty-state']}>
           <User className={styles['empty-icon']} />
           <h3 className={styles['empty-title']}>Nenhum prestador encontrado</h3>
@@ -295,12 +549,19 @@ const AdminDashboard = () => {
                 </button>
               </div>
               <div className={styles['documents-grid']}>
-                {selectedDocument.photos.map((photo, index) => (
-                  <div key={index} className={styles['document-item']}>
-                    <img src={photo} alt={`Documento ${index + 1}`} className={styles['document-image']} />
-                    <div className={styles['document-label']}><p>Documento {index + 1}</p></div>
+                {selectedDocument.photos.length > 0 ? (
+                  selectedDocument.photos.map((photo, index) => (
+                    <div key={index} className={styles['document-item']}>
+                      <img src={photo} alt={`Documento ${index + 1}`} className={styles['document-image']} />
+                      <div className={styles['document-label']}><p>Documento {index + 1}</p></div>
+                    </div>
+                  ))
+                ) : (
+                  <div className={styles['no-documents']}>
+                    <FileText className="w-12 h-12 text-gray-400" />
+                    <p>Nenhum documento disponível</p>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           </div>

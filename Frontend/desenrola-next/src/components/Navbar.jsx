@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ChevronDown, Menu, X, User, LogOut } from 'lucide-react';
-import { jwtDecode } from 'jwt-decode';
-import styles from './Navbar.module.css';
+import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import { ChevronDown, Menu, X, User, LogOut, Shield, Plus } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
+import styles from "./Navbar.module.css";
 
 export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -12,6 +12,7 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const dropdownRef = useRef(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   // Fecha dropdown ao clicar fora
   useEffect(() => {
@@ -20,38 +21,46 @@ export default function Navbar() {
         setIsDropdownOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Prefetch das rotas principais
   useEffect(() => {
-    router.prefetch('/');
-    router.prefetch('/servicos');
-    router.prefetch('/clientes');
-    router.prefetch('/perfil/usuario/meu');
-    router.prefetch('/auth/login');
+    router.prefetch("/");
+    router.prefetch("/servicos");
+    router.prefetch("/clientes");
+    router.prefetch("/perfil/usuario/meu");
+    router.prefetch("/perfil/prestador/meu");
+    router.prefetch("/auth/login");
+    router.prefetch("/admin");
+    router.prefetch("/servicos/solicitarservico");
   }, [router]);
 
-  // Função para carregar usuário do localStorage
+  // Carregar usuário do localStorage
   function loadUser() {
-    const userStorage = localStorage.getItem('auth_user');
+    const userStorage = localStorage.getItem("auth_user");
     if (userStorage) {
       try {
-        setUser(JSON.parse(userStorage));
+        const userData = JSON.parse(userStorage);
+        console.log("Dados do usuário do localStorage:", userData);
+        setUser(userData);
         return;
       } catch (_) {}
     }
 
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem("auth_token");
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        setUser({
+        console.log("Token decodificado:", decoded);
+        const userData = {
           name: decoded.unique_name,
           email: decoded.email,
           role: decoded.role,
-        });
+        };
+        console.log("Dados do usuário processados:", userData);
+        setUser(userData);
       } catch (err) {
         console.error("Erro ao decodificar token:", err);
       }
@@ -60,11 +69,8 @@ export default function Navbar() {
     }
   }
 
-  // Recupera usuário inicial e escuta alterações no localStorage
   useEffect(() => {
     loadUser();
-
-    // Escuta qualquer alteração no localStorage
     window.addEventListener("storage", loadUser);
     return () => window.removeEventListener("storage", loadUser);
   }, []);
@@ -73,13 +79,32 @@ export default function Navbar() {
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_user");
     setUser(null);
-    router.push('/auth/login');
-    // dispara evento de storage para atualizar em tempo real
+    router.push("/auth/login");
     window.dispatchEvent(new Event("storage"));
   };
+
+  // helper para marcar ativo
+  const getLinkClass = (href) =>
+    `${styles.navLink} ${pathname === href ? styles.active : ""}`;
+
+  // Verificação se é admin
+  const isAdmin =
+    user &&
+    (user.role === 0 ||
+      user.role === "0" ||
+      parseInt(user.role) === 0 ||
+      user.role?.toLowerCase() === "admin");
+
+  // Verificação se é provider
+  const isProvider =
+    user &&
+    (user.role === 2 ||
+      user.role === "2" ||
+      parseInt(user.role) === 2 ||
+      user.role?.toLowerCase() === "provider");
 
   return (
     <nav className={styles.navbar}>
@@ -90,44 +115,96 @@ export default function Navbar() {
           Desenrola
         </Link>
 
-        {/* Navigation Links - Desktop */}
+        {/* Links Desktop */}
         <div className={styles.nav}>
-          <Link href="/" className={`${styles.navLink} ${styles.active}`}>
+          <Link href="/" className={getLinkClass("/")}>
             Dashboard
           </Link>
-          <Link href="/servicos" className={styles.navLink}>
+          <Link href="/servicos" className={getLinkClass("/servicos")}>
             Serviços
           </Link>
-          <Link href="/clientes" className={styles.navLink}>
+          <Link href="/clientes" className={getLinkClass("/clientes")}>
             Clientes
           </Link>
+
+          {/* Botão Cadastrar Serviço - só aparece para Provider */}
+          {isProvider && (
+            <Link
+              href="/servicos/solicitarservico"
+              className={getLinkClass("/servicos/solicitarservico")}
+            >
+              Cadastrar Serviço
+            </Link>
+          )}
+
+          {/* Botão Admin */}
+          {isAdmin && (
+            <Link href="/admin" className={getLinkClass("/admin")}>
+              Admin
+            </Link>
+          )}
         </div>
 
-        {/* User Section */}
+        {/* Seção Usuário */}
         <div className={styles.userSection}>
           {user ? (
-            <div 
-              className={styles.userProfile} 
+            <div
+              className={styles.userProfile}
               onClick={toggleDropdown}
               ref={dropdownRef}
             >
-              {/* Avatar: iniciais do nome */}
               <div className={styles.avatar}>
                 {user?.name ? user.name.substring(0, 2).toUpperCase() : "??"}
               </div>
-              <span className={styles.userName}>{user?.name || "Usuário"}</span>
+              <span className={styles.userName}>
+                {user?.name || "Usuário"}
+              </span>
               <ChevronDown className={styles.dropdownIcon} />
 
-              {/* Dropdown Menu */}
-              <div className={`${styles.dropdown} ${isDropdownOpen ? styles.open : ''}`}>
+              <div
+                className={`${styles.dropdown} ${
+                  isDropdownOpen ? styles.open : ""
+                }`}
+              >
                 <div className={styles.dropdownHeader}>
                   <h3>{user?.name || "Usuário"}</h3>
                   <p>{user?.email || "email@dominio.com"}</p>
                 </div>
-                <Link href="/perfil/usuario/meu" className={styles.dropdownItem}>
-                  <User size={16} /> Meu Perfil
-                </Link>
-                
+
+                {/* Link Perfil condicional */}
+                {isProvider ? (
+                  <Link
+                    href="/perfil/prestador/meu"
+                    className={styles.dropdownItem}
+                  >
+                    <User size={16} /> Meu Perfil (Prestador)
+                  </Link>
+                ) : (
+                  <Link
+                    href="/perfil/usuario/meu"
+                    className={styles.dropdownItem}
+                  >
+                    <User size={16} /> Meu Perfil
+                  </Link>
+                )}
+
+                {/* Link Cadastrar Serviço */}
+                {isProvider && (
+                  <Link
+                    href="/servicos/solicitarservico"
+                    className={styles.dropdownItem}
+                  >
+                    <Plus size={16} /> Cadastrar Serviço
+                  </Link>
+                )}
+
+                {/* Link Admin */}
+                {isAdmin && (
+                  <Link href="/admin" className={styles.dropdownItem}>
+                    <Shield size={16} /> Administração
+                  </Link>
+                )}
+
                 <div className={styles.dropdownDivider}></div>
                 <button
                   className={`${styles.dropdownItem} ${styles.danger}`}
@@ -140,14 +217,14 @@ export default function Navbar() {
           ) : (
             <button
               className={styles.loginButton}
-              onClick={() => router.push('/auth/login')}
+              onClick={() => router.push("/auth/login")}
             >
               Entrar
             </button>
           )}
 
-          {/* Mobile Menu Button */}
-          <button 
+          {/* Botão Mobile */}
+          <button
             className={styles.mobileMenuButton}
             onClick={toggleMobileMenu}
           >
@@ -156,15 +233,60 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      <div className={`${styles.mobileMenu} ${isMobileMenuOpen ? styles.open : ''}`}>
-        <Link href="/" className={styles.mobileNavLink}>Dashboard</Link>
-        <Link href="/servicos" className={styles.mobileNavLink}>Serviços</Link>
-        <Link href="/clientes" className={styles.mobileNavLink}>Clientes</Link>
+      {/* Menu Mobile */}
+      <div
+        className={`${styles.mobileMenu} ${
+          isMobileMenuOpen ? styles.open : ""
+        }`}
+      >
+        <Link href="/" className={getLinkClass("/")}>
+          Dashboard
+        </Link>
+        <Link href="/servicos" className={getLinkClass("/servicos")}>
+          Serviços
+        </Link>
+        <Link href="/clientes" className={getLinkClass("/clientes")}>
+          Clientes
+        </Link>
+
+        {/* Link Perfil condicional no Mobile */}
+        {isProvider ? (
+          <Link
+            href="/perfil/prestador/meu"
+            className={getLinkClass("/perfil/prestador/meu")}
+          >
+            Meu Perfil (Prestador)
+          </Link>
+        ) : (
+          <Link
+            href="/perfil/usuario/meu"
+            className={getLinkClass("/perfil/usuario/meu")}
+          >
+            Meu Perfil
+          </Link>
+        )}
+
+        {/* Link Cadastrar Serviço */}
+        {isProvider && (
+          <Link
+            href="/servicos/solicitarservico"
+            className={getLinkClass("/servicos/solicitarservico")}
+          >
+            Cadastrar Serviço
+          </Link>
+        )}
+
+        {/* Link Admin */}
+        {isAdmin && (
+          <Link href="/admin" className={getLinkClass("/admin")}>
+            Admin
+          </Link>
+        )}
+
         {!user && (
           <button
             className={styles.mobileNavLogin}
-            onClick={() => router.push('/auth/login')}
+            onClick={() => router.push("/auth/login")}
           >
             Entrar
           </button>
