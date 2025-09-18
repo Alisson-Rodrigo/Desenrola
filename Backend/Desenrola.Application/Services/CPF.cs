@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace Desenrola.Application.Services
 {
+
+    /// <summary>
+    /// Serviço responsável por validar números de CPF conforme as regras oficiais. 
+    /// Remove caracteres não numéricos, descarta CPFs com dígitos repetidos 
+    /// e realiza o cálculo dos dígitos verificadores para determinar se o CPF é válido.
+    /// </summary>
     public class CPF : ICPF
     {
         public bool IsValidCPF(string cpf)

@@ -10,6 +10,15 @@ using System.Threading.Tasks;
 
 namespace Desenrola.Application.Features.ServicesProviders.Commands.DeleteProviderServiceCommand
 {
+
+    /// <summary>
+    /// Handler responsável por processar o comando <see cref="DeleteProviderServiceCommand"/>, 
+    /// permitindo que o prestador logado inative (soft delete) um serviço previamente cadastrado. 
+    /// Realiza validações de usuário, prestador e vínculo do serviço, além de garantir que 
+    /// apenas prestadores verificados possam inativar serviços. 
+    /// Retorna <see cref="Unit"/> em caso de sucesso.
+    /// </summary>
+
     public class DeleteProviderServiceCommandHandler : IRequestHandler<DeleteProviderServiceCommand, Unit>
     {
         private readonly IProviderServiceRepository _providerServiceRepository;

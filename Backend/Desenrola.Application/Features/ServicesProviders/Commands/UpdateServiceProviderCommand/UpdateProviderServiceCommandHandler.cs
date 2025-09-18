@@ -10,6 +10,15 @@ using System.Threading.Tasks;
 
 namespace Desenrola.Application.Features.ServicesProviders.Commands.UpdateServiceProviderCommand
 {
+
+    /// <summary>
+    /// Handler responsável por processar o comando <see cref="UpdateProviderServiceCommand"/>, 
+    /// permitindo que o prestador logado atualize um serviço já cadastrado. 
+    /// Realiza validações do usuário, do prestador e do vínculo com o serviço, 
+    /// garantindo que apenas prestadores ativos e verificados possam efetuar alterações. 
+    /// Atualiza apenas os campos permitidos e retorna o <see cref="Guid"/> do serviço atualizado.
+    /// </summary>
+
     public class UpdateProviderServiceCommandHandler : IRequestHandler<UpdateProviderServiceCommand, Guid>
     {
         private readonly IProviderServiceRepository _providerServiceRepository;

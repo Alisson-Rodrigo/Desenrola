@@ -10,6 +10,16 @@ using SixLabors.ImageSharp.Formats.Webp;
 
 namespace Desenrola.Application.Features.ServicesProviders.Commands.CreateServiceProviderCommand
 {
+
+    /// <summary>
+    /// Handler responsável por processar o comando <see cref="CreateProviderServiceCommand"/>, 
+    /// permitindo que prestadores de serviço logados e devidamente verificados publiquem 
+    /// novos serviços na plataforma. Realiza validações de usuário, prestador e comando, 
+    /// além de tratar o upload das imagens (convertendo-as para formato WebP) 
+    /// e salvar as informações no repositório de serviços do prestador. 
+    /// Retorna o <see cref="Guid"/> do serviço criado.
+    /// </summary>
+
     public class CreateProviderServiceCommandHandler : IRequestHandler<CreateProviderServiceCommand, Guid>
     {
         private readonly IProviderRepository _providerRepository;

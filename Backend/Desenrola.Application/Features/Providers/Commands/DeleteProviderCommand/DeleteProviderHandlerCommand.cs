@@ -4,6 +4,13 @@ using MediatR;
 
 namespace Desenrola.Application.Features.Providers.Commands.DeleteProviderCommand
 {
+
+    /// <summary>
+    /// Handler responsável por processar o comando <see cref="DeleteProviderCommand"/>, 
+    /// garantindo que apenas o usuário logado possa inativar seu próprio cadastro de prestador. 
+    /// A exclusão é lógica (alterando o campo IsActive para false), preservando os dados no sistema.
+    /// </summary>
+
     public class DeleteProviderHandlerCommand : IRequestHandler<DeleteProviderCommand, Unit>
     {
         private readonly IProviderRepository _providerRepository;
