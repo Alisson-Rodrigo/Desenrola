@@ -4,53 +4,47 @@ import { useState } from 'react';
 import Navbar from '../../../../../components/Navbar';
 import styles from "./CadastrarServico.module.css";
 
+
+/**
+CadastrarServico - Página de cadastro de novos serviços.
+
+permite que o usuário cadastre um serviço preenchendo título, descrição, preço,
+categoria, disponibilidade e opcionalmente uma foto ilustrativa. 
+Valida o formato da imagem e mostra uma pré-visualização antes do envio.
+
+O que faz:
+- Mostra um formulário para cadastro de serviço.
+- Permite enviar título, descrição, preço, categoria, disponibilidade e uma foto.
+- Faz validação do tipo de imagem (somente JPG, JPEG, PNG, GIF).
+- Exibe mensagens de sucesso ou erro durante o processo.
+- Limpa o formulário e remove a pré-visualização após envio.
+
+Estados internos:
+- form (objeto): armazena os dados do serviço (titulo, descricao, preco, categoria, foto).
+- mensagem (string): mostra feedback de erro ou sucesso para o usuário.
+- preview (string|null): armazena a URL da pré-visualização da imagem.
+
+Funções principais:
+- handleChange: atualiza o estado do formulário e valida arquivos de imagem.
+- handleSubmit: processa o envio do formulário, exibe mensagem de sucesso e limpa os campos.
+
+Dependências:
+- Navbar: componente de navegação superior.
+- styles (CSS Module): estilização da página.
+
+*/
+
 export default function CadastrarServico() {
   const [form, setForm] = useState({
     titulo: '',
     descricao: '',
     preco: '',
     categoria: '',
-    disponibilidade: '',
     foto: null,
   });
 
   const [mensagem, setMensagem] = useState('');
   const [preview, setPreview] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  // Mapeamento das categorias para os valores numéricos esperados pela API
-  const categoriaMapping = {
-    "Eletrica": 0,
-    "Hidraulica": 1,
-    "Pintura": 2,
-    "Jardinagem": 3,
-    "Limpeza": 4,
-    "Reformas": 5,
-    "TI": 6,
-    "Transporte": 7,
-    "Beleza": 8,
-    "Educacao": 9,
-    "Saude": 10,
-    "Automotivo": 11,
-    "Marcenaria": 12,
-    "Serralheria": 13,
-    "Climatizacao": 14,
-    "InstalacaoEletrodomesticos": 15,
-    "Fotografia": 16,
-    "Eventos": 17,
-    "ConsultoriaFinanceira": 18,
-    "AssistenciaTecnica": 19,
-    "DesignPublicidade": 20,
-    "Juridico": 21,
-    "Seguranca": 22,
-    "MarketingDigital": 23,
-    "ConsultoriaEmpresarial": 24,
-    "TraducaoIdiomas": 25,
-    "ServicosDomesticos": 26,
-    "ManutencaoPredial": 27,
-    "PetCare": 28,
-    "Gastronomia": 29
-  };
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -67,118 +61,60 @@ export default function CadastrarServico() {
           return;
         }
 
-        // Validar tamanho do arquivo (opcional - máximo 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          setMensagem("❌ Arquivo muito grande. Máximo 5MB permitido.");
-          setForm((prev) => ({ ...prev, foto: null }));
-          setPreview(null);
-          return;
-        }
-
         setForm((prev) => ({ ...prev, foto: file }));
         setPreview(URL.createObjectURL(file));
-        setMensagem(''); // Limpar mensagem de erro
       }
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const uploadImageToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        // Remove o prefixo "data:image/...;base64," se necessário
-        const base64 = reader.result.split(',')[1];
-        resolve(base64);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMensagem('');
 
     try {
-      const token = localStorage.getItem('auth_token');
-      
-      if (!token) {
-        throw new Error('Token de autenticação não encontrado. Faça login novamente.');
-      }
+      const formData = new FormData();
+      formData.append("Title", form.titulo);
+      formData.append("Description", form.descricao);
+      formData.append("Price", parseFloat(form.preco));
+      formData.append("Category", parseInt(form.categoria));
 
-      // Preparar os dados para envio
-      const serviceData = {
-        title: form.titulo,
-        description: form.descricao,
-        price: parseFloat(form.preco),
-        category: categoriaMapping[form.categoria],
-        images: []
-      };
-
-      // Se houver imagem, converter para base64 e adicionar ao array
       if (form.foto) {
-        try {
-          const base64Image = await uploadImageToBase64(form.foto);
-          serviceData.images = [base64Image];
-        } catch (error) {
-          throw new Error('Erro ao processar a imagem');
-        }
+        formData.append("Images", form.foto);
       }
 
-      // Fazer a requisição para a API
-      const response = await fetch('http://localhost:5087/api/provider/services', {
-        method: 'POST',
+      // 🔑 Pega o token salvo no localStorage
+      const token = localStorage.getItem("auth_token");
+
+      const response = await fetch("http://localhost:5087/api/provider/services", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`, // Token vai no cabeçalho
         },
-        body: JSON.stringify(serviceData)
+        body: formData,
       });
 
       if (!response.ok) {
-        const errorData = await response.text();
-        throw new Error(`Erro ${response.status}: ${errorData}`);
+        let errorMessage = "❌ Erro ao cadastrar serviço.";
+        try {
+          const error = await response.json();
+          console.error("Erro no cadastro:", error);
+          errorMessage += ` (${error.message || "Verifique os dados"})`;
+        } catch {
+          console.error("Erro no cadastro:", response.status);
+        }
+        setMensagem(errorMessage);
+        return;
       }
 
-      // Verificar se há resposta JSON
-      const contentType = response.headers.get('content-type');
-      let responseData = null;
-      
-      if (contentType && contentType.includes('application/json')) {
-        responseData = await response.json();
-        console.log('Serviço cadastrado com sucesso:', responseData);
-      }
-
-      setMensagem('✅ Serviço cadastrado com sucesso!');
-
-      // Limpar o formulário após sucesso
-      setForm({
-        titulo: '',
-        descricao: '',
-        preco: '',
-        categoria: '',
-        disponibilidade: '',
-        foto: null,
-      });
+      setMensagem("✅ Serviço cadastrado com sucesso!");
+      setForm({ titulo: '', descricao: '', preco: '', categoria: '', foto: null });
       setPreview(null);
 
-      // Limpar preview da URL para evitar memory leak
-      if (preview) {
-        URL.revokeObjectURL(preview);
-      }
-
       setTimeout(() => setMensagem(''), 5000);
-
-    } catch (error) {
-      console.error('Erro ao cadastrar serviço:', error);
-      setMensagem(`❌ Erro ao cadastrar serviço: ${error.message}`);
-      
-      setTimeout(() => setMensagem(''), 8000);
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setMensagem("❌ Ocorreu um erro inesperado.");
     }
   };
 
@@ -207,7 +143,6 @@ export default function CadastrarServico() {
               onChange={handleChange}
               className={styles.input}
               required
-              disabled={loading}
             />
           </div>
 
@@ -223,7 +158,6 @@ export default function CadastrarServico() {
               rows={4}
               className={styles.textarea}
               required
-              disabled={loading}
             />
           </div>
 
@@ -236,12 +170,10 @@ export default function CadastrarServico() {
               name="preco"
               type="number"
               step="0.01"
-              min="0"
               value={form.preco}
               onChange={handleChange}
               className={styles.input}
               required
-              disabled={loading}
             />
           </div>
 
@@ -256,60 +188,38 @@ export default function CadastrarServico() {
               onChange={handleChange}
               className={styles.select}
               required
-              disabled={loading}
             >
               <option value="">Selecione...</option>
-              <option value="Eletrica">Elétrica</option>
-              <option value="Hidraulica">Hidráulica</option>
-              <option value="Pintura">Pintura</option>
-              <option value="Jardinagem">Jardinagem</option>
-              <option value="Limpeza">Limpeza</option>
-              <option value="Reformas">Reformas e Construção</option>
-              <option value="TI">Tecnologia da Informação (TI)</option>
-              <option value="Transporte">Transporte e Mudanças</option>
-              <option value="Beleza">Beleza e Estética</option>
-              <option value="Educacao">Educação e Aulas Particulares</option>
-              <option value="Saude">Saúde e Bem-estar</option>
-              <option value="Automotivo">Serviços Automotivos</option>
-              <option value="Marcenaria">Marcenaria e Móveis Planejados</option>
-              <option value="Serralheria">Serralheria</option>
-              <option value="Climatizacao">Climatização</option>
-              <option value="InstalacaoEletrodomesticos">Instalação de Eletrodomésticos</option>
-              <option value="Fotografia">Fotografia e Filmagem</option>
-              <option value="Eventos">Eventos e Festas</option>
-              <option value="ConsultoriaFinanceira">Consultoria Financeira e Contábil</option>
-              <option value="AssistenciaTecnica">Assistência Técnica</option>
-              <option value="DesignPublicidade">Design e Publicidade</option>
-              <option value="Juridico">Serviços Jurídicos</option>
-              <option value="Seguranca">Segurança</option>
-              <option value="MarketingDigital">Marketing Digital</option>
-              <option value="ConsultoriaEmpresarial">Consultoria Empresarial</option>
-              <option value="TraducaoIdiomas">Tradução e Idiomas</option>
-              <option value="ServicosDomesticos">Serviços Domésticos Gerais</option>
-              <option value="ManutencaoPredial">Manutenção Predial e Industrial</option>
-              <option value="PetCare">Pet Care</option>
-              <option value="Gastronomia">Culinária e Gastronomia</option>
-            </select>
-          </div>
-
-          <div>
-            <label htmlFor="disponibilidade" className={styles.label}>
-              Disponibilidade
-            </label>
-            <select
-              id="disponibilidade"
-              name="disponibilidade"
-              value={form.disponibilidade}
-              onChange={handleChange}
-              className={styles.select}
-              required
-              disabled={loading}
-            >
-              <option value="">Selecione...</option>
-              <option value="manha">Manhã</option>
-              <option value="tarde">Tarde</option>
-              <option value="noite">Noite</option>
-              <option value="integral">Integral</option>
+              <option value="1">Elétrica</option>
+              <option value="2">Hidráulica</option>
+              <option value="3">Pintura</option>
+              <option value="4">Jardinagem</option>
+              <option value="5">Limpeza</option>
+              <option value="6">Reformas e Construção</option>
+              <option value="7">Tecnologia da Informação (TI)</option>
+              <option value="8">Transporte e Mudanças</option>
+              <option value="9">Beleza e Estética</option>
+              <option value="10">Educação e Aulas Particulares</option>
+              <option value="11">Saúde e Bem-estar</option>
+              <option value="12">Serviços Automotivos</option>
+              <option value="13">Marcenaria e Móveis Planejados</option>
+              <option value="14">Serralheria</option>
+              <option value="15">Climatização</option>
+              <option value="16">Instalação de Eletrodomésticos</option>
+              <option value="17">Fotografia e Filmagem</option>
+              <option value="18">Eventos e Festas</option>
+              <option value="19">Consultoria Financeira e Contábil</option>
+              <option value="20">Assistência Técnica</option>
+              <option value="21">Design e Publicidade</option>
+              <option value="22">Serviços Jurídicos</option>
+              <option value="23">Segurança</option>
+              <option value="24">Marketing Digital</option>
+              <option value="25">Consultoria Empresarial</option>
+              <option value="26">Tradução e Idiomas</option>
+              <option value="27">Serviços Domésticos Gerais</option>
+              <option value="28">Manutenção Predial e Industrial</option>
+              <option value="29">Pet Care</option>
+              <option value="30">Culinária e Gastronomia</option>
             </select>
           </div>
 
@@ -324,7 +234,6 @@ export default function CadastrarServico() {
               accept=".jpg,.jpeg,.png,.gif"
               onChange={handleChange}
               className={styles.input}
-              disabled={loading}
             />
             {preview && (
               <div style={{ marginTop: '1rem', textAlign: 'center' }}>
@@ -338,12 +247,8 @@ export default function CadastrarServico() {
           </div>
 
           <div style={{ textAlign: 'center' }}>
-            <button 
-              type="submit" 
-              className={styles.button}
-              disabled={loading}
-            >
-              {loading ? 'Cadastrando...' : 'Cadastrar Serviço'}
+            <button type="submit" className={styles.button}>
+              Cadastrar Serviço
             </button>
           </div>
         </form>
