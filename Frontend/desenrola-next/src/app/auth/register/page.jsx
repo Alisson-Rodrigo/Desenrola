@@ -23,7 +23,6 @@ export default function Register() {
     setForm((prev) => ({ ...prev, [id]: value }));
   }
 
-  // Traduz mensagens do backend para PT-BR
   function traduzirMensagem(msg) {
     return msg
       .replace(
@@ -40,9 +39,7 @@ export default function Register() {
       );
   }
 
-  // Prefetch para rotas comuns
   useEffect(() => {
-    // pré-carrega a tela de login
     if (typeof window !== 'undefined') {
       import('next/navigation').then(({ useRouter }) => {
         const router = useRouter();
@@ -82,9 +79,10 @@ export default function Register() {
         userName: form.userName,
         name: form.fullName,
         email: form.email,
+        phone: form.phone,
         password: form.password,
         passwordConfirmation: form.confirmPassword,
-        role: 1,
+        role: "Customer", // 👈 sempre Customer
       });
       setMessage({ type: 'success', text: 'Conta criada com sucesso!' });
     } catch (err) {
@@ -98,17 +96,13 @@ export default function Register() {
         errorText = err.message;
       }
 
-      // Se vier JSON {"message":"..."} → pega só o texto
       try {
         const parsed = JSON.parse(errorText);
         if (parsed?.message) {
           errorText = parsed.message;
         }
-      } catch (_) {
-        // não era JSON válido, segue como string
-      }
+      } catch (_) {}
 
-      // separa por linhas ou por "|"
       let mensagens = errorText
         .split(/\r?\n|\|/g)
         .map((m) => traduzirMensagem(m.trim()))

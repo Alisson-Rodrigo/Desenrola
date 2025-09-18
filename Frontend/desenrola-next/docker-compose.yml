@@ -9,16 +9,23 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-      - /app/.next
+      # Volume específico para cache do Next.js com permissões
+      - nextjs-cache:/app/.next
     environment:
       - NODE_ENV=development
       - HOST=0.0.0.0
       - NEXT_TELEMETRY_DISABLED=1
-      # ⚡ Ativar TurboPack
-      - NEXT_DISABLE_TURBOPACK=0
-      # 🔄 Forçar polling para garantir hot reload
+      # Configurações de polling mais agressivas
       - WATCHPACK_POLLING=true
-      - WATCHPACK_POLLING_INTERVAL=500
+      - WATCHPACK_POLLING_INTERVAL=1000
       - CHOKIDAR_USEPOLLING=true
-      - CHOKIDAR_INTERVAL=500
-    command: ["npm", "run", "dev"]
+      - CHOKIDAR_INTERVAL=1000
+      # Fast Refresh do Next.js
+      - FAST_REFRESH=true
+    # Comando sem --turbo que pode causar problemas
+    command: ["npx", "next", "dev", "-H", "0.0.0.0", "-p", "3000"]
+    # Opcional: usar init para melhor handling de sinais
+    init: true
+
+volumes:
+  nextjs-cache:
