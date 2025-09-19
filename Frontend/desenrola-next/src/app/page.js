@@ -17,7 +17,14 @@ import {
   Calendar,
   MapPin,
   Loader2,
-  X
+  X,
+  Sparkles,
+  TrendingUp,
+  Star,
+  Clock,
+  ArrowRight,
+  Grid3x3,
+  List
 } from 'lucide-react';
 
 function HomePage({ hasToken }) {
@@ -29,6 +36,7 @@ function HomePage({ hasToken }) {
   const [loading, setLoading] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' ou 'list'
   
   // Estados da paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -76,6 +84,16 @@ function HomePage({ hasToken }) {
     28: "Pet Care",
     29: "Gastronomia"
   };
+
+  // Categorias em destaque para quick filters
+  const featuredCategories = [
+    { id: 0, name: "Elétrica", icon: "⚡" },
+    { id: 1, name: "Hidráulica", icon: "🔧" },
+    { id: 2, name: "Pintura", icon: "🎨" },
+    { id: 5, name: "Reformas", icon: "🏗️" },
+    { id: 6, name: "TI", icon: "💻" },
+    { id: 8, name: "Beleza", icon: "✨" }
+  ];
 
   // ✅ Função para verificar expiração do token
   const isTokenExpired = (token) => {
@@ -221,6 +239,12 @@ function HomePage({ hasToken }) {
     }).format(price);
   };
 
+  const handleCategoryFilter = (categoryId) => {
+    setQuery(categorias[categoryId]);
+    setCurrentPage(1);
+    fetchServices(1, categorias[categoryId], filters.onlyActive, filters.providerId);
+  };
+
   // Função para renderizar paginação
   const renderPagination = () => {
     if (totalPages <= 1) return null;
@@ -240,7 +264,6 @@ function HomePage({ hasToken }) {
 
     return (
       <div className={styles.pagination}>
-        {/* Botão Anterior */}
         <button
           onClick={() => handlePageChange(currentPage - 1)}
           disabled={currentPage === 1 || loading}
@@ -250,7 +273,6 @@ function HomePage({ hasToken }) {
           <ChevronLeft size={16} />
         </button>
 
-        {/* Primeira página */}
         {startPage > 1 && (
           <>
             <button
@@ -264,7 +286,6 @@ function HomePage({ hasToken }) {
           </>
         )}
 
-        {/* Páginas visíveis */}
         {pages.map((page) => (
           <button
             key={page}
@@ -278,7 +299,6 @@ function HomePage({ hasToken }) {
           </button>
         ))}
 
-        {/* Última página */}
         {endPage < totalPages && (
           <>
             {endPage < totalPages - 1 && <span className={styles.paginationEllipsis}>...</span>}
@@ -292,7 +312,6 @@ function HomePage({ hasToken }) {
           </>
         )}
 
-        {/* Botão Próximo */}
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages || loading}
@@ -309,227 +328,318 @@ function HomePage({ hasToken }) {
     <div className={styles.homePage}>
       <Navbar />
 
-      <section className={styles.container}>
-        {/* Cabeçalho */}
-        <div className={styles.headerSection}>
-          <h1 className={styles.pageTitle}>
-            Encontre o serviço que você precisa
-          </h1>
-          <p className={styles.pageSubtitle}>
-            Conectando você aos melhores profissionais de Picos-PI com qualidade e confiança
-          </p>
+      {/* Hero Section Redesenhada */}
+      <section className={styles.heroSection}>
+        <div className={styles.heroBackground}>
+          <div className={styles.heroPattern}></div>
         </div>
-
-        {/* Barra de busca e filtros */}
-        <div className={styles.searchSection}>
-          <form onSubmit={handleSearch} className={styles.searchForm}>
-            <div className={styles.searchInputWrapper}>
-              <input
-                type="text"
-                placeholder="Buscar serviços (Ex: elétrica, pintura...) ou prestador"
-                value={query}
-                onChange={handleInputChange}
-                className={styles.searchInput}
-              />
-              <button 
-                type="submit" 
-                className={styles.searchButton}
-                disabled={loading}
-              >
-                {loading ? <Loader2 size={20} className={styles.spin} /> : <Search size={20} />}
-              </button>
+        
+        <div className={styles.heroContent}>
+          <div className={styles.heroTextContent}>
+            <div className={styles.heroBadge}>
+              <Sparkles size={16} />
+              <span>Plataforma Nº 1 em Picos-PI</span>
             </div>
             
-            <button
-              type="button"
-              onClick={() => setShowFilters(!showFilters)}
-              className={styles.filtersToggle}
-            >
-              <Filter size={20} />
-              Filtros
-            </button>
-          </form>
+            <h1 className={styles.heroTitle}>
+              Encontre os <span className={styles.heroHighlight}>melhores profissionais</span> para seus projetos
+            </h1>
+            
+            <p className={styles.heroDescription}>
+              Conectamos você a especialistas qualificados em diversas áreas. 
+              Qualidade garantida e preços justos.
+            </p>
 
-          {/* Painel de filtros */}
-          {showFilters && (
-            <div className={styles.filtersPanel}>
-              <div className={styles.filtersPanelHeader}>
-                <h3 className={styles.filtersPanelTitle}>Filtros de Busca</h3>
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className={styles.closePanelButton}
-                >
-                  <X size={20} />
-                </button>
-              </div>
-              
-              <div className={styles.filtersGrid}>
-                <div className={styles.filterGroup}>
-                  <label className={styles.filterLabel}>Apenas Ativos</label>
-                  <select
-                    value={filters.onlyActive}
-                    onChange={(e) => setFilters(prev => ({ ...prev, onlyActive: e.target.value === 'true' }))}
-                    className={styles.filterSelect}
-                  >
-                    <option value="true">Apenas Ativos</option>
-                    <option value="false">Todos</option>
-                  </select>
-                </div>
-
-                <div className={styles.filterGroup}>
-                  <label className={styles.filterLabel}>ID do Prestador</label>
-                  <input
-                    type="text"
-                    placeholder="ID do prestador"
-                    value={filters.providerId}
-                    onChange={(e) => setFilters(prev => ({ ...prev, providerId: e.target.value }))}
-                    className={styles.filterInput}
-                  />
-                </div>
-
-                <div className={styles.filterGroup}>
-                  <label className={styles.filterLabel}>Itens por página</label>
-                  <select
-                    value={pageSize}
-                    onChange={(e) => setPageSize(Number(e.target.value))}
-                    className={styles.filterSelect}
-                  >
-                    <option value="6">6 itens</option>
-                    <option value="12">12 itens</option>
-                    <option value="24">24 itens</option>
-                    <option value="48">48 itens</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className={styles.filtersActions}>
-                <button
-                  onClick={applyFilters}
-                  className={styles.applyFiltersButton}
+            {/* Barra de busca integrada ao hero */}
+            <form onSubmit={handleSearch} className={styles.heroSearchForm}>
+              <div className={styles.heroSearchWrapper}>
+                <Search className={styles.heroSearchIcon} size={20} />
+                <input
+                  type="text"
+                  placeholder="O que você precisa? Ex: eletricista, pintor..."
+                  value={query}
+                  onChange={handleInputChange}
+                  className={styles.heroSearchInput}
+                />
+                <button 
+                  type="submit" 
+                  className={styles.heroSearchButton}
                   disabled={loading}
                 >
-                  {loading ? <Loader2 size={16} className={styles.spin} /> : <Search size={16} />}
-                  Aplicar Filtros
+                  {loading ? (
+                    <Loader2 size={20} className={styles.spin} />
+                  ) : (
+                    <>
+                      Buscar
+                      <ArrowRight size={18} />
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+
+            {/* Quick Stats */}
+            <div className={styles.heroStats}>
+              <div className={styles.heroStat}>
+                <TrendingUp size={20} />
+                <span><strong>{totalItems}+</strong> Serviços</span>
+              </div>
+              <div className={styles.heroStat}>
+                <User size={20} />
+                <span><strong>500+</strong> Profissionais</span>
+              </div>
+              <div className={styles.heroStat}>
+                <Star size={20} />
+                <span><strong>4.8</strong> Avaliação</span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.heroImageSection}>
+            <div className={styles.floatingCard}>
+              <div className={styles.floatingCardIcon}>🎨</div>
+              <span>Pintura</span>
+            </div>
+            <div className={styles.floatingCard2}>
+              <div className={styles.floatingCardIcon}>⚡</div>
+              <span>Elétrica</span>
+            </div>
+            <div className={styles.floatingCard3}>
+              <div className={styles.floatingCardIcon}>🔧</div>
+              <span>Hidráulica</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categorias em destaque */}
+      <section className={styles.categoriesSection}>
+        <div className={styles.container}>
+          <h2 className={styles.categoriesTitle}>Categorias Populares</h2>
+          <div className={styles.categoriesGrid}>
+            {featuredCategories.map(category => (
+              <button
+                key={category.id}
+                onClick={() => handleCategoryFilter(category.id)}
+                className={styles.categoryCard}
+              >
+                <span className={styles.categoryIcon}>{category.icon}</span>
+                <span className={styles.categoryName}>{category.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content Section */}
+      <section className={styles.mainContent}>
+        <div className={styles.container}>
+          {/* Toolbar */}
+          <div className={styles.toolbar}>
+            <div className={styles.toolbarLeft}>
+              <h2 className={styles.sectionTitle}>
+                {query ? `Resultados para "${query}"` : 'Todos os Serviços'}
+              </h2>
+              {hasToken && !loading && (
+                <span className={styles.resultsCount}>
+                  {totalItems} serviços encontrados
+                </span>
+              )}
+            </div>
+
+            <div className={styles.toolbarRight}>
+              {/* View Mode Toggle */}
+              <div className={styles.viewToggle}>
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`${styles.viewButton} ${viewMode === 'grid' ? styles.viewButtonActive : ''}`}
+                >
+                  <Grid3x3 size={18} />
                 </button>
                 <button
-                  onClick={clearFilters}
-                  className={styles.clearFiltersButton}
+                  onClick={() => setViewMode('list')}
+                  className={`${styles.viewButton} ${viewMode === 'list' ? styles.viewButtonActive : ''}`}
                 >
-                  Limpar Filtros
+                  <List size={18} />
+                </button>
+              </div>
+
+              {/* Filters Button */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={styles.filterButton}
+              >
+                <Filter size={18} />
+                Filtros
+                {(filters.providerId || !filters.onlyActive) && (
+                  <span className={styles.filterBadge}>•</span>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Filters Sidebar */}
+          <div className={`${styles.filtersSidebar} ${showFilters ? styles.filtersSidebarOpen : ''}`}>
+            <div className={styles.filtersSidebarHeader}>
+              <h3>Filtros</h3>
+              <button onClick={() => setShowFilters(false)} className={styles.closeFiltersButton}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className={styles.filtersSidebarContent}>
+              <div className={styles.filterGroup}>
+                <label>Status</label>
+                <select
+                  value={filters.onlyActive}
+                  onChange={(e) => setFilters(prev => ({ ...prev, onlyActive: e.target.value === 'true' }))}
+                  className={styles.filterSelect}
+                >
+                  <option value="true">Apenas Ativos</option>
+                  <option value="false">Todos</option>
+                </select>
+              </div>
+
+              <div className={styles.filterGroup}>
+                <label>ID do Prestador</label>
+                <input
+                  type="text"
+                  placeholder="Digite o ID"
+                  value={filters.providerId}
+                  onChange={(e) => setFilters(prev => ({ ...prev, providerId: e.target.value }))}
+                  className={styles.filterInput}
+                />
+              </div>
+
+              <div className={styles.filterGroup}>
+                <label>Itens por página</label>
+                <select
+                  value={pageSize}
+                  onChange={(e) => setPageSize(Number(e.target.value))}
+                  className={styles.filterSelect}
+                >
+                  <option value="6">6 itens</option>
+                  <option value="12">12 itens</option>
+                  <option value="24">24 itens</option>
+                  <option value="48">48 itens</option>
+                </select>
+              </div>
+
+              <div className={styles.filtersSidebarActions}>
+                <button onClick={applyFilters} className={styles.applyButton}>
+                  Aplicar Filtros
+                </button>
+                <button onClick={clearFilters} className={styles.clearButton}>
+                  Limpar Tudo
                 </button>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Informações dos resultados */}
-          {hasToken && !loading && (
-            <div className={styles.resultsInfo}>
-              <span>Mostrando {services.length} de {totalItems} serviços</span>
-              <span>Página {currentPage} de {totalPages}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Lista de serviços */}
-        <div className={styles.servicesSection}>
+          {/* Services Grid/List */}
           {loading ? (
-            <div className={styles.loadingContainer}>
-              <Loader2 size={32} className={styles.loadingSpinner} />
-              <span className={styles.loadingText}>Carregando serviços...</span>
+            <div className={styles.loadingState}>
+              <div className={styles.loadingCircle}>
+                <Loader2 size={40} className={styles.loadingSpinner} />
+              </div>
+              <p>Carregando serviços incríveis...</p>
             </div>
           ) : services.length > 0 ? (
             <>
-              <div className={styles.servicesGrid}>
+              <div className={viewMode === 'grid' ? styles.servicesGrid : styles.servicesList}>
                 {services.map((service) => (
-                  <div key={service.id} className={styles.serviceCard}>
-                    <div className={styles.serviceCardHeader}>
-                      <h3 className={styles.serviceTitle}>{service.title}</h3>
-                      <span className={styles.servicePrice}>
-                        {formatPrice(service.price)}
-                      </span>
-                    </div>
-
-                    <div className={styles.serviceCategory}>
-                      <MapPin size={16} />
-                      <span className={styles.serviceCategoryText}>
-                        {categorias[service.category] || `Categoria ${service.category}`}
-                      </span>
-                    </div>
-
-                    <p className={styles.serviceDescription}>{service.description}</p>
-
-                    {service.providerName && (
-                      <div className={styles.serviceProvider}>
-                        <User size={16} />
-                        <span className={styles.serviceProviderText}>
-                          {service.providerName}
-                        </span>
+                  <article key={service.id} className={viewMode === 'grid' ? styles.serviceCard : styles.serviceListItem}>
+                    <div className={styles.cardContent}>
+                      <div className={styles.cardHeader}>
+                        <div className={styles.cardCategory}>
+                          <MapPin size={14} />
+                          {categorias[service.category] || `Categoria ${service.category}`}
+                        </div>
+                        <div className={styles.cardStatus}>
+                          {service.isActive ? (
+                            <span className={styles.statusActive}>Disponível</span>
+                          ) : (
+                            <span className={styles.statusInactive}>Indisponível</span>
+                          )}
+                        </div>
                       </div>
-                    )}
 
-                    <div className={styles.serviceDate}>
-                      <Calendar size={16} />
-                      <span className={styles.serviceDateText}>
-                        {new Date(service.createdAt).toLocaleDateString('pt-BR')}
-                      </span>
-                    </div>
+                      <h3 className={styles.cardTitle}>{service.title}</h3>
+                      
+                      <p className={styles.cardDescription}>
+                        {service.description.length > 150 
+                          ? service.description.substring(0, 150) + '...' 
+                          : service.description}
+                      </p>
 
-                    <div className={styles.serviceFooter}>
-                      <span className={`${styles.serviceStatus} ${service.isActive ? styles.serviceStatusActive : styles.serviceStatusInactive}`}>
-                        {service.isActive ? 'Ativo' : 'Inativo'}
-                      </span>
-                      <button 
-                        onClick={() => router.push(`/servicos/${service.id}`)}
-                        className={styles.serviceDetailsButton}
-                      >
-                        <Eye size={16} /> Ver detalhes
-                      </button>
+                      <div className={styles.cardMeta}>
+                        {service.providerName && (
+                          <div className={styles.cardProvider}>
+                            <User size={14} />
+                            {service.providerName}
+                          </div>
+                        )}
+                        <div className={styles.cardDate}>
+                          <Clock size={14} />
+                          {new Date(service.createdAt).toLocaleDateString('pt-BR')}
+                        </div>
+                      </div>
+
+                      <div className={styles.cardFooter}>
+                        <div className={styles.cardPrice}>
+                          {formatPrice(service.price)}
+                        </div>
+                        <button 
+                          onClick={() => router.push(`/servicos/${service.id}`)}
+                          className={styles.cardButton}
+                        >
+                          Ver Detalhes
+                          <ArrowRight size={16} />
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  </article>
                 ))}
               </div>
-              
-              {/* Paginação */}
+
               {renderPagination()}
             </>
           ) : (
             <div className={styles.emptyState}>
-              <Search size={48} className={styles.emptyStateIcon} />
-              <h3 className={styles.emptyStateTitle}>Nenhum serviço encontrado</h3>
-              <p className={styles.emptyStateText}>
-                Tente ajustar os filtros ou buscar por outros termos.
-              </p>
-              <button
-                onClick={clearFilters}
-                className={styles.emptyStateButton}
-              >
-                Limpar filtros
+              <div className={styles.emptyStateIcon}>
+                <Search size={64} />
+              </div>
+              <h3>Nenhum serviço encontrado</h3>
+              <p>Tente ajustar os filtros ou buscar por outros termos.</p>
+              <button onClick={clearFilters} className={styles.emptyStateButton}>
+                Limpar filtros e tentar novamente
               </button>
             </div>
           )}
         </div>
       </section>
 
-      {/* Overlay de login */}
+      {/* Login Overlay */}
       {showOverlay && !hasToken && (
-        <div className={styles.loginOverlay}>
-          <div className={styles.loginModal}>
-            <h3 className={styles.loginModalTitle}>Login Necessário</h3>
-            <p className={styles.loginModalText}>
-              Você precisa estar logado para buscar e visualizar serviços.
-            </p>
-            <div className={styles.loginModalActions}>
+        <div className={styles.overlay}>
+          <div className={styles.overlayContent}>
+            <div className={styles.overlayIcon}>
+              <User size={48} />
+            </div>
+            <h3>Acesso Necessário</h3>
+            <p>Faça login para explorar todos os serviços disponíveis e conectar-se com profissionais qualificados.</p>
+            <div className={styles.overlayActions}>
               <button
                 onClick={() => router.push('/auth/login')}
-                className={styles.loginButton}
+                className={styles.overlayLoginButton}
               >
                 Fazer Login
               </button>
               <button
                 onClick={() => setShowOverlay(false)}
-                className={styles.cancelButton}
+                className={styles.overlayCancelButton}
               >
-                Cancelar
+                Voltar
               </button>
             </div>
           </div>
