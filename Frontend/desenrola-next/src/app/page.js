@@ -95,38 +95,8 @@ function HomePage({ hasToken }) {
     { id: 8, name: "Beleza", icon: "✨" }
   ];
 
-  // ✅ Função para verificar expiração do token
-  const isTokenExpired = (token) => {
-    try {
-      const decoded = jwtDecode(token);
-      if (decoded.exp && decoded.exp * 1000 < Date.now()) {
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error("Erro ao decodificar token:", err);
-      return true;
-    }
-  };
-
-  // Função para buscar serviços da API
+  // Função para buscar serviços da API (pública)
   const fetchServices = async (page = 1, searchTerm = '', onlyActive = true, providerId = '') => {
-    if (!hasToken) {
-      setShowOverlay(true);
-      return;
-    }
-
-    const token = localStorage.getItem('auth_token');
-
-    // ✅ Verificação de expiração do token
-    if (!token || isTokenExpired(token)) {
-      console.warn("Token expirado ou inválido. Redirecionando para login...");
-      localStorage.removeItem("auth_token");
-      localStorage.removeItem("auth_user");
-      setShowOverlay(true);
-      return;
-    }
-
     setLoading(true);
     
     try {
@@ -146,10 +116,7 @@ function HomePage({ hasToken }) {
 
       const response = await fetch(`http://localhost:5087/api/provider/services/paged?${params}`, {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
       });
 
       if (!response.ok) {
@@ -183,19 +150,11 @@ function HomePage({ hasToken }) {
   };
 
   useEffect(() => {
-    if (hasToken) {
-      fetchServices(1, filters.search, filters.onlyActive, filters.providerId);
-    }
-  }, [hasToken, pageSize]);
+    fetchServices(1, filters.search, filters.onlyActive, filters.providerId);
+  }, [pageSize]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    
-    if (!hasToken) {
-      setShowOverlay(true);
-      return;
-    }
-
     setCurrentPage(1);
     fetchServices(1, query, filters.onlyActive, filters.providerId);
   };
@@ -225,10 +184,6 @@ function HomePage({ hasToken }) {
   };
 
   const handleInputChange = (e) => {
-    if (!hasToken) {
-      setShowOverlay(true);
-      return;
-    }
     setQuery(e.target.value);
   };
 
@@ -440,7 +395,7 @@ function HomePage({ hasToken }) {
               <h2 className={styles.sectionTitle}>
                 {query ? `Resultados para "${query}"` : 'Todos os Serviços'}
               </h2>
-              {hasToken && !loading && (
+              {!loading && (
                 <span className={styles.resultsCount}>
                   {totalItems} serviços encontrados
                 </span>
@@ -590,7 +545,13 @@ function HomePage({ hasToken }) {
                           {formatPrice(service.price)}
                         </div>
                         <button 
-                          onClick={() => router.push(`/servicos/${service.id}`)}
+                          onClick={() => {
+                            if (!hasToken) {
+                              setShowOverlay(true);
+                            } else {
+                              router.push(`/servicos/${service.id}`);
+                            }
+                          }}
                           className={styles.cardButton}
                         >
                           Ver Detalhes
@@ -627,7 +588,7 @@ function HomePage({ hasToken }) {
               <User size={48} />
             </div>
             <h3>Acesso Necessário</h3>
-            <p>Faça login para explorar todos os serviços disponíveis e conectar-se com profissionais qualificados.</p>
+            <p>Faça login para explorar os detalhes dos serviços e conectar-se com profissionais qualificados.</p>
             <div className={styles.overlayActions}>
               <button
                 onClick={() => router.push('/auth/login')}
