@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import { withAuth } from '../hooks/withAuth';
 import { useRouter } from 'next/navigation';
-import { jwtDecode } from 'jwt-decode';
+import { useDebounce } from '../hooks/useDebounce';
 import styles from './HomePage.module.css';
 
 import { 
@@ -12,9 +12,7 @@ import {
   Filter, 
   ChevronLeft, 
   ChevronRight,
-  Eye,
   User,
-  Calendar,
   MapPin,
   Loader2,
   X,
@@ -32,60 +30,41 @@ function HomePage({ hasToken }) {
   
   // Estados da busca e filtros
   const [query, setQuery] = useState('');
+  const debouncedQuery = useDebounce(query, 500); // pesquisa em tempo real
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' ou 'list'
+  const [viewMode, setViewMode] = useState('grid');
   
-  // Estados da paginação
+  // Paginação
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   
-  // Estados dos filtros
+  // Filtros
   const [filters, setFilters] = useState({
     search: '',
     onlyActive: true,
     providerId: ''
   });
 
-  // Categorias para o filtro
+  // Categorias
   const categorias = {
-    0: "Elétrica",
-    1: "Hidráulica", 
-    2: "Pintura",
-    3: "Jardinagem",
-    4: "Limpeza",
-    5: "Reformas",
-    6: "TI",
-    7: "Transporte",
-    8: "Beleza",
-    9: "Educação",
-    10: "Saúde",
-    11: "Automotivo",
-    12: "Marcenaria",
-    13: "Serralheria",
-    14: "Climatização",
-    15: "Instalação Eletrodomésticos",
-    16: "Fotografia",
-    17: "Eventos",
-    18: "Consultoria Financeira",
-    19: "Assistência Técnica",
-    20: "Design e Publicidade",
-    21: "Jurídico",
-    22: "Segurança",
-    23: "Marketing Digital",
-    24: "Consultoria Empresarial",
-    25: "Tradução e Idiomas",
-    26: "Serviços Domésticos",
-    27: "Manutenção Predial",
-    28: "Pet Care",
-    29: "Gastronomia"
+    0: "Elétrica", 1: "Hidráulica", 2: "Pintura", 3: "Jardinagem",
+    4: "Limpeza", 5: "Reformas", 6: "TI", 7: "Transporte",
+    8: "Beleza", 9: "Educação", 10: "Saúde", 11: "Automotivo",
+    12: "Marcenaria", 13: "Serralheria", 14: "Climatização",
+    15: "Instalação Eletrodomésticos", 16: "Fotografia", 17: "Eventos",
+    18: "Consultoria Financeira", 19: "Assistência Técnica", 20: "Design e Publicidade",
+    21: "Jurídico", 22: "Segurança", 23: "Marketing Digital",
+    24: "Consultoria Empresarial", 25: "Tradução e Idiomas",
+    26: "Serviços Domésticos", 27: "Manutenção Predial",
+    28: "Pet Care", 29: "Gastronomia"
   };
 
-  // Categorias em destaque para quick filters
+  // Categorias em destaque
   const featuredCategories = [
     { id: 0, name: "Elétrica", icon: "⚡" },
     { id: 1, name: "Hidráulica", icon: "🔧" },
@@ -95,7 +74,7 @@ function HomePage({ hasToken }) {
     { id: 8, name: "Beleza", icon: "✨" }
   ];
 
-  // Função para buscar serviços da API (pública)
+  // Buscar serviços
   const fetchServices = async (page = 1, searchTerm = '', onlyActive = true, providerId = '') => {
     setLoading(true);
     
@@ -106,25 +85,17 @@ function HomePage({ hasToken }) {
         OnlyActive: onlyActive.toString()
       });
 
-      if (searchTerm.trim()) {
-        params.append('Search', searchTerm.trim());
-      }
-      
-      if (providerId.trim()) {
-        params.append('ProviderId', providerId.trim());
-      }
+      if (searchTerm.trim()) params.append('Search', searchTerm.trim());
+      if (providerId.trim()) params.append('ProviderId', providerId.trim());
 
       const response = await fetch(`http://localhost:5087/api/provider/services/paged?${params}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
 
-      if (!response.ok) {
-        throw new Error(`Erro ${response.status}: ${response.statusText}`);
-      }
+      if (!response.ok) throw new Error(`Erro ${response.status}: ${response.statusText}`);
 
       const data = await response.json();
-      console.log('Dados recebidos da API:', data);
       
       if (data.items) {
         setServices(data.items);
@@ -139,60 +110,45 @@ function HomePage({ hasToken }) {
         setTotalPages(1);
         setTotalItems(0);
       }
-
     } catch (error) {
       console.error('Erro ao buscar serviços:', error);
       setServices([]);
-      alert(`Erro ao carregar serviços: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
+  // Pesquisa em tempo real
   useEffect(() => {
-    fetchServices(1, filters.search, filters.onlyActive, filters.providerId);
-  }, [pageSize]);
-
-  const handleSearch = (e) => {
-    e.preventDefault();
+    fetchServices(1, debouncedQuery, filters.onlyActive, filters.providerId);
     setCurrentPage(1);
-    fetchServices(1, query, filters.onlyActive, filters.providerId);
-  };
+  }, [debouncedQuery, pageSize, filters.onlyActive, filters.providerId]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      fetchServices(newPage, query, filters.onlyActive, filters.providerId);
+      fetchServices(newPage, debouncedQuery, filters.onlyActive, filters.providerId);
     }
   };
 
   const applyFilters = () => {
     setCurrentPage(1);
-    fetchServices(1, query, filters.onlyActive, filters.providerId);
+    fetchServices(1, debouncedQuery, filters.onlyActive, filters.providerId);
     setShowFilters(false);
   };
 
   const clearFilters = () => {
-    setFilters({
-      search: '',
-      onlyActive: true,
-      providerId: ''
-    });
+    setFilters({ search: '', onlyActive: true, providerId: '' });
     setQuery('');
     setCurrentPage(1);
     fetchServices(1, '', true, '');
   };
 
-  const handleInputChange = (e) => {
-    setQuery(e.target.value);
-  };
+  const handleInputChange = (e) => setQuery(e.target.value);
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    }).format(price);
-  };
+  const formatPrice = (price) => new Intl.NumberFormat('pt-BR', {
+    style: 'currency', currency: 'BRL'
+  }).format(price);
 
   const handleCategoryFilter = (categoryId) => {
     setQuery(categorias[categoryId]);
@@ -200,7 +156,7 @@ function HomePage({ hasToken }) {
     fetchServices(1, categorias[categoryId], filters.onlyActive, filters.providerId);
   };
 
-  // Função para renderizar paginação
+  // Paginação
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
@@ -213,43 +169,23 @@ function HomePage({ hasToken }) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
 
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
+    for (let i = startPage; i <= endPage; i++) pages.push(i);
 
     return (
       <div className={styles.pagination}>
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1 || loading}
-          className={styles.paginationButton}
-          aria-label="Página anterior"
-        >
+        <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1 || loading} className={styles.paginationButton}>
           <ChevronLeft size={16} />
         </button>
 
         {startPage > 1 && (
           <>
-            <button
-              onClick={() => handlePageChange(1)}
-              className={styles.paginationPageButton}
-              disabled={loading}
-            >
-              1
-            </button>
+            <button onClick={() => handlePageChange(1)} className={styles.paginationPageButton}>1</button>
             {startPage > 2 && <span className={styles.paginationEllipsis}>...</span>}
           </>
         )}
 
         {pages.map((page) => (
-          <button
-            key={page}
-            onClick={() => handlePageChange(page)}
-            className={`${styles.paginationPageButton} ${
-              currentPage === page ? styles.paginationPageButtonActive : ''
-            }`}
-            disabled={loading}
-          >
+          <button key={page} onClick={() => handlePageChange(page)} className={`${styles.paginationPageButton} ${currentPage === page ? styles.paginationPageButtonActive : ''}`}>
             {page}
           </button>
         ))}
@@ -257,22 +193,11 @@ function HomePage({ hasToken }) {
         {endPage < totalPages && (
           <>
             {endPage < totalPages - 1 && <span className={styles.paginationEllipsis}>...</span>}
-            <button
-              onClick={() => handlePageChange(totalPages)}
-              className={styles.paginationPageButton}
-              disabled={loading}
-            >
-              {totalPages}
-            </button>
+            <button onClick={() => handlePageChange(totalPages)} className={styles.paginationPageButton}>{totalPages}</button>
           </>
         )}
 
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages || loading}
-          className={styles.paginationButton}
-          aria-label="Próxima página"
-        >
+        <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages || loading} className={styles.paginationButton}>
           <ChevronRight size={16} />
         </button>
       </div>
@@ -283,7 +208,7 @@ function HomePage({ hasToken }) {
     <div className={styles.homePage}>
       <Navbar />
 
-      {/* Hero Section Redesenhada */}
+      {/* Hero Section */}
       <section className={styles.heroSection}>
         <div className={styles.heroBackground}>
           <div className={styles.heroPattern}></div>
@@ -305,33 +230,18 @@ function HomePage({ hasToken }) {
               Qualidade garantida e preços justos.
             </p>
 
-            {/* Barra de busca integrada ao hero */}
-            <form onSubmit={handleSearch} className={styles.heroSearchForm}>
-              <div className={styles.heroSearchWrapper}>
-                <Search className={styles.heroSearchIcon} size={20} />
-                <input
-                  type="text"
-                  placeholder="O que você precisa? Ex: eletricista, pintor..."
-                  value={query}
-                  onChange={handleInputChange}
-                  className={styles.heroSearchInput}
-                />
-                <button 
-                  type="submit" 
-                  className={styles.heroSearchButton}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <Loader2 size={20} className={styles.spin} />
-                  ) : (
-                    <>
-                      Buscar
-                      <ArrowRight size={18} />
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
+            {/* Barra de busca em tempo real */}
+            <div className={styles.heroSearchWrapper}>
+              <Search className={styles.heroSearchIcon} size={20} />
+              <input
+                type="text"
+                placeholder="O que você precisa? Ex: eletricista, pintor..."
+                value={query}
+                onChange={handleInputChange}
+                className={styles.heroSearchInput}
+              />
+              {loading && <Loader2 size={20} className={styles.spin} />}
+            </div>
 
             {/* Quick Stats */}
             <div className={styles.heroStats}>
@@ -347,21 +257,6 @@ function HomePage({ hasToken }) {
                 <Star size={20} />
                 <span><strong>4.8</strong> Avaliação</span>
               </div>
-            </div>
-          </div>
-
-          <div className={styles.heroImageSection}>
-            <div className={styles.floatingCard}>
-              <div className={styles.floatingCardIcon}>🎨</div>
-              <span>Pintura</span>
-            </div>
-            <div className={styles.floatingCard2}>
-              <div className={styles.floatingCardIcon}>⚡</div>
-              <span>Elétrica</span>
-            </div>
-            <div className={styles.floatingCard3}>
-              <div className={styles.floatingCardIcon}>🔧</div>
-              <span>Hidráulica</span>
             </div>
           </div>
         </div>
@@ -386,7 +281,7 @@ function HomePage({ hasToken }) {
         </div>
       </section>
 
-      {/* Main Content Section */}
+      {/* Main Content */}
       <section className={styles.mainContent}>
         <div className={styles.container}>
           {/* Toolbar */}
@@ -405,89 +300,22 @@ function HomePage({ hasToken }) {
             <div className={styles.toolbarRight}>
               {/* View Mode Toggle */}
               <div className={styles.viewToggle}>
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`${styles.viewButton} ${viewMode === 'grid' ? styles.viewButtonActive : ''}`}
-                >
+                <button onClick={() => setViewMode('grid')} className={`${styles.viewButton} ${viewMode === 'grid' ? styles.viewButtonActive : ''}`}>
                   <Grid3x3 size={18} />
                 </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`${styles.viewButton} ${viewMode === 'list' ? styles.viewButtonActive : ''}`}
-                >
+                <button onClick={() => setViewMode('list')} className={`${styles.viewButton} ${viewMode === 'list' ? styles.viewButtonActive : ''}`}>
                   <List size={18} />
                 </button>
               </div>
 
               {/* Filters Button */}
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className={styles.filterButton}
-              >
+              <button onClick={() => setShowFilters(!showFilters)} className={styles.filterButton}>
                 <Filter size={18} />
                 Filtros
                 {(filters.providerId || !filters.onlyActive) && (
                   <span className={styles.filterBadge}>•</span>
                 )}
               </button>
-            </div>
-          </div>
-
-          {/* Filters Sidebar */}
-          <div className={`${styles.filtersSidebar} ${showFilters ? styles.filtersSidebarOpen : ''}`}>
-            <div className={styles.filtersSidebarHeader}>
-              <h3>Filtros</h3>
-              <button onClick={() => setShowFilters(false)} className={styles.closeFiltersButton}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className={styles.filtersSidebarContent}>
-              <div className={styles.filterGroup}>
-                <label>Status</label>
-                <select
-                  value={filters.onlyActive}
-                  onChange={(e) => setFilters(prev => ({ ...prev, onlyActive: e.target.value === 'true' }))}
-                  className={styles.filterSelect}
-                >
-                  <option value="true">Apenas Ativos</option>
-                  <option value="false">Todos</option>
-                </select>
-              </div>
-
-              <div className={styles.filterGroup}>
-                <label>ID do Prestador</label>
-                <input
-                  type="text"
-                  placeholder="Digite o ID"
-                  value={filters.providerId}
-                  onChange={(e) => setFilters(prev => ({ ...prev, providerId: e.target.value }))}
-                  className={styles.filterInput}
-                />
-              </div>
-
-              <div className={styles.filterGroup}>
-                <label>Itens por página</label>
-                <select
-                  value={pageSize}
-                  onChange={(e) => setPageSize(Number(e.target.value))}
-                  className={styles.filterSelect}
-                >
-                  <option value="6">6 itens</option>
-                  <option value="12">12 itens</option>
-                  <option value="24">24 itens</option>
-                  <option value="48">48 itens</option>
-                </select>
-              </div>
-
-              <div className={styles.filtersSidebarActions}>
-                <button onClick={applyFilters} className={styles.applyButton}>
-                  Aplicar Filtros
-                </button>
-                <button onClick={clearFilters} className={styles.clearButton}>
-                  Limpar Tudo
-                </button>
-              </div>
             </div>
           </div>
 
@@ -541,9 +369,7 @@ function HomePage({ hasToken }) {
                       </div>
 
                       <div className={styles.cardFooter}>
-                        <div className={styles.cardPrice}>
-                          {formatPrice(service.price)}
-                        </div>
+                        <div className={styles.cardPrice}>{formatPrice(service.price)}</div>
                         <button 
                           onClick={() => {
                             if (!hasToken) {
@@ -567,39 +393,27 @@ function HomePage({ hasToken }) {
             </>
           ) : (
             <div className={styles.emptyState}>
-              <div className={styles.emptyStateIcon}>
-                <Search size={64} />
-              </div>
+              <div className={styles.emptyStateIcon}><Search size={64} /></div>
               <h3>Nenhum serviço encontrado</h3>
               <p>Tente ajustar os filtros ou buscar por outros termos.</p>
-              <button onClick={clearFilters} className={styles.emptyStateButton}>
-                Limpar filtros e tentar novamente
-              </button>
+              <button onClick={clearFilters} className={styles.emptyStateButton}>Limpar filtros e tentar novamente</button>
             </div>
           )}
         </div>
       </section>
 
-      {/* Login Overlay */}
+      {/* Overlay de Login */}
       {showOverlay && !hasToken && (
         <div className={styles.overlay}>
           <div className={styles.overlayContent}>
-            <div className={styles.overlayIcon}>
-              <User size={48} />
-            </div>
+            <div className={styles.overlayIcon}><User size={48} /></div>
             <h3>Acesso Necessário</h3>
             <p>Faça login para explorar os detalhes dos serviços e conectar-se com profissionais qualificados.</p>
             <div className={styles.overlayActions}>
-              <button
-                onClick={() => router.push('/auth/login')}
-                className={styles.overlayLoginButton}
-              >
+              <button onClick={() => router.push('/auth/login')} className={styles.overlayLoginButton}>
                 Fazer Login
               </button>
-              <button
-                onClick={() => setShowOverlay(false)}
-                className={styles.overlayCancelButton}
-              >
+              <button onClick={() => setShowOverlay(false)} className={styles.overlayCancelButton}>
                 Voltar
               </button>
             </div>
