@@ -43,12 +43,12 @@ export default function ServicosPage() {
             <p>Abra uma nova solicitação de serviço com rapidez.</p>
           </Link>
 
-          <Link href="/servicos/realizados" className={styles.menuCard}>
-            <h2>✅ Serviços Realizados</h2>
+          <Link href="/servicos/visualizar" className={styles.menuCard}>
+            <h2>✅ Visualizar Serviços</h2>
             <p>Acompanhe os serviços já concluídos e seus detalhes.</p>
           </Link>
 
-          <Link href="/servicos/avaliados" className={styles.menuCard}>
+          <Link href="/servicos/avaliar" className={styles.menuCard}>
             <h2>⭐ Avaliar Serviços</h2>
             <p>Dê seu feedback e ajude a melhorar a experiência.</p>
           </Link>
