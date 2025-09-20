@@ -2,7 +2,24 @@
 import Link from "next/link";
 import styles from "./Index.module.css";
 import Navbar from "../../components/Navbar";
- // caminho relativo correto
+
+
+
+/**
+ * Página principal da seção de serviços.
+ *
+ * Exibe a Navbar fixa no topo, um cabeçalho com título e subtítulo,
+ * e um menu em formato de cards para navegação entre:
+ * - Solicitar Serviço
+ * - Serviços Realizados
+ * - Avaliar Serviços
+ *
+ * @returns {JSX.Element} Estrutura da página de serviços.
+ */
+
+
+
+
 
 export default function ServicosPage() {
   return (
