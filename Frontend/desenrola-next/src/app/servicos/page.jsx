@@ -1,10 +1,15 @@
 "use client";
 import Link from "next/link";
 import styles from "./Index.module.css";
+import Navbar from "../../components/Navbar";
+ // caminho relativo correto
 
 export default function ServicosPage() {
   return (
     <div className={styles.servicosPage}>
+      {/* Navbar sempre no topo */}
+      <Navbar />
+
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <h1 className={styles.pageTitle}>Serviços</h1>
