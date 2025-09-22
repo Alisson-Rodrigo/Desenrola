@@ -35,9 +35,7 @@ namespace Desenrola.Application.Features.User.Queries.GetIdUserLogged
                 Id = user.Id,
                 UserName = user.UserName ?? string.Empty,
                 Name = user.Name,
-                Email = user.Email ?? string.Empty,
-                PhoneNumber = user.PhoneNumber ?? string.Empty,
-            };
+                Email = user.Email ?? string.Empty            };
         }
     }
 }

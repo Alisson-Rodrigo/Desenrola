@@ -44,8 +44,7 @@ namespace Desenrola.Application.Features.User.Queries.GetByIdQueries
                 Id = user.Id,
                 Name = user.Name,
                 UserName = user.UserName!,
-                Email = user.Email!,
-                PhoneNumber = user.PhoneNumber!
+                Email = user.Email!
             };
 
         }
