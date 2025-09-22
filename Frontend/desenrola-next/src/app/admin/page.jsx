@@ -73,15 +73,15 @@ const AdminDashboard = () => {
       
       const mappedProviders = data.items.map(item => ({
         id: item.id,
-        name: "Nome não informado",
+        name: item.name || "Nome não informado",
         cpf: formatCPF(item.cpf),
         rg: item.rg,
         address: item.address,
         serviceName: "Serviço não especificado",
         description: "Descrição não disponível",
         phoneNumber: formatPhone(item.phoneNumber),
-        documentPhotos: [],
-        submittedAt: "Data não informada",
+        documentPhotos: item.imageDocuments || [], // <-- corrigido aqui
+        submittedAt: new Date(item.dateCreated).toLocaleDateString('pt-BR'),
         status: item.isVerified ? 'aceito' : 'pendente',
         isActive: item.isActive
       }));
@@ -133,115 +133,44 @@ const AdminDashboard = () => {
     return true;
   });
 
-const handleApprove = async (id) => {
-  try {
-    // Mostrar loading state (opcional)
-    setLoading(true);
-    
-    const token = localStorage.getItem('auth_token');
-    
-    if (!token) {
-      throw new Error('Token de autenticação não encontrado');
+  const handleApprove = async (id) => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('auth_token');
+      if (!token) throw new Error('Token de autenticação não encontrado');
+
+      const formData = new FormData();
+      formData.append("Id", id);
+
+      const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erro ${response.status}: ${errorText}`);
+      }
+
+      setPrestadores(prev =>
+        prev.map(prestador =>
+          prestador.id === id ? { ...prestador, status: 'aceito' } : prestador
+        )
+      );
+
+      await fetchPendingProviders(pagination.page, pagination.pageSize);
+      alert('Prestador aprovado com sucesso!');
+
+    } catch (err) {
+      console.error('Erro ao aprovar prestador:', err);
+      alert(`Não foi possível aprovar o prestador: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
-
-    // Criar FormData conforme esperado pelo endpoint
-    const formData = new FormData();
-    formData.append("Id", id);
-
-    const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`
-        // Não incluir Content-Type quando usando FormData - o browser define automaticamente
-      },
-      body: formData
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erro ${response.status}: ${errorText}`);
-    }
-
-    // Verificar se há resposta JSON
-    const contentType = response.headers.get('content-type');
-    let responseData = null;
-    
-    if (contentType && contentType.includes('application/json')) {
-      responseData = await response.json();
-      console.log('Prestador aprovado com sucesso:', responseData);
-    }
-
-    // Atualizar a lista local imediatamente (otimistic update)
-    setPrestadores(prevPrestadores => 
-      prevPrestadores.map(prestador => 
-        prestador.id === id 
-          ? { ...prestador, status: 'aceito' }
-          : prestador
-      )
-    );
-
-    // Recarregar dados do servidor para garantir consistência
-    await fetchPendingProviders(pagination.page, pagination.pageSize);
-    
-    // Mostrar mensagem de sucesso (opcional)
-    alert('Prestador aprovado com sucesso!');
-
-  } catch (err) {
-    console.error('Erro ao aprovar prestador:', err);
-    alert(`Não foi possível aprovar o prestador: ${err.message}`);
-  } finally {
-    setLoading(false);
-  }
-};
-
-// Função alternativa usando JSON ao invés de FormData (caso o backend aceite)
-const handleApproveJSON = async (id) => {
-  try {
-    setLoading(true);
-    
-    const token = localStorage.getItem('auth_token');
-    
-    if (!token) {
-      throw new Error('Token de autenticação não encontrado');
-    }
-
-    const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ Id: id })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Erro ${response.status}: ${errorText}`);
-    }
-
-    const responseData = await response.json();
-    console.log('Prestador aprovado com sucesso:', responseData);
-
-    // Atualizar estado local
-    setPrestadores(prevPrestadores => 
-      prevPrestadores.map(prestador => 
-        prestador.id === id 
-          ? { ...prestador, status: 'aceito' }
-          : prestador
-      )
-    );
-
-    await fetchPendingProviders(pagination.page, pagination.pageSize);
-    alert('Prestador aprovado com sucesso!');
-
-  } catch (err) {
-   
-   
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleReject = async (id) => {
     try {
@@ -326,31 +255,6 @@ const handleApproveJSON = async (id) => {
         <p className={styles['page-description']}>
           Analise e valide os documentos dos prestadores de serviço
         </p>
-      </div>
-
-      <div className={styles['tabs-container']}>
-        <div className={styles['tabs-border']}>
-          <nav className={styles['tabs-nav']}>
-            {[
-              { key: 'pendentes', label: 'Pendentes', count: selectedTab === 'pendentes' ? pagination.totalItems : 0 },
-              { key: 'aceitos', label: 'Aceitos', count: 0 },
-              { key: 'rejeitados', label: 'Rejeitados', count: 0 },
-              { key: 'todos', label: 'Todos', count: 0 }
-            ].map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setSelectedTab(tab.key)}
-                className={`${styles['tab-button']} ${selectedTab === tab.key ? styles.active : ''}`}
-                disabled={loading}
-              >
-                {tab.label}
-                <span className={`${styles['tab-count']} ${selectedTab === tab.key ? styles.active : ''}`}>
-                  {tab.count}
-                </span>
-              </button>
-            ))}
-          </nav>
-        </div>
       </div>
 
       {error && (
