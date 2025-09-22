@@ -120,7 +120,7 @@ export default function Navbar() {
         {/* Links Desktop */}
         <div className={styles.nav}>
           <Link href="/" className={getLinkClass("/")}>
-            Dashboard
+            Página Inicial
           </Link>
           <Link href="/servicos" className={getLinkClass("/servicos")}>
             Serviços
