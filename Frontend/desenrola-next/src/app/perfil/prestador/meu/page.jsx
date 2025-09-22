@@ -88,11 +88,44 @@ export default function ProfilePage() {
   }, []);
 
   if (loading) {
-    return <p style={{ textAlign: 'center' }}>Carregando perfil...</p>;
+    return (
+      <div className={styles.container}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '50vh',
+          fontSize: '1.1rem',
+          color: '#2E7D32',
+          fontWeight: '600'
+        }}>
+          Carregando perfil...
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <p style={{ textAlign: 'center', color: 'red' }}>{error}</p>;
+    return (
+      <div className={styles.container}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          minHeight: '50vh',
+          fontSize: '1.1rem',
+          color: '#D32F2F',
+          fontWeight: '600',
+          textAlign: 'center',
+          background: 'rgba(244, 67, 54, 0.1)',
+          padding: '2rem',
+          borderRadius: '1rem',
+          border: '1px solid rgba(244, 67, 54, 0.2)'
+        }}>
+          {error}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -126,18 +159,15 @@ export default function ProfilePage() {
               <Wrench size={16} style={{ marginRight: '8px' }} />
               Meus Serviços
             </a>
-          
             <a href="/avaliacoes" className={styles.menuItem}>
               <Star size={16} style={{ marginRight: '8px' }} />
               Avaliações
             </a>
-        
-          
           </nav>
 
           <button className={styles.assistanceButton}>
             <HelpCircle size={16} />
-            Central de Assistência
+            Torne-se Vip
           </button>
         </div>
 
@@ -155,51 +185,56 @@ export default function ProfilePage() {
           <div className={styles.profileInfo}>
             <div className={styles.infoGroup}>
               <span className={styles.infoLabel}>Nome Completo</span>
-              <span className={styles.infoValue}>{profile?.serviceName}</span>
+              <span className={styles.infoValue}>{profile?.serviceName || 'Não informado'}</span>
             </div>
             
             <div className={styles.infoGroup}>
               <span className={styles.infoLabel}>E-mail</span>
-              <span className={styles.infoValue}>{profile?.email}</span>
+              <span className={styles.infoValue}>{profile?.email || 'Não informado'}</span>
             </div>
             
             <div className={styles.infoGroup}>
               <span className={styles.infoLabel}>Telefone</span>
-              <span className={styles.infoValue}>{profile?.phoneNumber}</span>
+              <span className={styles.infoValue}>{profile?.phoneNumber || 'Não informado'}</span>
             </div>
             
             <div className={styles.infoGroup}>
               <span className={styles.infoLabel}>CPF</span>
-              <span className={styles.infoValue}>{profile?.cpf}</span>
+              <span className={styles.infoValue}>{profile?.cpf || 'Não informado'}</span>
             </div>
             
             <div className={styles.infoGroup}>
               <span className={styles.infoLabel}>Endereço</span>
-              <span className={styles.infoValue}>{profile?.address}</span>
+              <span className={styles.infoValue}>{profile?.address || 'Não informado'}</span>
             </div>
             
             <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>Categorias</span>
+              <span className={styles.infoLabel}>Status</span>
               <span className={styles.infoValue}>
-                {profile?.categories?.map(c => categoryMap[c]).join(', ')}
+                {profile?.isVerified ? 'Verificado' : 'Pendente'}
               </span>
             </div>
           </div>
 
           {/* Services Section */}
-          <div className={styles.servicesSection}>
-            <h3 className={styles.sectionTitle}>
-              <Wrench size={20} />
-              Serviços Oferecidos
-            </h3>
-            <div className={styles.servicesGrid}>
-              {profile?.categories?.map((cat, index) => (
-                <span key={index} className={styles.serviceTag}>
-                  {categoryMap[cat] || `Categoria ${cat}`}
-                </span>
-              ))}
+          {profile?.categories && profile.categories.length > 0 && (
+            <div className={styles.servicesSection}>
+              <h3 className={styles.sectionTitle}>
+                <Wrench size={20} />
+                Serviços Oferecidos
+              </h3>
+              <div className={styles.servicesGrid}>
+                {profile.categories.map((cat, index) => (
+                  <span key={index} className={styles.serviceTag}>
+                    {categoryMap[cat] || `Categoria ${cat}`}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+        
+  
         </div>
       </div>
     </>

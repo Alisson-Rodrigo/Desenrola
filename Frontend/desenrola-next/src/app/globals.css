@@ -6,7 +6,31 @@
   box-sizing: border-box;
   
 }
-
+/* =========================
+   RESET E VARIÁVEIS
+========================= */
+:root {
+  --primary: #10b981;
+  --primary-700: #059669;
+  --primary-800: #047857;
+  --secondary: #06b6d4;
+  --bg: #fafbfc;
+  --text: #1f2937;
+  --muted: #64748b;
+  --muted-2: #9ca3af;
+  --card: #ffffff;
+  --ring: rgba(16, 185, 129, 0.35);
+  --shadow-1: 0 10px 30px rgba(0,0,0,0.08);
+  --shadow-2: 0 20px 60px rgba(0,0,0,0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 24px;
+  --transition: all .25s ease;
+  --primary-gradient: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  --hero-gradient: radial-gradient(1200px 600px at 0% 0%, #ecfeff 0%, rgba(236, 254, 255, 0) 60%),
+                    radial-gradient(1200px 600px at 100% 0%, #ecfdf5 0%, rgba(236, 253, 245, 0) 60%),
+                    linear-gradient(180deg, #ffffff 0%, #f7fafc 100%);
+}
 html,
 body {
   max-width: 100vw;

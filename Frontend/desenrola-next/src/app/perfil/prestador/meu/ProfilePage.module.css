@@ -1,96 +1,154 @@
-/* ProfilePage.module.css */
-
-/* Container em largura total */
+/* Container principal com design moderno */
 .container {
   width: 100%;
-  max-width: none;         /* remove limite de 1200px */
-  margin: 0;               /* remove centralização */
-  padding: 20px;
+  max-width: none;
+  margin: 0;
+  padding: 2rem;
   display: flex;
-  gap: 24px;
-  background: #f8fffe;     /* cobre a tela toda com a cor de fundo */
-  min-height: 100vh;       /* altura mínima da viewport */
+  gap: 2rem;
+  background: linear-gradient(135deg, #EEF7EE 0%, #E8F5E8 50%, #D4F1D4 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
 }
 
-/* Sidebar */
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(139, 195, 74, 0.05) 100%);
+  z-index: 0;
+}
+
+/* Sidebar moderna com glassmorphism */
 .sidebar {
-  width: 280px;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  width: 320px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 8px 32px rgba(76, 175, 80, 0.08);
   height: fit-content;
   position: sticky;
-  top: 20px;
+  top: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 1;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A, #4CAF50);
+  border-radius: 1.5rem 1.5rem 0 0;
+}
+
+.sidebar:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(76, 175, 80, 0.12);
+}
+
+/* Profile Header na Sidebar */
 .profileHeader {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 2rem;
 }
 
 .avatar {
-  width: 80px;
-  height: 80px;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #10b981, #059669);
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 28px;
-  font-weight: bold;
-  margin: 0 auto 16px;
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 auto 1rem;
   position: relative;
+  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 4px solid rgba(255, 255, 255, 0.8);
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 32px rgba(76, 175, 80, 0.4);
 }
 
 .statusBadge {
   position: absolute;
-  bottom: 2px;
-  right: 2px;
+  bottom: 4px;
+  right: 4px;
   width: 20px;
   height: 20px;
-  background: #10b981;
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
   border: 3px solid white;
   border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
 }
 
 .profileName {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 4px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #4CAF50 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
 }
 
 .profileEmail {
-  font-size: 14px;
-  color: #6b7280;
-  margin: 0 0 16px 0;
+  font-size: 0.875rem;
+  color: #4CAF50;
+  margin: 0 0 1.5rem 0;
+  font-weight: 500;
 }
 
 .verifyButton {
-  background: #10b981;
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border-radius: 2rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin: 0 auto;
-  transition: background 0.2s ease;
+  gap: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
 .verifyButton:hover {
-  background: #059669;
+  background: linear-gradient(135deg, #45a049 0%, #2E7D32 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
 }
 
-/* Sidebar Menu */
+/* Menu da sidebar */
 .sidebarMenu {
-  margin-top: 24px;
+  margin-top: 2rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 1rem;
+  padding: 0.5rem;
 }
 
 .menuItem {
@@ -100,311 +158,402 @@
   background: none;
   border: none;
   text-align: left;
-  padding: 12px 16px;
-  color: #6b7280;
+  padding: 1rem 1.25rem;
+  color: #4CAF50;
   text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 8px;
-  margin-bottom: 4px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  margin-bottom: 0.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.menuItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
+  transform: scaleY(0);
+  transition: transform 0.3s ease;
 }
 
 .menuItem:hover {
-  background: #f0fdf4;
-  color: #10b981;
+  background: rgba(76, 175, 80, 0.1);
+  color: #2E7D32;
+  transform: translateX(4px);
 }
 
-/* Você usa styles.active no JSX, então precisa existir como classe separada */
-.active {
-  background: #10b981;
+.menuItem:hover::before {
+  transform: scaleY(1);
+}
+
+.menuItem.active {
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
   color: #ffffff;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+}
+
+.menuItem.active::before {
+  transform: scaleY(1);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.menuItem.active:hover {
+  background: linear-gradient(135deg, #45a049 0%, #2E7D32 100%);
+  transform: translateX(0);
 }
 
 .assistanceButton {
-  background: #7c3aed;
+  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
   color: white;
   border: none;
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.9375rem;
   font-weight: 600;
   cursor: pointer;
-  margin-top: 20px;
+  margin-top: 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: background 0.2s ease;
+  gap: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(255, 152, 0, 0.3);
 }
 
 .assistanceButton:hover {
-  background: #6d28d9;
+  background: linear-gradient(135deg, #FB8C00 0%, #EF6C00 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
 }
 
-/* Main Content */
+/* Conteúdo principal */
 .mainContent {
   flex: 1;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  box-shadow: 0 8px 32px rgba(76, 175, 80, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  z-index: 1;
+}
+
+.mainContent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A, #4CAF50);
+  border-radius: 1.5rem 1.5rem 0 0;
 }
 
 .pageHeader {
   display: flex;
-  justify-content: space-between; /* corrigido */
+  justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.1);
 }
 
 .pageTitle {
-  font-size: 28px;
-  font-weight: 700;
-  color: #111827;
+  font-size: 2rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #4CAF50 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin: 0;
+  line-height: 1.1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .editButton {
-  background: #f0fdf4;
-  color: #10b981;
-  border: 1px solid #10b981;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
+  background: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.5rem;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.15);
 }
 
 .editButton:hover {
-  background: #10b981;
+  background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
 }
 
-/* Profile Info Grid */
+/* Informações do perfil */
 .profileInfo {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px 40px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 .infoGroup {
   display: flex;
   flex-direction: column;
+  padding: 1.5rem;
+  background: rgba(76, 175, 80, 0.03);
+  border-radius: 1rem;
+  border: 1px solid rgba(76, 175, 80, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.infoGroup:hover {
+  background: rgba(76, 175, 80, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(76, 175, 80, 0.08);
 }
 
 .infoLabel {
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #2E7D32;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
 }
 
 .infoValue {
-  font-size: 16px;
-  color: #111827;
-  font-weight: 500;
+  font-size: 1rem;
+  color: #1B5E20;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
-/* Stats Cards */
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 40px;
-}
-
-.statCard {
-  background: #10b981;
-  color: white;
-  padding: 24px 20px;
-  border-radius: 12px;
-  text-align: center;
-  transition: transform 0.2s ease;
-}
-
-.statCard:hover {
-  transform: translateY(-2px);
-}
-
-.statNumber {
-  font-size: 32px;
-  font-weight: 700;
-  margin: 0 0 4px 0;
-  line-height: 1;
-}
-
-.statLabel {
-  font-size: 14px;
-  opacity: 0.9;
-  margin: 0;
-  font-weight: 500;
-}
-
-/* Services Section */
+/* Seção de serviços */
 .servicesSection {
-  margin-top: 40px;
+  margin-top: 3rem;
+  padding-top: 2.5rem;
+  border-top: 2px solid rgba(76, 175, 80, 0.1);
 }
 
 .sectionTitle {
-  font-size: 20px;
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 20px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1B5E20;
+  margin: 0 0 2rem 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(76, 175, 80, 0.2);
 }
 
 .servicesGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 1rem;
 }
 
 .serviceTag {
-  background: #dcfce7;
-  color: #166534;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 500;
-  border: 1px solid #bbf7d0;
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(139, 195, 74, 0.1) 100%);
+  color: #2E7D32;
+  padding: 0.75rem 1.5rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+}
+
+.serviceTag:hover {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(139, 195, 74, 0.15) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.2);
+}
+
+/* Animações */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.profileHeader {
+  animation: slideInLeft 0.6s ease-out;
+}
+
+.sidebarMenu {
+  animation: slideInLeft 0.7s ease-out;
+}
+
+.mainContent {
+  animation: fadeInUp 0.5s ease-out;
 }
 
 /* Responsivo */
 @media (max-width: 1024px) {
-  .statsGrid {
+  .profileInfo {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .container {
+    padding: 1.5rem;
+    gap: 1.5rem;
   }
 }
 
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
-    padding: 16px;
+    padding: 1rem;
   }
   
   .sidebar {
     width: 100%;
     position: static;
+    top: 0;
   }
   
   .mainContent {
-    padding: 24px;
+    padding: 2rem;
   }
   
   .profileInfo {
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: 1.5rem;
   }
   
   .pageHeader {
     flex-direction: column;
-    gap: 16px;
+    gap: 1rem;
     text-align: center;
   }
-}
-/* Adicione estes estilos ao seu ProfilePage.module.css existente */
-
-.loadingContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  gap: 16px;
-}
-
-.loadingContainer p {
-  color: #666;
-  font-size: 16px;
-}
-
-.errorContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  gap: 16px;
-  text-align: center;
-}
-
-.errorContainer h3 {
-  color: #dc2626;
-  margin: 0;
-}
-
-.errorContainer p {
-  color: #666;
-  margin: 0;
-}
-
-.retryButton {
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background-color 0.2s;
-}
-
-.retryButton:hover {
-  background-color: #2563eb;
-}
-
-.debugInfo {
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 24px;
-}
-
-.debugInfo details {
-  cursor: pointer;
-}
-
-.debugInfo summary {
-  font-weight: 500;
-  color: #666;
-  margin-bottom: 12px;
-}
-
-.debugInfo pre {
-  background-color: #ffffff;
-  border: 1px solid #e9ecef;
-  border-radius: 4px;
-  padding: 12px;
-  overflow-x: auto;
-  font-size: 12px;
-  line-height: 1.4;
-  color: #333;
-}
-
-/* Animação de loading */
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
+  
+  .pageTitle {
+    font-size: 1.75rem;
+    justify-content: center;
   }
 }
 
-.animate-spin {
-  animation: spin 1s linear infinite;
+@media (max-width: 480px) {
+  .container {
+    padding: 0.5rem;
+  }
+  
+  .sidebar {
+    padding: 1.5rem;
+  }
+  
+  .mainContent {
+    padding: 1.5rem;
+  }
+  
+  .infoGroup {
+    padding: 1rem;
+  }
+  
+  .avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 1.6rem;
+  }
+  
+  .statusBadge {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .sidebarMenu {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  
+  .menuItem {
+    text-align: center;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Melhorias de acessibilidade */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .mainContent,
+  .avatar,
+  .menuItem,
+  .editButton,
+  .verifyButton,
+  .assistanceButton,
+  .infoGroup,
+  .serviceTag {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .sidebar,
+  .mainContent {
+    border: 2px solid #2E7D32;
+    backdrop-filter: none;
+    background: rgba(255, 255, 255, 1);
+  }
+  
+  .infoGroup,
+  .serviceTag {
+    border: 2px solid #4CAF50;
+    background: rgba(255, 255, 255, 1);
+  }
+  
+  .verifyButton,
+  .assistanceButton,
+  .editButton {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Focus states para acessibilidade */
+.verifyButton:focus,
+.assistanceButton:focus,
+.editButton:focus,
+.menuItem:focus {
+  outline: 3px solid #4CAF50;
+  outline-offset: 2px;
 }
