@@ -10,5 +10,7 @@ namespace Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCc
     public class MarkProviderVerifyCommand : IRequest<Unit>
     {
         public Guid Id { get; set; }
+
+        public bool Operation {  get; set; }
     }
 }
