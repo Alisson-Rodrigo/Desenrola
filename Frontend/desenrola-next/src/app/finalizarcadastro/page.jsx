@@ -253,7 +253,7 @@ export default function FinalizeCadastroPage() {
             {/* Nome do Serviço e Telefone */}
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label htmlFor="ServiceName">Nome do Serviço *</label>
+                <label htmlFor="ServiceName">Nome de Prestador *</label>
                 <input
                   type="text"
                   id="ServiceName"

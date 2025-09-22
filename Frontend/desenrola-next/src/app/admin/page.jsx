@@ -80,7 +80,7 @@ const AdminDashboard = () => {
         serviceName: "Serviço não especificado",
         description: "Descrição não disponível",
         phoneNumber: formatPhone(item.phoneNumber),
-        documentPhotos: item.imageDocuments || [], // <-- corrigido aqui
+        documentPhotos: item.imageDocuments || [],
         submittedAt: new Date(item.dateCreated).toLocaleDateString('pt-BR'),
         status: item.isVerified ? 'aceito' : 'pendente',
         isActive: item.isActive
@@ -141,6 +141,7 @@ const AdminDashboard = () => {
 
       const formData = new FormData();
       formData.append("Id", id);
+      formData.append("Operation", "true"); // Aprovação = true
 
       const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
         method: 'POST',
@@ -180,9 +181,10 @@ const AdminDashboard = () => {
 
       const formData = new FormData();
       formData.append("Id", id);
+      formData.append("Operation", "false"); // Rejeição = false
 
-      const response = await fetch('http://localhost:5087/api/provider', {
-        method: 'DELETE',
+      const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`
         },
@@ -194,9 +196,10 @@ const AdminDashboard = () => {
         throw new Error(`Erro ${response.status}: ${errorText}`);
       }
 
-      // Update local state to remove the rejected provider
       setPrestadores(prev =>
-        prev.filter(prestador => prestador.id !== id)
+        prev.map(prestador =>
+          prestador.id === id ? { ...prestador, status: 'rejeitado' } : prestador
+        )
       );
 
       await fetchPendingProviders(pagination.page, pagination.pageSize);
@@ -358,7 +361,6 @@ const AdminDashboard = () => {
                       <button
                         onClick={() => handleApprove(prestador.id)}
                         className={`${styles['action-button']} ${styles['approve-button']}`}
-                        disabled={loading}
                       >
                         <Check />
                         Aprovar
@@ -366,7 +368,6 @@ const AdminDashboard = () => {
                       <button
                         onClick={() => handleReject(prestador.id)}
                         className={`${styles['action-button']} ${styles['reject-button']}`}
-                        disabled={loading}
                       >
                         <X />
                         Rejeitar
