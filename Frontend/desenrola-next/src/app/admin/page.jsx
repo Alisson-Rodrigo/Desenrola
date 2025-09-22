@@ -174,21 +174,39 @@ const AdminDashboard = () => {
 
   const handleReject = async (id) => {
     try {
+      setLoading(true);
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:5087/api/provider/${id}/reject`, {
-        method: 'POST',
+      if (!token) throw new Error('Token de autenticação não encontrado');
+
+      const formData = new FormData();
+      formData.append("Id", id);
+
+      const response = await fetch('http://localhost:5087/api/provider', {
+        method: 'DELETE',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
-        }
+        },
+        body: formData
       });
 
-      if (!response.ok) throw new Error('Erro ao rejeitar prestador');
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erro ${response.status}: ${errorText}`);
+      }
+
+      // Update local state to remove the rejected provider
+      setPrestadores(prev =>
+        prev.filter(prestador => prestador.id !== id)
+      );
 
       await fetchPendingProviders(pagination.page, pagination.pageSize);
+      alert('Prestador rejeitado com sucesso!');
+
     } catch (err) {
-      console.error(err);
-      alert('Não foi possível rejeitar o prestador.');
+      console.error('Erro ao rejeitar prestador:', err);
+      alert(`Não foi possível rejeitar o prestador: ${err.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -340,6 +358,7 @@ const AdminDashboard = () => {
                       <button
                         onClick={() => handleApprove(prestador.id)}
                         className={`${styles['action-button']} ${styles['approve-button']}`}
+                        disabled={loading}
                       >
                         <Check />
                         Aprovar
@@ -347,6 +366,7 @@ const AdminDashboard = () => {
                       <button
                         onClick={() => handleReject(prestador.id)}
                         className={`${styles['action-button']} ${styles['reject-button']}`}
+                        disabled={loading}
                       >
                         <X />
                         Rejeitar
