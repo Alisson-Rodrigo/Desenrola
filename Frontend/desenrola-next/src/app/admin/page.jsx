@@ -48,6 +48,20 @@ const AdminDashboard = () => {
     { key: 'configuracoes', label: 'Configurações', icon: Settings },
   ];
 
+  // Função para processar URLs das imagens
+  const processImageUrl = (imageUrl) => {
+    if (!imageUrl) return null;
+    
+    // Se a URL já está completa (contém http), ajuste a porta para 5087
+    if (imageUrl.startsWith('http')) {
+      // Substitui localhost:7014 por localhost:5087
+      return imageUrl.replace('localhost:7014', 'localhost:5087');
+    }
+    
+    // Caso contrário, construa a URL completa com a porta 5087
+    return `http://localhost:5087${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+  };
+
   const fetchPendingProviders = async (page = 1, pageSize = 10) => {
     setLoading(true);
     setError(null);
@@ -71,20 +85,27 @@ const AdminDashboard = () => {
       
       const data = await response.json();
       
-      const mappedProviders = data.items.map(item => ({
-        id: item.id,
-        name: item.name || "Nome não informado",
-        cpf: formatCPF(item.cpf),
-        rg: item.rg,
-        address: item.address,
-        serviceName: "Serviço não especificado",
-        description: "Descrição não disponível",
-        phoneNumber: formatPhone(item.phoneNumber),
-        documentPhotos: item.imageDocuments || [], // <-- corrigido aqui
-        submittedAt: new Date(item.dateCreated).toLocaleDateString('pt-BR'),
-        status: item.isVerified ? 'aceito' : 'pendente',
-        isActive: item.isActive
-      }));
+      const mappedProviders = data.items.map(item => {
+        // Processa as URLs das imagens
+        const processedImageDocuments = (item.imageDocuments || [])
+          .map(url => processImageUrl(url))
+          .filter(url => url !== null); // Remove URLs inválidas
+
+        return {
+          id: item.id,
+          name: item.name || "Nome não informado",
+          cpf: formatCPF(item.cpf),
+          rg: item.rg,
+          address: item.address,
+          serviceName: "Serviço não especificado",
+          description: "Descrição não disponível",
+          phoneNumber: formatPhone(item.phoneNumber),
+          documentPhotos: processedImageDocuments,
+          submittedAt: new Date(item.dateCreated).toLocaleDateString('pt-BR'),
+          status: item.isVerified ? 'aceito' : 'pendente',
+          isActive: item.isActive
+        };
+      });
       
       setPrestadores(mappedProviders);
       setPagination({
@@ -141,6 +162,7 @@ const AdminDashboard = () => {
 
       const formData = new FormData();
       formData.append("Id", id);
+      formData.append("Operation", "true"); // Aprovação = true
 
       const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
         method: 'POST',
@@ -180,9 +202,10 @@ const AdminDashboard = () => {
 
       const formData = new FormData();
       formData.append("Id", id);
+      formData.append("Operation", "false"); // Rejeição = false
 
-      const response = await fetch('http://localhost:5087/api/provider', {
-        method: 'DELETE',
+      const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`
         },
@@ -194,9 +217,10 @@ const AdminDashboard = () => {
         throw new Error(`Erro ${response.status}: ${errorText}`);
       }
 
-      // Update local state to remove the rejected provider
       setPrestadores(prev =>
-        prev.filter(prestador => prestador.id !== id)
+        prev.map(prestador =>
+          prestador.id === id ? { ...prestador, status: 'rejeitado' } : prestador
+        )
       );
 
       await fetchPendingProviders(pagination.page, pagination.pageSize);
@@ -216,6 +240,51 @@ const AdminDashboard = () => {
 
   const closeDocumentModal = () => {
     setSelectedDocument(null);
+  };
+
+  // Componente para exibir imagem com tratamento de erro
+  const DocumentImage = ({ src, alt, index }) => {
+    const [imageError, setImageError] = useState(false);
+    const [imageLoading, setImageLoading] = useState(true);
+
+    const handleImageError = (e) => {
+      console.error(`Erro ao carregar imagem ${index + 1}:`, src);
+      setImageError(true);
+      setImageLoading(false);
+    };
+
+    const handleImageLoad = () => {
+      setImageLoading(false);
+    };
+
+    if (imageError) {
+      return (
+        <div className={styles['document-error']}>
+          <FileText className="w-12 h-12 text-gray-400" />
+          <p>Erro ao carregar documento {index + 1}</p>
+          <p className={styles['error-url']}>URL: {src}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles['document-image-container']}>
+        {imageLoading && (
+          <div className={styles['image-loading']}>
+            <Loader2 className="w-8 h-8 animate-spin" />
+            <p>Carregando...</p>
+          </div>
+        )}
+        <img 
+          src={src}
+          alt={alt}
+          className={styles['document-image']}
+          onError={handleImageError}
+          onLoad={handleImageLoad}
+          style={{ display: imageLoading ? 'none' : 'block' }}
+        />
+      </div>
+    );
   };
 
   const PaginationComponent = () => {
@@ -358,7 +427,6 @@ const AdminDashboard = () => {
                       <button
                         onClick={() => handleApprove(prestador.id)}
                         className={`${styles['action-button']} ${styles['approve-button']}`}
-                        disabled={loading}
                       >
                         <Check />
                         Aprovar
@@ -366,7 +434,6 @@ const AdminDashboard = () => {
                       <button
                         onClick={() => handleReject(prestador.id)}
                         className={`${styles['action-button']} ${styles['reject-button']}`}
-                        disabled={loading}
                       >
                         <X />
                         Rejeitar
@@ -474,10 +541,16 @@ const AdminDashboard = () => {
               </div>
               <div className={styles['documents-grid']}>
                 {selectedDocument.photos.length > 0 ? (
-                  selectedDocument.photos.map((photo, index) => (
+                  selectedDocument.photos.map((imageUrl, index) => (
                     <div key={index} className={styles['document-item']}>
-                      <img src={photo} alt={`Documento ${index + 1}`} className={styles['document-image']} />
-                      <div className={styles['document-label']}><p>Documento {index + 1}</p></div>
+                      <DocumentImage 
+                        src={imageUrl}
+                        alt={`Documento ${index + 1}`}
+                        index={index}
+                      />
+                      <div className={styles['document-label']}>
+                        <p>Documento {index + 1}</p>
+                      </div>
                     </div>
                   ))
                 ) : (

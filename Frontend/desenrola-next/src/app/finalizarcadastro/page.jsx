@@ -48,7 +48,11 @@ export default function FinalizeCadastroPage() {
     if (!formData.ServiceName.trim()) errors.push('Nome do Serviço é obrigatório');
     if (!formData.Description.trim()) errors.push('Descrição é obrigatória');
     if (!formData.PhoneNumber.trim()) errors.push('Telefone é obrigatório');
-    if (!formData.Category) errors.push('Categoria é obrigatória');
+    
+    // Validação corrigida para categoria - verifica se é string vazia ou null/undefined
+    if (formData.Category === '' || formData.Category === null || formData.Category === undefined) {
+      errors.push('Categoria é obrigatória');
+    }
     
     if (!formData.DocumentPhotos || formData.DocumentPhotos.length === 0) {
       errors.push('Pelo menos um documento deve ser enviado');
@@ -253,7 +257,7 @@ export default function FinalizeCadastroPage() {
             {/* Nome do Serviço e Telefone */}
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label htmlFor="ServiceName">Nome do Serviço *</label>
+                <label htmlFor="ServiceName">Nome de Prestador *</label>
                 <input
                   type="text"
                   id="ServiceName"

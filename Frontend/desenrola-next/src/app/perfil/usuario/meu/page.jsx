@@ -46,10 +46,7 @@ export default function UserProfile() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    phone: '',
-    username: '',
-    city: '',
-    address: ''
+    username: ''
   });
 
   const router = useRouter();
@@ -68,10 +65,7 @@ export default function UserProfile() {
         setFormData({
           name: profile?.name ?? '',
           email: profile?.email ?? '',
-          phone: profile?.phoneNumber ?? '',
-          username: profile?.userName ?? '',
-          city: profile?.city ?? '',
-          address: profile?.address ?? ''
+          username: profile?.userName ?? ''
         });
       } catch (e) {
         setError(e.message || 'Falha ao carregar perfil.');
@@ -84,15 +78,12 @@ export default function UserProfile() {
 
   /**
    * Memoiza os dados do usuário para exibição, evitando recálculos desnecessários a cada renderização.
-   * @returns {{username: string, name: string, email: string, phone: string, city: string, address: string}}
+   * @returns {{username: string, name: string, email: string}}
    */
   const userData = useMemo(() => ({
     username: data?.userName ?? '',
     name: data?.name ?? '',
-    email: data?.email ?? '',
-    phone: data?.phoneNumber ?? '',
-    city: data?.city ?? '—',
-    address: data?.address ?? '—',
+    email: data?.email ?? ''
   }), [data]);
 
   /** Ativa o modo de edição do formulário. */
@@ -104,10 +95,7 @@ export default function UserProfile() {
     setFormData({
       name: data?.name ?? '',
       email: data?.email ?? '',
-      phone: data?.phoneNumber ?? '',
-      username: data?.userName ?? '',
-      city: data?.city ?? '',
-      address: data?.address ?? '',
+      username: data?.userName ?? ''
     });
   };
 
@@ -128,15 +116,13 @@ export default function UserProfile() {
       formDataPayload.append('UserName', formData.username);
       formDataPayload.append('Name', formData.name);
       formDataPayload.append('Email', formData.email);
-      // formDataPayload.append('PhoneNumber', formData.phone); // Descomente se a API aceitar este campo
 
       await authPut('/api/user', formDataPayload);
 
       const localUpdateData = {
         userName: formData.username,
         name: formData.name,
-        email: formData.email,
-        phoneNumber: formData.phone,
+        email: formData.email
       };
       
       setData(prevData => ({ ...prevData, ...localUpdateData }));
@@ -227,22 +213,8 @@ export default function UserProfile() {
             </div>
             <div className={styles.formRow}>
               <div className={styles.formGroup}>
-                <label>TELEFONE</label>
-                <input type="tel" value={isEditing ? formData.phone : userData.phone} readOnly={!isEditing} onChange={(e) => handleInputChange('phone', e.target.value)} />
-              </div>
-              <div className={styles.formGroup}>
                 <label>USUÁRIO</label>
                 <input type="text" value={isEditing ? formData.username : userData.username} readOnly={!isEditing} onChange={(e) => handleInputChange('username', e.target.value)} />
-              </div>
-            </div>
-            <div className={styles.formRow}>
-              <div className={styles.formGroup}>
-                <label>CIDADE</label>
-                <input type="text" value={isEditing ? formData.city : userData.city} readOnly={!isEditing} onChange={(e) => handleInputChange('city', e.target.value)} placeholder={isEditing ? 'Digite sua cidade' : ''} />
-              </div>
-              <div className={styles.formGroup}>
-                <label>ENDEREÇO</label>
-                <input type="text" value={isEditing ? formData.address : userData.address} readOnly={!isEditing} onChange={(e) => handleInputChange('address', e.target.value)} placeholder={isEditing ? 'Digite seu endereço' : ''} />
               </div>
             </div>
             <p className={styles.disclaimer}>
