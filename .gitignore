@@ -3,3 +3,4 @@
 ################################################################################
 
 /.vs
+Backend/Desenrola.Application/Features/Providers/Commands/CreateProviderCommand/CreateProviderCommandHandler.cs
