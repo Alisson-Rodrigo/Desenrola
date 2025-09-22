@@ -57,22 +57,6 @@ namespace Desenrola.Application.Features.Providers.Commands.MarkProviderVerifyCc
             {
                 await _providerRepository.Delete(provider);
 
-                var rejectedUser = await _userManager.FindByIdAsync(provider.UserId);
-                if (rejectedUser == null)
-                    throw new BadRequestException("Usuário não encontrado para este prestador.");
-
-                var rejectedRoles = await _userManager.GetRolesAsync(rejectedUser);
-                if (rejectedRoles.Any())
-                {
-                    var rejectedRemoveResult = await _userManager.RemoveFromRolesAsync(rejectedUser, rejectedRoles);
-                    if (!rejectedRemoveResult.Succeeded)
-                        throw new BadRequestException("Erro ao remover roles existentes do usuário.");
-                }
-
-                var rejectedAddResult = await _userManager.AddToRoleAsync(rejectedUser, "User");
-                if (!rejectedAddResult.Succeeded)
-                    throw new BadRequestException("Erro ao atribuir role 'User' ao usuário.");
-
                 return Unit.Value;
             }
 
