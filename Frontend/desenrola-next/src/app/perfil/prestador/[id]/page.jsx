@@ -1,31 +1,32 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Star, Phone, MessageCircle, MapPin, Award, Users, CheckCircle, ChevronRight, Clock, Loader2, AlertCircle } from 'lucide-react';
+import {
+  Star, Phone, MapPin, Award, CheckCircle,
+  Clock, Loader2, AlertCircle
+} from 'lucide-react';
 import styles from './ProfilePage.module.css';
 import Navbar from '../../../../components/Navbar';
 
 export default function ProfilePage() {
   const params = useParams();
   const router = useRouter();
+
   const [activeTab, setActiveTab] = useState('servicos');
   const [providerData, setProviderData] = useState(null);
   const [scheduleData, setScheduleData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [reviews, setReviews] = useState([]);
 
-  // Mapeamento dos dias da semana
+  // ================================
+  // MAPAS AUXILIARES
+  // ================================
   const daysOfWeek = {
-    0: 'Domingo',
-    1: 'Segunda-feira',
-    2: 'Terça-feira',
-    3: 'Quarta-feira',
-    4: 'Quinta-feira',
-    5: 'Sexta-feira',
-    6: 'Sábado'
+    0: 'Domingo', 1: 'Segunda-feira', 2: 'Terça-feira',
+    3: 'Quarta-feira', 4: 'Quinta-feira', 5: 'Sexta-feira', 6: 'Sábado'
   };
 
-  // Mapeamento das categorias
   const categoriaMap = {
     0: { nome: "Elétrica", icon: "⚡" },
     1: { nome: "Hidráulica", icon: "🔧" },
@@ -59,61 +60,19 @@ export default function ProfilePage() {
     29: { nome: "Culinária e Gastronomia", icon: "👨‍🍳" }
   };
 
-  const categoriaStringMap = {
-    "Eletrica": "Elétrica",
-    "Hidraulica": "Hidráulica",
-    "Pintura": "Pintura",
-    "Jardinagem": "Jardinagem",
-    "Limpeza": "Limpeza",
-    "Reformas": "Reformas e Construção",
-    "TI": "Tecnologia da Informação (TI)",
-    "Transporte": "Transporte e Mudanças",
-    "Beleza": "Beleza e Estética",
-    "Educacao": "Educação e Aulas Particulares",
-    "Saude": "Saúde e Bem-estar",
-    "Automotivo": "Serviços Automotivos",
-    "Marcenaria": "Marcenaria e Móveis Planejados",
-    "Serralheria": "Serralheria",
-    "Climatizacao": "Climatização",
-    "InstalacaoEletrodomesticos": "Instalação de Eletrodomésticos",
-    "Fotografia": "Fotografia e Filmagem",
-    "Eventos": "Eventos e Festas",
-    "ConsultoriaFinanceira": "Consultoria Financeira e Contábil",
-    "AssistenciaTecnica": "Assistência Técnica",
-    "DesignPublicidade": "Design e Publicidade",
-    "Juridico": "Serviços Jurídicos",
-    "Seguranca": "Segurança",
-    "MarketingDigital": "Marketing Digital",
-    "ConsultoriaEmpresarial": "Consultoria Empresarial",
-    "TraducaoIdiomas": "Tradução e Idiomas",
-    "ServicosDomesticos": "Serviços Domésticos Gerais",
-    "ManutencaoPredial": "Manutenção Predial e Industrial",
-    "PetCare": "Pet Care",
-    "Gastronomia": "Culinária e Gastronomia"
-  };
-
-  // Buscar dados do provedor
+  // ================================
+  // FUNÇÕES DE BUSCA
+  // ================================
   const fetchProviderData = async (providerId) => {
     setLoading(true);
     setError(null);
     try {
       const token = localStorage.getItem("auth_token");
       const headers = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const response = await fetch(`http://localhost:5087/api/provider/profile/specify?Id=${providerId}`, {
-        method: 'GET',
-        headers
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Acesso negado. Faça login novamente.');
-        }
-        throw new Error(`Erro ${response.status}: Provedor não encontrado`);
-      }
+      const response = await fetch(`http://localhost:5087/api/provider/profile/specify?Id=${providerId}`, { method: 'GET', headers });
+      if (!response.ok) throw new Error(`Erro ${response.status}: Provedor não encontrado`);
 
       const data = await response.json();
       setProviderData(data);
@@ -125,30 +84,29 @@ export default function ProfilePage() {
     }
   };
 
-  // Buscar horários de trabalho do provedor
   const fetchScheduleData = async (providerId) => {
     try {
       const token = localStorage.getItem("auth_token");
       const headers = { 'Content-Type': 'application/json' };
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const response = await fetch(`http://localhost:5087/api/schedule/provider/${providerId}`, {
-        method: 'GET',
-        headers
-      });
-
-      if (response.ok) {
-        const scheduleData = await response.json();
-        setScheduleData(scheduleData);
-      } else {
-        console.warn('Não foi possível carregar os horários de trabalho');
-        setScheduleData([]);
-      }
+      const response = await fetch(`http://localhost:5087/api/schedule/provider/${providerId}`, { method: 'GET', headers });
+      const scheduleData = response.ok ? await response.json() : [];
+      setScheduleData(scheduleData);
     } catch (err) {
       console.error('Erro ao buscar horários de trabalho:', err);
       setScheduleData([]);
+    }
+  };
+
+  const fetchReviews = async (providerId) => {
+    try {
+      const response = await fetch(`http://localhost:5087/api/evaluation/provider/${providerId}`);
+      const data = response.ok ? await response.json() : [];
+      setReviews(data);
+    } catch (err) {
+      console.error('Erro ao buscar avaliações:', err);
+      setReviews([]);
     }
   };
 
@@ -156,34 +114,17 @@ export default function ProfilePage() {
     if (params?.id) {
       fetchProviderData(params.id);
       fetchScheduleData(params.id);
+      fetchReviews(params.id);
     }
   }, [params?.id]);
 
-  // Funções utilitárias
-  const formatPrice = (price) => new Intl.NumberFormat('pt-BR', { 
-    style: 'currency', 
-    currency: 'BRL' 
-  }).format(price);
-
-  const formatPhone = (phone) => {
-    if (!phone) return '';
-    const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length === 11) {
-      return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7)}`;
-    }
-    return phone;
-  };
-
-  const getInitials = (name) => {
-    if (!name) return 'UP';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  };
-
-  const formatTime = (time) => {
-    if (!time) return '';
-    // Assumindo que o tempo vem no formato "HH:MM"
-    return time.slice(0, 5);
-  };
+  // ================================
+  // FUNÇÕES AUXILIARES
+  // ================================
+  const formatPrice = (price) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price);
+  const formatPhone = (phone) => phone?.replace(/\D/g, '').replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3') || '';
+  const getInitials = (name) => name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'UP';
+  const formatTime = (time) => time?.slice(0, 5) || '';
 
   const tabs = [
     { key: 'servicos', label: 'Serviços Oferecidos', icon: Award },
@@ -191,12 +132,15 @@ export default function ProfilePage() {
     { key: 'horarios', label: 'Horários de Trabalho', icon: Clock }
   ];
 
-  const renderStars = (rating) => {
-    return [...Array(5)].map((_, i) => (
+  const renderStars = (rating) => (
+    [...Array(5)].map((_, i) => (
       <Star key={i} className={`${styles.star} ${i < rating ? styles.starFilled : styles.starEmpty}`} />
-    ));
-  };
+    ))
+  );
 
+  // ================================
+  // SUB-COMPONENTES
+  // ================================
   const MetricCard = ({ value, label, colorClass = 'green' }) => (
     <div className={`${styles.metricCard} ${styles[colorClass]}`}>
       <div className={styles.metricCardValue}>{value}</div>
@@ -208,7 +152,7 @@ export default function ProfilePage() {
     <div className={styles.serviceTag}>
       <div className={styles.serviceName}>{service.title}</div>
       <div className={styles.serviceCategory}>
-        {categoriaStringMap[service.category] || service.category}
+        {service.category}
       </div>
       <div className={styles.servicePrice}>{formatPrice(service.price)}</div>
     </div>
@@ -220,25 +164,45 @@ export default function ProfilePage() {
         <span className={styles.scheduleDayName}>{daysOfWeek[schedule.dayOfWeek]}</span>
       </div>
       <div className={styles.scheduleTime}>
-        {schedule.isAvailable ? (
-          <span className={styles.scheduleAvailable}>
-            {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
-          </span>
-        ) : (
-          <span className={styles.scheduleUnavailable}>Indisponível</span>
-        )}
+        {schedule.isAvailable
+          ? <span className={styles.scheduleAvailable}>{formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}</span>
+          : <span className={styles.scheduleUnavailable}>Indisponível</span>}
       </div>
       <div className={styles.scheduleStatus}>
-        {schedule.isAvailable ? (
-          <CheckCircle className={styles.availableIcon} />
-        ) : (
-          <AlertCircle className={styles.unavailableIcon} />
-        )}
+        {schedule.isAvailable
+          ? <CheckCircle className={styles.availableIcon} />
+          : <AlertCircle className={styles.unavailableIcon} />}
       </div>
     </div>
   );
 
-  // Estados de carregamento e erro
+  const ReviewCard = ({ review }) => (
+    <div className={styles.reviewCard}>
+      <div className={styles.reviewHeader}>
+        <div className={styles.reviewUserInfo}>
+          <div className={styles.reviewAvatar}>
+            <span className={styles.reviewAvatarText}>
+              {getInitials(review.clientName)}
+            </span>
+          </div>
+          <div>
+            <h4 className={styles.reviewUserName}>{review.clientName}</h4>
+            <div className={styles.reviewMeta}>
+              <div className={styles.starContainer}>{renderStars(review.note)}</div>
+              <span className={styles.reviewDate}>
+                {new Date(review.createdAt).toLocaleDateString('pt-BR')}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p className={styles.reviewComment}>{review.comment}</p>
+    </div>
+  );
+
+  // ================================
+  // RENDERIZAÇÃO
+  // ================================
   if (loading) {
     return (
       <div className={styles.container}>
@@ -269,52 +233,12 @@ export default function ProfilePage() {
 
   if (!providerData) return null;
 
-  // Mock data para avaliações
-  const reviews = [
-    {
-      name: 'Ana ',
-      rating: 5,
-      date: '2 dias',
-      comment: 'Excelente profissional! Resolveu meu problema de forma rápida e objetiva.'
-    },
-    {
-      name: 'Carlos Henrique',
-      rating: 5,
-      date: '1 semana',
-      comment: 'Trabalho impecável, muito atencioso aos detalhes e cumpriu todos os prazos.'
-    }
-  ];
-
-  const ReviewCard = ({ review }) => (
-    <div className={styles.reviewCard}>
-      <div className={styles.reviewHeader}>
-        <div className={styles.reviewUserInfo}>
-          <div className={styles.reviewAvatar}>
-            <span className={styles.reviewAvatarText}>
-              {getInitials(review.name)}
-            </span>
-          </div>
-          <div>
-            <h4 className={styles.reviewUserName}>{review.name}</h4>
-            <div className={styles.reviewMeta}>
-              <div className={styles.starContainer}>
-                {renderStars(review.rating)}
-              </div>
-              <span className={styles.reviewDate}>há {review.date}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <p className={styles.reviewComment}>{review.comment}</p>
-    </div>
-  );
-
   return (
     <div className={styles.container}>
       <Navbar />
       <div className={styles.maxWidth}>
         <div className={styles.mainGrid}>
-          {/* Sidebar */}
+          {/* ========== SIDEBAR ========== */}
           <div className={styles.sidebar}>
             <div className={styles.profileSection}>
               <div className={styles.avatarContainer}>
@@ -325,9 +249,7 @@ export default function ProfilePage() {
                 {providerData.isVerified ? 'Profissional Verificado' : 'Profissional'}
               </p>
               <div className={styles.ratingContainer}>
-                <div className={styles.starContainer}>
-                  {renderStars(5)}
-                </div>
+                <div className={styles.starContainer}>{renderStars(5)}</div>
                 <span className={styles.ratingValue}>4.8</span>
               </div>
               <div className={styles.metricsGrid}>
@@ -343,10 +265,8 @@ export default function ProfilePage() {
             </div>
 
             <div className={styles.actionButtons}>
-              <button className={styles.outlineButton}>
-                Enviar Mensagem
-              </button>
-              <button 
+              <button className={styles.outlineButton}>Enviar Mensagem</button>
+              <button
                 className={styles.primaryButton}
                 onClick={() => router.push(`/servicos/avaliar?providerId=${params.id}`)}
               >
@@ -357,8 +277,7 @@ export default function ProfilePage() {
 
             <div className={styles.contactSection}>
               <h3 className={styles.contactTitle}>
-                <Phone className={styles.contactIcon} />
-                Informações de Contato
+                <Phone className={styles.contactIcon} /> Informações de Contato
               </h3>
               <div className={styles.contactList}>
                 {providerData.phoneNumber && (
@@ -389,7 +308,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Main Content Area */}
+          {/* ========== MAIN CONTENT ========== */}
           <div className={styles.mainContent}>
             <div className={styles.profileHeader}>
               <div className={styles.profileHeaderContent}>
@@ -429,6 +348,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* ========== TABS ========== */}
             <div className={styles.tabContainer}>
               <div className={styles.tabNavigation}>
                 {tabs.map(({ key, label, icon: Icon }) => (
@@ -444,13 +364,12 @@ export default function ProfilePage() {
               </div>
 
               <div className={styles.tabContent}>
+                {/* Serviços */}
                 {activeTab === 'servicos' && (
                   <div>
                     <div className={styles.tabHeader}>
                       <h2 className={styles.tabTitle}>Serviços Oferecidos</h2>
-                      <div className={styles.tabCounter}>
-                        {providerData.services?.length || 0} serviços
-                      </div>
+                      <div className={styles.tabCounter}>{providerData.services?.length || 0} serviços</div>
                     </div>
                     <div className={styles.servicesGrid}>
                       {providerData.services?.length > 0 ? (
@@ -464,37 +383,35 @@ export default function ProfilePage() {
                   </div>
                 )}
 
+                {/* Avaliações */}
                 {activeTab === 'avaliacoes' && (
                   <div>
                     <div className={styles.tabHeader}>
                       <h2 className={styles.tabTitle}>Avaliações dos Clientes</h2>
-                      <div className={styles.tabCounter}>
-                        {reviews.length} avaliações
-                      </div>
+                      <div className={styles.tabCounter}>{reviews.length} avaliações</div>
                     </div>
                     <div className={styles.reviewsList}>
-                      {reviews.map((review, index) => (
-                        <ReviewCard key={index} review={review} />
-                      ))}
+                      {reviews.length > 0 ? (
+                        reviews.map((review, index) => <ReviewCard key={index} review={review} />)
+                      ) : (
+                        <p>Nenhuma avaliação encontrada.</p>
+                      )}
                     </div>
                   </div>
                 )}
 
+                {/* Horários */}
                 {activeTab === 'horarios' && (
                   <div>
                     <div className={styles.tabHeader}>
                       <h2 className={styles.tabTitle}>Horários de Trabalho</h2>
-                      <div className={styles.tabCounter}>
-                        {scheduleData.length} dias configurados
-                      </div>
+                      <div className={styles.tabCounter}>{scheduleData.length} dias configurados</div>
                     </div>
                     <div className={styles.scheduleList}>
                       {scheduleData.length > 0 ? (
                         scheduleData
                           .sort((a, b) => a.dayOfWeek - b.dayOfWeek)
-                          .map((schedule) => (
-                            <ScheduleItem key={schedule.id} schedule={schedule} />
-                          ))
+                          .map((schedule) => <ScheduleItem key={schedule.id} schedule={schedule} />)
                       ) : (
                         <div className={styles.noSchedule}>
                           <Clock size={48} className={styles.noScheduleIcon} />
