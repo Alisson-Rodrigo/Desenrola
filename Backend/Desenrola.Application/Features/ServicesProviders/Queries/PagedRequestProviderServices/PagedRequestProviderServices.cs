@@ -18,5 +18,6 @@ namespace Desenrola.Application.Features.ServicesProviders.Queries.PagedRequestP
         public ServiceCategory? ServiceCategory { get; set; }
         public bool? OnlyActive { get; set; } // apenas ativos
         public Guid? ProviderId { get; set; } // serviços de um prestador específico
+        public Guid? ServiceId { get; set; }
     }
 }
