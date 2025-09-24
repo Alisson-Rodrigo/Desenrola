@@ -346,6 +346,13 @@ export default function ProfilePage() {
               <button className={styles.outlineButton}>
                 Enviar Mensagem
               </button>
+              <button 
+                className={styles.primaryButton}
+                onClick={() => router.push(`/servicos/avaliar?providerId=${params.id}`)}
+              >
+                <Star className={styles.buttonIcon} />
+                Avaliar Prestador
+              </button>
             </div>
 
             <div className={styles.contactSection}>
