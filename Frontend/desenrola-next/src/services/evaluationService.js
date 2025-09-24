@@ -3,14 +3,14 @@ import { authPost, authGet } from './http';
 export const EvaluationService = {
   async createEvaluation({ providerId, rating, comment }) {
     const formData = new FormData();
-    formData.append('providerId', providerId);
-    formData.append('note', rating);
-    formData.append('comment', comment);
+    formData.append('ProviderId', providerId); // 👈 maiúsculo
+    formData.append('Note', rating.toString()); // 👈 int em string
+    formData.append('Comment', comment);
 
-    return authPost('/api/evaluation', formData); // POST avaliação
+    return authPost('/api/evaluation', formData);
   },
 
   async getPendingEvaluations() {
-    return authGet('/api/evaluation/pending'); // Altere aqui conforme sua rota real
+    return authGet('/api/evaluation/pending'); 
   }
 };
