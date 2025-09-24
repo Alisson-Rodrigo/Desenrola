@@ -37,10 +37,11 @@ namespace Desenrola.Application.Features.ProviderSchedules.Commands.CreateSchedu
             {
                 ProviderId = request.ProviderId,
                 DayOfWeek = request.DayOfWeek,
-                StartTime = request.StartTime,
-                EndTime = request.EndTime,
+                StartTime = TimeSpan.Parse(request.StartTime),
+                EndTime = TimeSpan.Parse(request.EndTime),
                 IsAvailable = true
             };
+
 
             await _scheduleRepository.CreateAsync(schedule);
 
