@@ -1,4 +1,5 @@
 ﻿using Desenrola.Domain.Abstract;
+using Desenrola.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Desenrola.Domain.Entities
         public virtual Provider Provider { get; set; } = null!;
 
         // Dia da semana (0 = Domingo, 1 = Segunda, ..., 6 = Sábado)
-        public int DayOfWeek { get; set; }
+        public WeekDay DayOfWeek { get; set; }
 
         // Horários disponíveis
         public TimeSpan StartTime { get; set; }
