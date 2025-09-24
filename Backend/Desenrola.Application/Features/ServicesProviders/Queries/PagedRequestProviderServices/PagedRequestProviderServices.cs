@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Desenrola.Domain.Enums;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace Desenrola.Application.Features.ServicesProviders.Queries.PagedRequestP
 
         // 🔎 filtros de busca
         public string? Search { get; set; } // título, descrição
+        public ServiceCategory? ServiceCategory { get; set; }
         public bool? OnlyActive { get; set; } // apenas ativos
         public Guid? ProviderId { get; set; } // serviços de um prestador específico
     }

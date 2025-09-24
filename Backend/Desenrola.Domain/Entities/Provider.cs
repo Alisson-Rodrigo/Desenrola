@@ -13,6 +13,8 @@ namespace Desenrola.Domain.Entities
         public required string RG { get; set; }
         public required List<string> DocumentPhotoUrl { get; set; } // link/arquivo armazenado
         public required string Address { get; set; }
+        public virtual List<Evaluation> Evaluations { get; set; } = new();
+
 
 
         // Dados profissionais
