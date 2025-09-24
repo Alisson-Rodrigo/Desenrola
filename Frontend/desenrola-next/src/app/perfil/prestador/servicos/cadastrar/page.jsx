@@ -17,38 +17,38 @@ export default function CadastrarServico() {
   const [preview, setPreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Lista de categorias com ícones
+  // Lista de categorias com ícones - IDs correspondentes ao enum do backend (começando em 0)
   const categorias = [
-    { id: "1", nome: "Elétrica", icon: "⚡" },
-    { id: "2", nome: "Hidráulica", icon: "🔧" },
-    { id: "3", nome: "Pintura", icon: "🎨" },
-    { id: "4", nome: "Jardinagem", icon: "🌱" },
-    { id: "5", nome: "Limpeza", icon: "🧽" },
-    { id: "6", nome: "Reformas e Construção", icon: "🏗️" },
-    { id: "7", nome: "Tecnologia da Informação (TI)", icon: "💻" },
-    { id: "8", nome: "Transporte e Mudanças", icon: "🚚" },
-    { id: "9", nome: "Beleza e Estética", icon: "💅" },
-    { id: "10", nome: "Educação e Aulas Particulares", icon: "📚" },
-    { id: "11", nome: "Saúde e Bem-estar", icon: "🏥" },
-    { id: "12", nome: "Serviços Automotivos", icon: "🚗" },
-    { id: "13", nome: "Marcenaria e Móveis Planejados", icon: "🪵" },
-    { id: "14", nome: "Serralheria", icon: "🔨" },
-    { id: "15", nome: "Climatização", icon: "❄️" },
-    { id: "16", nome: "Instalação de Eletrodomésticos", icon: "📺" },
-    { id: "17", nome: "Fotografia e Filmagem", icon: "📸" },
-    { id: "18", nome: "Eventos e Festas", icon: "🎉" },
-    { id: "19", nome: "Consultoria Financeira e Contábil", icon: "💰" },
-    { id: "20", nome: "Assistência Técnica", icon: "🔧" },
-    { id: "21", nome: "Design e Publicidade", icon: "🎯" },
-    { id: "22", nome: "Serviços Jurídicos", icon: "⚖️" },
-    { id: "23", nome: "Segurança", icon: "🛡️" },
-    { id: "24", nome: "Marketing Digital", icon: "📊" },
-    { id: "25", nome: "Consultoria Empresarial", icon: "📈" },
-    { id: "26", nome: "Tradução e Idiomas", icon: "🗣️" },
-    { id: "27", nome: "Serviços Domésticos Gerais", icon: "🏠" },
-    { id: "28", nome: "Manutenção Predial e Industrial", icon: "🏢" },
-    { id: "29", nome: "Pet Care", icon: "🐕" },
-    { id: "30", nome: "Culinária e Gastronomia", icon: "👨‍🍳" }
+    { id: 0, nome: "Elétrica", icon: "⚡" },
+    { id: 1, nome: "Hidráulica", icon: "🔧" },
+    { id: 2, nome: "Pintura", icon: "🎨" },
+    { id: 3, nome: "Jardinagem", icon: "🌱" },
+    { id: 4, nome: "Limpeza", icon: "🧽" },
+    { id: 5, nome: "Reformas e Construção", icon: "🏗️" },
+    { id: 6, nome: "Tecnologia da Informação (TI)", icon: "💻" },
+    { id: 7, nome: "Transporte e Mudanças", icon: "🚚" },
+    { id: 8, nome: "Beleza e Estética", icon: "💅" },
+    { id: 9, nome: "Educação e Aulas Particulares", icon: "📚" },
+    { id: 10, nome: "Saúde e Bem-estar", icon: "🏥" },
+    { id: 11, nome: "Serviços Automotivos", icon: "🚗" },
+    { id: 12, nome: "Marcenaria e Móveis Planejados", icon: "🪵" },
+    { id: 13, nome: "Serralheria", icon: "🔨" },
+    { id: 14, nome: "Climatização", icon: "❄️" },
+    { id: 15, nome: "Instalação de Eletrodomésticos", icon: "📺" },
+    { id: 16, nome: "Fotografia e Filmagem", icon: "📸" },
+    { id: 17, nome: "Eventos e Festas", icon: "🎉" },
+    { id: 18, nome: "Consultoria Financeira e Contábil", icon: "💰" },
+    { id: 19, nome: "Assistência Técnica", icon: "🔧" },
+    { id: 20, nome: "Design e Publicidade", icon: "🎯" },
+    { id: 21, nome: "Serviços Jurídicos", icon: "⚖️" },
+    { id: 22, nome: "Segurança", icon: "🛡️" },
+    { id: 23, nome: "Marketing Digital", icon: "📊" },
+    { id: 24, nome: "Consultoria Empresarial", icon: "📈" },
+    { id: 25, nome: "Tradução e Idiomas", icon: "🗣️" },
+    { id: 26, nome: "Serviços Domésticos Gerais", icon: "🏠" },
+    { id: 27, nome: "Manutenção Predial e Industrial", icon: "🏢" },
+    { id: 28, nome: "Pet Care", icon: "🐕" },
+    { id: 29, nome: "Culinária e Gastronomia", icon: "👨‍🍳" }
   ];
 
   const handleChange = (e) => {
@@ -84,7 +84,15 @@ export default function CadastrarServico() {
       formData.append("Title", form.titulo);
       formData.append("Description", form.descricao);
       formData.append("Price", parseFloat(form.preco));
-      formData.append("Category", parseInt(form.categoria));
+      
+      // Conversão explícita e log para debug
+      const categoryId = parseInt(form.categoria);
+      const selectedCategory = categorias.find(cat => cat.id === categoryId);
+      
+      console.log('Categoria selecionada:', selectedCategory);
+      console.log('Category ID enviado:', categoryId);
+      
+      formData.append("Category", categoryId);
 
       if (form.foto) {
         formData.append("Images", form.foto);

@@ -50,28 +50,48 @@ function HomePage({ hasToken }) {
     providerId: ''
   });
 
-  // Categorias
+  // Categorias mapeadas para string (como retorna a API)
   const categorias = {
-    0: "Elétrica", 1: "Hidráulica", 2: "Pintura", 3: "Jardinagem",
-    4: "Limpeza", 5: "Reformas", 6: "TI", 7: "Transporte",
-    8: "Beleza", 9: "Educação", 10: "Saúde", 11: "Automotivo",
-    12: "Marcenaria", 13: "Serralheria", 14: "Climatização",
-    15: "Instalação Eletrodomésticos", 16: "Fotografia", 17: "Eventos",
-    18: "Consultoria Financeira", 19: "Assistência Técnica", 20: "Design e Publicidade",
-    21: "Jurídico", 22: "Segurança", 23: "Marketing Digital",
-    24: "Consultoria Empresarial", 25: "Tradução e Idiomas",
-    26: "Serviços Domésticos", 27: "Manutenção Predial",
-    28: "Pet Care", 29: "Gastronomia"
+    "Eletrica": "Elétrica",
+    "Hidraulica": "Hidráulica", 
+    "Pintura": "Pintura",
+    "Jardinagem": "Jardinagem",
+    "Limpeza": "Limpeza",
+    "Reformas": "Reformas e Construção",
+    "TI": "Tecnologia da Informação (TI)",
+    "Transporte": "Transporte e Mudanças",
+    "Beleza": "Beleza e Estética",
+    "Educacao": "Educação e Aulas Particulares",
+    "Saude": "Saúde e Bem-estar",
+    "Automotivo": "Serviços Automotivos",
+    "Marcenaria": "Marcenaria e Móveis Planejados",
+    "Serralheria": "Serralheria",
+    "Climatizacao": "Climatização",
+    "InstalacaoEletrodomesticos": "Instalação de Eletrodomésticos",
+    "Fotografia": "Fotografia e Filmagem",
+    "Eventos": "Eventos e Festas",
+    "ConsultoriaFinanceira": "Consultoria Financeira e Contábil",
+    "AssistenciaTecnica": "Assistência Técnica",
+    "DesignPublicidade": "Design e Publicidade",
+    "Juridico": "Serviços Jurídicos",
+    "Seguranca": "Segurança",
+    "MarketingDigital": "Marketing Digital",
+    "ConsultoriaEmpresarial": "Consultoria Empresarial",
+    "TraducaoIdiomas": "Tradução e Idiomas",
+    "ServicosDomesticos": "Serviços Domésticos Gerais",
+    "ManutencaoPredial": "Manutenção Predial e Industrial",
+    "PetCare": "Pet Care",
+    "Gastronomia": "Culinária e Gastronomia"
   };
 
   // Categorias em destaque
   const featuredCategories = [
-    { id: 0, name: "Elétrica", icon: "⚡" },
-    { id: 1, name: "Hidráulica", icon: "🔧" },
-    { id: 2, name: "Pintura", icon: "🎨" },
-    { id: 5, name: "Reformas", icon: "🏗️" },
-    { id: 6, name: "TI", icon: "💻" },
-    { id: 8, name: "Beleza", icon: "✨" }
+    { id: "Eletrica", name: "Elétrica", icon: "⚡" },
+    { id: "Hidraulica", name: "Hidráulica", icon: "🔧" },
+    { id: "Pintura", name: "Pintura", icon: "🎨" },
+    { id: "Reformas", name: "Reformas", icon: "🏗️" },
+    { id: "TI", name: "TI", icon: "💻" },
+    { id: "Beleza", name: "Beleza", icon: "✨" }
   ];
 
   // Buscar serviços
@@ -100,7 +120,7 @@ function HomePage({ hasToken }) {
       if (data.items) {
         setServices(data.items);
         setTotalPages(data.totalPages || 1);
-        setTotalItems(data.totalCount || 0);
+        setTotalItems(data.totalItems || 0); // Corrigido: usar totalItems da resposta da API
       } else if (Array.isArray(data)) {
         setServices(data);
         setTotalPages(1);
@@ -336,7 +356,7 @@ function HomePage({ hasToken }) {
                       <div className={styles.cardHeader}>
                         <div className={styles.cardCategory}>
                           <MapPin size={14} />
-                          {categorias[service.category] || `Categoria ${service.category}`}
+                          {categorias[service.category] || service.category}
                         </div>
                         <div className={styles.cardStatus}>
                           {service.isActive ? (
@@ -357,10 +377,16 @@ function HomePage({ hasToken }) {
 
                       <div className={styles.cardMeta}>
                         {service.providerName && (
-                          <div className={styles.cardProvider}>
+                          <button 
+                            className={styles.cardProvider}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`perfil/prestador/${service.providerId}`);
+                            }}
+                          >
                             <User size={14} />
                             {service.providerName}
-                          </div>
+                          </button>
                         )}
                         <div className={styles.cardDate}>
                           <Clock size={14} />
