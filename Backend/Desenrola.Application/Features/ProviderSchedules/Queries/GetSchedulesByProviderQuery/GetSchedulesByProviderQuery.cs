@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Desenrola.Application.Features.ProviderSchedules.Queries.GetSchedulesByProviderQuery
 {
-    public class GetSchedulesByProviderQuery : IRequest<List<ProviderSchedule>>
+    public class GetSchedulesByProviderQuery : IRequest<List<GetScheduleResult>>
     {
         public Guid ProviderId { get; set; }
 
