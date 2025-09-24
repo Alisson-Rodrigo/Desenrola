@@ -11,7 +11,11 @@ import {
   Wrench,
   Edit,
   X,
-  Save
+  Save,
+  Calendar,
+  Clock,
+  Plus,
+  Trash2
 } from 'lucide-react';
 import styles from './ProfilePage.module.css';
 import Navbar from '../../../../components/Navbar'; 
@@ -50,13 +54,48 @@ const categoryMap = {
   29: "Culinária e Gastronomia",
 };
 
+// 🔑 Mapeamento dos dias da semana baseado no enum WeekDay do backend
+const daysOfWeek = {
+  0: "Domingo",    // Sunday
+  1: "Segunda-feira", // Monday
+  2: "Terça-feira",   // Tuesday
+  3: "Quarta-feira",  // Wednesday
+  4: "Quinta-feira",  // Thursday
+  5: "Sexta-feira",   // Friday
+  6: "Sábado"        // Saturday
+};
+
+// 🔑 NOVA FUNÇÃO: Formatar horário recebido da API
+const formatTime = (timeString) => {
+  if (!timeString) return 'N/A';
+  
+  // Se vier no formato "HH:MM" ou "HH:MM:SS", pega apenas HH:MM
+  const timeParts = timeString.split(':');
+  if (timeParts.length >= 2) {
+    return `${timeParts[0]}:${timeParts[1]}`;
+  }
+  
+  return timeString;
+};
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
+  const [schedules, setSchedules] = useState([]);
+  const [loadingSchedules, setLoadingSchedules] = useState(false);
+  
+  // Estado para o formulário de agenda
+  const [scheduleForm, setScheduleForm] = useState({
+    dayOfWeek: '',
+    startTime: '',
+    endTime: ''
+  });
+  const [savingSchedule, setSavingSchedule] = useState(false);
 
   // 🔑 Busca dados do provider logado
   useEffect(() => {
@@ -102,6 +141,67 @@ export default function ProfilePage() {
 
     fetchProfile();
   }, []);
+
+  // 🔑 FUNÇÃO ATUALIZADA: Buscar agendas do provider
+  const fetchSchedules = async () => {
+    if (!profile?.id) return;
+    
+    setLoadingSchedules(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`http://localhost:5087/api/schedule/provider/${profile.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Dados da agenda recebidos:', data); // Para debug
+        setSchedules(data);
+      } else {
+        console.error('Erro ao carregar agendas:', response.status);
+      }
+    } catch (err) {
+      console.error('Erro ao carregar agendas:', err);
+    } finally {
+      setLoadingSchedules(false);
+    }
+  };
+
+  // Carregar agendas quando o perfil estiver disponível
+  useEffect(() => {
+    if (profile?.id) {
+      fetchSchedules();
+    }
+  }, [profile?.id]);
+
+  // 🔑 NOVA FUNÇÃO: Deletar agenda
+  const handleDeleteSchedule = async (scheduleId) => {
+    if (!confirm('Tem certeza que deseja excluir esta agenda?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`http://localhost:5087/api/schedule/${scheduleId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        alert('Agenda excluída com sucesso!');
+        fetchSchedules(); // Recarrega a lista
+      } else {
+        throw new Error('Erro ao excluir agenda');
+      }
+    } catch (err) {
+      console.error('Erro ao excluir agenda:', err);
+      alert('Erro ao excluir agenda: ' + err.message);
+    }
+  };
 
   // Abre o modal de edição
   const handleEditClick = () => {
@@ -183,7 +283,6 @@ export default function ProfilePage() {
       setProfile(updatedProfile);
       setIsEditing(false);
       
-      // Mostra mensagem de sucesso (você pode implementar um toast aqui)
       alert('Perfil atualizado com sucesso!');
 
     } catch (err) {
@@ -191,6 +290,126 @@ export default function ProfilePage() {
       alert('Erro ao salvar perfil: ' + err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Funções para agenda
+  const handleOpenScheduleModal = () => {
+    setIsScheduleModalOpen(true);
+    setScheduleForm({
+      dayOfWeek: '',
+      startTime: '',
+      endTime: ''
+    });
+  };
+
+  const handleCloseScheduleModal = () => {
+    setIsScheduleModalOpen(false);
+    setScheduleForm({
+      dayOfWeek: '',
+      startTime: '',
+      endTime: ''
+    });
+  };
+
+  const handleScheduleInputChange = (field, value) => {
+    setScheduleForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Função de validação de horários
+  const validateScheduleTimes = (startTime, endTime) => {
+    if (!startTime || !endTime) {
+      return { isValid: false, message: 'Horários de início e fim são obrigatórios' };
+    }
+    
+    // Validação de formato
+    const timeFormat = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeFormat.test(startTime) || !timeFormat.test(endTime)) {
+      return { isValid: false, message: 'Formato de horário inválido. Use HH:MM' };
+    }
+    
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+    
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = endHours * 60 + endMinutes;
+    
+    if (startTotalMinutes >= endTotalMinutes) {
+      return { isValid: false, message: 'O horário de início deve ser anterior ao horário de fim' };
+    }
+    
+    // Verificação adicional: horário mínimo de 1 hora de diferença
+    if (endTotalMinutes - startTotalMinutes < 60) {
+      return { isValid: false, message: 'O período de atendimento deve ter pelo menos 1 hora de duração' };
+    }
+    
+    return { isValid: true, message: '' };
+  };
+
+  // Função para salvar agenda
+  const handleSaveSchedule = async () => {
+    if (!scheduleForm.dayOfWeek || !scheduleForm.startTime || !scheduleForm.endTime) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+
+    // Validar horários
+    const validation = validateScheduleTimes(scheduleForm.startTime, scheduleForm.endTime);
+    if (!validation.isValid) {
+      alert(validation.message);
+      return;
+    }
+
+    // Verificar se já existe uma agenda para este dia
+    const existingSchedule = schedules.find(s => s.dayOfWeek === parseInt(scheduleForm.dayOfWeek));
+    if (existingSchedule) {
+      alert('Já existe uma agenda cadastrada para este dia da semana.');
+      return;
+    }
+
+    setSavingSchedule(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('Token não encontrado');
+      }
+
+      // Criando FormData para multipart/form-data
+      const formData = new FormData();
+      formData.append('ProviderId', profile.id);
+      formData.append('DayOfWeek', parseInt(scheduleForm.dayOfWeek));
+      formData.append('StartTime', `${scheduleForm.startTime}:00`);
+      formData.append('EndTime', `${scheduleForm.endTime}:00`);
+
+      const response = await fetch("http://localhost:5087/api/schedule", {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Erro desconhecido' }));
+        throw new Error(`Erro ${response.status}: ${errorData.message || 'Erro ao salvar agenda'}`);
+      }
+
+      const savedSchedule = await response.json();
+      console.log('Agenda salva com sucesso:', savedSchedule);
+      
+      // Recarrega as agendas
+      await fetchSchedules();
+      handleCloseScheduleModal();
+      alert('Agenda cadastrada com sucesso!');
+
+    } catch (err) {
+      console.error('Erro detalhado:', err);
+      alert('Erro ao salvar agenda: ' + err.message);
+    } finally {
+      setSavingSchedule(false);
     }
   };
 
@@ -282,10 +501,16 @@ export default function ProfilePage() {
         <div className={styles.mainContent}>
           <div className={styles.pageHeader}>
             <h1 className={styles.pageTitle}>Meu Perfil</h1>
-            <button className={styles.editButton} onClick={handleEditClick}>
-              <Edit size={16} style={{ marginRight: '6px' }} />
-              Editar Perfil
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className={styles.editButton} onClick={handleOpenScheduleModal}>
+                <Calendar size={16} style={{ marginRight: '6px' }} />
+                Cadastrar Agenda
+              </button>
+              <button className={styles.editButton} onClick={handleEditClick}>
+                <Edit size={16} style={{ marginRight: '6px' }} />
+                Editar Perfil
+              </button>
+            </div>
           </div>
 
           {/* Profile Information */}
@@ -349,6 +574,47 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
+
+          {/* 🔑 SEÇÃO ATUALIZADA: Schedule Section com novo formato de exibição */}
+          <div className={styles.servicesSection}>
+            <h3 className={styles.sectionTitle}>
+              <Calendar size={20} />
+              Agenda de Serviço
+            </h3>
+            {loadingSchedules ? (
+              <p>Carregando agenda...</p>
+            ) : schedules.length > 0 ? (
+              <div className={styles.scheduleGrid}>
+                {schedules.map((schedule, index) => (
+                  <div key={schedule.id || index} className={styles.scheduleItem}>
+                    <div className={styles.scheduleDay}>
+                      {daysOfWeek[schedule.dayOfWeek]}
+                    </div>
+                    <div className={styles.scheduleTime}>
+                      <Clock size={14} />
+                      {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
+                    </div>
+                    <div className={styles.scheduleStatus}>
+                      <span className={schedule.isAvailable ? styles.available : styles.unavailable}>
+                        {schedule.isAvailable ? 'Disponível' : 'Indisponível'}
+                      </span>
+                    </div>
+                    <button 
+                      className={styles.deleteButton}
+                      onClick={() => handleDeleteSchedule(schedule.id)}
+                      title="Excluir agenda"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className={styles.noSchedule}>
+                Nenhuma agenda cadastrada. Clique em "Cadastrar Agenda" para adicionar seus horários disponíveis.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Modal de Edição */}
@@ -466,6 +732,90 @@ export default function ProfilePage() {
                 >
                   <Save size={16} style={{ marginRight: '6px' }} />
                   {saving ? 'Salvando...' : 'Salvar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Cadastrar Agenda */}
+        {isScheduleModalOpen && (
+          <div className={styles.modal}>
+            <div className={styles.modalContent}>
+              <div className={styles.modalHeader}>
+                <h2>Cadastrar Agenda de Serviço</h2>
+                <button 
+                  className={styles.closeButton} 
+                  onClick={handleCloseScheduleModal}
+                  disabled={savingSchedule}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className={styles.modalBody}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Dia da Semana *</label>
+                  <select
+                    className={styles.formInput}
+                    value={scheduleForm.dayOfWeek}
+                    onChange={(e) => handleScheduleInputChange('dayOfWeek', e.target.value)}
+                    disabled={savingSchedule}
+                  >
+                    <option value="">Selecione um dia</option>
+                    <option value="0">Domingo</option>
+                    <option value="1">Segunda-feira</option>
+                    <option value="2">Terça-feira</option>
+                    <option value="3">Quarta-feira</option>
+                    <option value="4">Quinta-feira</option>
+                    <option value="5">Sexta-feira</option>
+                    <option value="6">Sábado</option>
+                  </select>
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Horário de Início *</label>
+                  <input
+                    type="time"
+                    className={styles.formInput}
+                    value={scheduleForm.startTime}
+                    onChange={(e) => handleScheduleInputChange('startTime', e.target.value)}
+                    disabled={savingSchedule}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel}>Horário de Fim *</label>
+                  <input
+                    type="time"
+                    className={styles.formInput}
+                    value={scheduleForm.endTime}
+                    onChange={(e) => handleScheduleInputChange('endTime', e.target.value)}
+                    disabled={savingSchedule}
+                  />
+                </div>
+
+                <div className={styles.formNote}>
+                  <p>* Campos obrigatórios</p>
+                  <p>O período de atendimento deve ter pelo menos 1 hora de duração.</p>
+                </div>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button 
+                  className={styles.cancelButton} 
+                  onClick={handleCloseScheduleModal}
+                  disabled={savingSchedule}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  className={styles.saveButton} 
+                  onClick={handleSaveSchedule}
+                  disabled={savingSchedule}
+                >
+                  <Save size={16} style={{ marginRight: '6px' }} />
+                  {savingSchedule ? 'Salvando...' : 'Cadastrar Agenda'}
                 </button>
               </div>
             </div>
