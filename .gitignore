@@ -3,3 +3,4 @@
 ################################################################################
 
 /.vs
+/Backend/Desenrola.Domain/Entities/Evaluation.cs
