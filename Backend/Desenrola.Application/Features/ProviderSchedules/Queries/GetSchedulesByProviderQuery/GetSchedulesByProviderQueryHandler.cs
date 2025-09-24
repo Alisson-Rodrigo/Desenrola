@@ -1,5 +1,6 @@
 ﻿using Desenrola.Application.Contracts.Persistance.Repositories;
 using Desenrola.Domain.Entities;
+using Desenrola.Domain.Enums;
 using Desenrola.Domain.Exception;
 using MediatR;
 using System;
@@ -32,14 +33,18 @@ namespace Desenrola.Application.Features.ProviderSchedules.Queries.GetSchedulesB
 
             var schedules = await _scheduleRepository.GetByProviderIdAsync(request.ProviderId);
 
-            return schedules.Select(s => new GetScheduleResult
-            {
-                Id = s.Id,
-                DayOfWeek = s.DayOfWeek,
-                StartTime = s.StartTime.ToString(@"hh\:mm"),
-                EndTime = s.EndTime.ToString(@"hh\:mm"),
-                IsAvailable = s.IsAvailable
-            }).ToList();
+            return schedules
+                .Select(s => new GetScheduleResult
+                {
+                    Id = s.Id,
+                    DayOfWeek = s.DayOfWeek,
+                    StartTime = s.StartTime.ToString(@"hh\:mm"),
+                    EndTime = s.EndTime.ToString(@"hh\:mm"),
+                    IsAvailable = s.IsAvailable
+                })
+                .OrderBy(s => s.DayOfWeek == WeekDay.Sunday ? 7 : (int)s.DayOfWeek) // força domingo pro fim
+                .ToList();
+
         }
     }
 }
