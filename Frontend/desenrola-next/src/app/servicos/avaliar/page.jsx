@@ -16,7 +16,7 @@ export default function AvaliarServicoPage() {
         setAvaliacoes(data);
       } catch (err) {
         console.error("Erro ao carregar serviços para avaliar:", err);
-        alert("Erro ao carregar serviços para avaliar.");
+        // alert("Erro ao carregar serviços para avaliar."); ❌ Removido
       } finally {
         setLoading(false);
       }
@@ -33,9 +33,7 @@ export default function AvaliarServicoPage() {
         comment: comentario,
       });
 
-      // Remove serviço da lista após avaliação
       setAvaliacoes((prev) => prev.filter((a) => a.id !== id));
-
       alert(`Serviço ${id} avaliado com sucesso!`);
     } catch (err) {
       console.error(err);
