@@ -1,84 +1,126 @@
-"use client";
-import { useState } from "react";
-import Navbar from "../../../components/Navbar";
-import styles from "./AvaliarServico.module.css";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Navbar from '../../../components/Navbar';
+import styles from './AvaliarServico.module.css';
 
 export default function AvaliarServicoPage() {
-  const [avaliacoes, setAvaliacoes] = useState([
-    {
-      id: 1,
-      titulo: "Conserto de Encanamento",
-      prestador: "João Silva",
-      descricao: "Troca de cano na cozinha",
-      data: "2025-09-10",
-      nota: null,
-      comentario: "",
-    },
-    {
-      id: 2,
-      titulo: "Instalação de Ar-Condicionado",
-      prestador: "Maria Oliveira",
-      descricao: "Split 12.000 BTUs",
-      data: "2025-09-05",
-      nota: 5,
-      comentario: "Serviço rápido e de qualidade!",
-    },
-  ]);
+  const searchParams = useSearchParams();
+  const providerId = searchParams.get("providerId");
+  const [jaAvaliado, setJaAvaliado] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleAvaliar = (id, nota, comentario) => {
-    setAvaliacoes((prev) =>
-      prev.map((a) =>
-        a.id === id ? { ...a, nota, comentario } : a
-      )
-    );
-    alert(`Serviço ${id} avaliado com nota ${nota} e comentário: "${comentario}"`);
-    // futuramente: chamada para API
+  // Verifica se já foi avaliado ao carregar a página
+  useEffect(() => {
+    const verificarAvaliacao = async () => {
+      const token = localStorage.getItem("auth_token");
+      if (!token || !providerId) return;
+
+      try {
+        const response = await fetch(`http://localhost:5087/api/evaluation/provider/${providerId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data?.hasEvaluated) {
+            setJaAvaliado(true);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao verificar avaliação:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verificarAvaliacao();
+  }, [providerId]);
+
+  const handleAvaliar = async (nota, comentario) => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      alert("Você precisa estar autenticado para enviar uma avaliação.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("ProviderId", providerId);
+      formData.append("Note", nota.toString());
+      formData.append("Comment", comentario);
+
+      const response = await fetch("http://localhost:5087/api/evaluation", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        const errorJson = await response.json();
+
+        if (errorJson?.message === "Você já avaliou este prestador.") {
+          setJaAvaliado(true);
+          alert("Você já avaliou este prestador.");
+        } else if (errorJson?.message) {
+          alert("Erro: " + errorJson.message);
+        } else {
+          alert("Erro ao enviar avaliação.");
+        }
+
+        return;
+      }
+
+      const data = await response.json();
+      alert(data.message || "Avaliação enviada com sucesso!");
+      setJaAvaliado(true);
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao enviar avaliação. Verifique se o prestador existe, se você está autenticado e tente novamente.");
+    }
   };
 
   return (
     <>
       <Navbar />
       <div className={styles.container}>
-        <h1 className={styles.pageTitle}>Avaliação de serviços</h1>
+        <h1 className={styles.pageTitle}>Avaliar Prestador</h1>
 
-        <ul className={styles.servicoList}>
-          {avaliacoes.map((s) => (
-            <li key={s.id} className={styles.servicoCard}>
-              <h2>{s.titulo}</h2>
-              <p><strong>Prestador:</strong> {s.prestador}</p>
-              <p>{s.descricao}</p>
-              <p><strong>Data de realização:</strong> {formatDate(s.data)}</p>
-
-              {s.nota ? (
-                <div className={styles.avaliacaoFeita}>
-                  <p className={styles.avaliado}>⭐ {s.nota}/5</p>
-                  <p className={styles.comentario}>
-                    <strong>Comentário:</strong> {s.comentario}
-                  </p>
-                </div>
-              ) : (
-                <AvaliarForm servico={s} onAvaliar={handleAvaliar} />
-              )}
-            </li>
-          ))}
-        </ul>
+        {loading ? (
+          <p>Carregando...</p>
+        ) : providerId ? (
+          jaAvaliado ? (
+            <p className={styles.alreadyEvaluated}>✅ Você já avaliou este prestador.</p>
+          ) : (
+            <AvaliarForm onAvaliar={handleAvaliar} />
+          )
+        ) : (
+          <p className={styles.emptyMessage}>⚠️ Nenhum prestador selecionado para avaliação.</p>
+        )}
       </div>
     </>
   );
 }
 
-// 🔹 Formulário de avaliação
-function AvaliarForm({ servico, onAvaliar }) {
+function AvaliarForm({ onAvaliar }) {
   const [nota, setNota] = useState(null);
   const [comentario, setComentario] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!nota) {
       alert("Por favor, escolha uma nota!");
       return;
     }
-    onAvaliar(servico.id, nota, comentario);
+
+    await onAvaliar(nota, comentario);
+    setNota(null);
+    setComentario("");
   };
 
   return (
@@ -88,7 +130,10 @@ function AvaliarForm({ servico, onAvaliar }) {
           <button
             key={n}
             type="button"
-            onClick={() => setNota(n)}
+            onClick={(e) => {
+              e.preventDefault();
+              setNota(n);
+            }}
             className={nota === n ? styles.starSelected : ""}
           >
             ⭐
@@ -98,7 +143,7 @@ function AvaliarForm({ servico, onAvaliar }) {
 
       <textarea
         className={styles.textarea}
-        placeholder="Escreva um comentário sobre o serviço..."
+        placeholder="Escreva um comentário sobre o prestador..."
         value={comentario}
         onChange={(e) => setComentario(e.target.value)}
       />
@@ -108,14 +153,4 @@ function AvaliarForm({ servico, onAvaliar }) {
       </button>
     </form>
   );
-}
-
-// 🔹 Função para formatar a data em dd/mm/aaaa
-function formatDate(dateStr) {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
 }
