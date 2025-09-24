@@ -100,15 +100,35 @@ export default function ProfilePage() {
   };
 
   const fetchReviews = async (providerId) => {
-    try {
-      const response = await fetch(`http://localhost:5087/api/evaluation/provider/${providerId}`);
-      const data = response.ok ? await response.json() : [];
+  try {
+    const token = localStorage.getItem("auth_token"); // pega o token salvo
+    const headers = {
+      "Content-Type": "application/json"
+    };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`http://localhost:5087/api/evaluation/provider/${providerId}`, {
+      method: "GET",
+      headers
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("📥 Avaliações recebidas:", data); // debug
       setReviews(data);
-    } catch (err) {
-      console.error('Erro ao buscar avaliações:', err);
+    } else {
+      console.warn("⚠️ Erro ao buscar avaliações:", response.status);
       setReviews([]);
     }
-  };
+  } catch (err) {
+    console.error("❌ Erro ao buscar avaliações:", err);
+    setReviews([]);
+  }
+};
+
+
 
   useEffect(() => {
     if (params?.id) {
@@ -177,28 +197,33 @@ export default function ProfilePage() {
   );
 
   const ReviewCard = ({ review }) => (
-    <div className={styles.reviewCard}>
-      <div className={styles.reviewHeader}>
-        <div className={styles.reviewUserInfo}>
-          <div className={styles.reviewAvatar}>
+  <div className={styles.reviewCard}>
+    <div className={styles.reviewHeader}>
+      <div className={styles.reviewUserInfo}>
+        <div className={styles.reviewAvatar}>
+          {review.userImage ? (
+            <img src={review.userImage} alt={review.userName} className={styles.reviewAvatarImg} />
+          ) : (
             <span className={styles.reviewAvatarText}>
-              {getInitials(review.clientName)}
+              {getInitials(review.userName)}
             </span>
-          </div>
-          <div>
-            <h4 className={styles.reviewUserName}>{review.clientName}</h4>
-            <div className={styles.reviewMeta}>
-              <div className={styles.starContainer}>{renderStars(review.note)}</div>
-              <span className={styles.reviewDate}>
-                {new Date(review.createdAt).toLocaleDateString('pt-BR')}
-              </span>
+          )}
+        </div>
+        <div>
+          <h4 className={styles.reviewUserName}>{review.userName}</h4>
+          <div className={styles.reviewMeta}>
+            <div className={styles.starContainer}>
+              {renderStars(review.note)}
             </div>
           </div>
         </div>
       </div>
-      <p className={styles.reviewComment}>{review.comment}</p>
     </div>
-  );
+    <p className={styles.reviewComment}>{review.comment}</p>
+  </div>
+);
+
+
 
   // ================================
   // RENDERIZAÇÃO
