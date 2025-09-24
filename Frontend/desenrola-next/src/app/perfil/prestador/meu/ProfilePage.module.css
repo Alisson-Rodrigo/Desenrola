@@ -1081,3 +1081,30 @@ select.formInput {
   z-index: 2;
   margin: 0;
 }
+
+.deleteButton {
+  background: transparent;
+  border: none;
+  color: #D32F2F; /* Vermelho principal */
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deleteButton:hover {
+  background: rgba(211, 47, 47, 0.1); /* Fundo suave ao passar o mouse */
+  transform: scale(1.1);
+}
+
+.deleteButton:active {
+  transform: scale(0.95);
+  background: rgba(211, 47, 47, 0.2);
+}
+
+.deleteButton svg {
+  stroke-width: 2;
+}

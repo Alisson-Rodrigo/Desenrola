@@ -14,7 +14,8 @@ import {
   Save,
   Calendar,
   Clock,
-  Plus
+  Plus,
+  Trash2
 } from 'lucide-react';
 import styles from './ProfilePage.module.css';
 import Navbar from '../../../../components/Navbar'; 
@@ -53,7 +54,7 @@ const categoryMap = {
   29: "Culinária e Gastronomia",
 };
 
-// 🔑 NOVO: Mapeamento dos dias da semana baseado no enum WeekDay do backend
+// 🔑 Mapeamento dos dias da semana baseado no enum WeekDay do backend
 const daysOfWeek = {
   0: "Domingo",    // Sunday
   1: "Segunda-feira", // Monday
@@ -62,6 +63,19 @@ const daysOfWeek = {
   4: "Quinta-feira",  // Thursday
   5: "Sexta-feira",   // Friday
   6: "Sábado"        // Saturday
+};
+
+// 🔑 NOVA FUNÇÃO: Formatar horário recebido da API
+const formatTime = (timeString) => {
+  if (!timeString) return 'N/A';
+  
+  // Se vier no formato "HH:MM" ou "HH:MM:SS", pega apenas HH:MM
+  const timeParts = timeString.split(':');
+  if (timeParts.length >= 2) {
+    return `${timeParts[0]}:${timeParts[1]}`;
+  }
+  
+  return timeString;
 };
 
 export default function ProfilePage() {
@@ -128,7 +142,7 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
-  // Buscar agendas do provider
+  // 🔑 FUNÇÃO ATUALIZADA: Buscar agendas do provider
   const fetchSchedules = async () => {
     if (!profile?.id) return;
     
@@ -143,7 +157,10 @@ export default function ProfilePage() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Dados da agenda recebidos:', data); // Para debug
         setSchedules(data);
+      } else {
+        console.error('Erro ao carregar agendas:', response.status);
       }
     } catch (err) {
       console.error('Erro ao carregar agendas:', err);
@@ -158,6 +175,33 @@ export default function ProfilePage() {
       fetchSchedules();
     }
   }, [profile?.id]);
+
+  // 🔑 NOVA FUNÇÃO: Deletar agenda
+  const handleDeleteSchedule = async (scheduleId) => {
+    if (!confirm('Tem certeza que deseja excluir esta agenda?')) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('auth_token');
+      const response = await fetch(`http://localhost:5087/api/schedule/${scheduleId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        alert('Agenda excluída com sucesso!');
+        fetchSchedules(); // Recarrega a lista
+      } else {
+        throw new Error('Erro ao excluir agenda');
+      }
+    } catch (err) {
+      console.error('Erro ao excluir agenda:', err);
+      alert('Erro ao excluir agenda: ' + err.message);
+    }
+  };
 
   // Abre o modal de edição
   const handleEditClick = () => {
@@ -239,7 +283,6 @@ export default function ProfilePage() {
       setProfile(updatedProfile);
       setIsEditing(false);
       
-      // Mostra mensagem de sucesso (você pode implementar um toast aqui)
       alert('Perfil atualizado com sucesso!');
 
     } catch (err) {
@@ -306,7 +349,7 @@ export default function ProfilePage() {
     return { isValid: true, message: '' };
   };
 
-  // 🔑 FUNÇÃO ATUALIZADA: handleSaveSchedule com novo formato multipart/form-data
+  // Função para salvar agenda
   const handleSaveSchedule = async () => {
     if (!scheduleForm.dayOfWeek || !scheduleForm.startTime || !scheduleForm.endTime) {
       alert('Por favor, preencha todos os campos obrigatórios.');
@@ -334,33 +377,17 @@ export default function ProfilePage() {
         throw new Error('Token não encontrado');
       }
 
-      // 🔑 NOVO FORMATO: Criando FormData para multipart/form-data conforme especificação da API
+      // Criando FormData para multipart/form-data
       const formData = new FormData();
-      
-      // ProviderId como UUID string
       formData.append('ProviderId', profile.id);
-      
-      // DayOfWeek como integer (0-6 conforme enum WeekDay)
       formData.append('DayOfWeek', parseInt(scheduleForm.dayOfWeek));
-      
-      // StartTime como string no formato HH:MM:SS
       formData.append('StartTime', `${scheduleForm.startTime}:00`);
-      
-      // EndTime como string no formato HH:MM:SS
       formData.append('EndTime', `${scheduleForm.endTime}:00`);
-
-      console.log('Enviando FormData:', {
-        ProviderId: profile.id,
-        DayOfWeek: parseInt(scheduleForm.dayOfWeek),
-        StartTime: `${scheduleForm.startTime}:00`,
-        EndTime: `${scheduleForm.endTime}:00`
-      });
 
       const response = await fetch("http://localhost:5087/api/schedule", {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
-          // Removendo Content-Type para permitir que o browser configure automaticamente para multipart/form-data
         },
         body: formData
       });
@@ -548,7 +575,7 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* Schedule Section */}
+          {/* 🔑 SEÇÃO ATUALIZADA: Schedule Section com novo formato de exibição */}
           <div className={styles.servicesSection}>
             <h3 className={styles.sectionTitle}>
               <Calendar size={20} />
@@ -559,15 +586,26 @@ export default function ProfilePage() {
             ) : schedules.length > 0 ? (
               <div className={styles.scheduleGrid}>
                 {schedules.map((schedule, index) => (
-                  <div key={index} className={styles.scheduleItem}>
+                  <div key={schedule.id || index} className={styles.scheduleItem}>
                     <div className={styles.scheduleDay}>
                       {daysOfWeek[schedule.dayOfWeek]}
                     </div>
                     <div className={styles.scheduleTime}>
                       <Clock size={14} />
-                      {schedule.startTime ? `${String(schedule.startTime.hours).padStart(2, '0')}:${String(schedule.startTime.minutes).padStart(2, '0')}` : 'N/A'} - 
-                      {schedule.endTime ? `${String(schedule.endTime.hours).padStart(2, '0')}:${String(schedule.endTime.minutes).padStart(2, '0')}` : 'N/A'}
+                      {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
                     </div>
+                    <div className={styles.scheduleStatus}>
+                      <span className={schedule.isAvailable ? styles.available : styles.unavailable}>
+                        {schedule.isAvailable ? 'Disponível' : 'Indisponível'}
+                      </span>
+                    </div>
+                    <button 
+                      className={styles.deleteButton}
+                      onClick={() => handleDeleteSchedule(schedule.id)}
+                      title="Excluir agenda"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 ))}
               </div>
@@ -700,7 +738,7 @@ export default function ProfilePage() {
           </div>
         )}
 
-        {/* 🔑 MODAL ATUALIZADO: Cadastrar Agenda com novo formato */}
+        {/* Modal Cadastrar Agenda */}
         {isScheduleModalOpen && (
           <div className={styles.modal}>
             <div className={styles.modalContent}>
@@ -725,7 +763,6 @@ export default function ProfilePage() {
                     disabled={savingSchedule}
                   >
                     <option value="">Selecione um dia</option>
-                    {/* 🔑 ATUALIZADO: Options baseadas no enum WeekDay (0=Sunday, 1=Monday, ...) */}
                     <option value="0">Domingo</option>
                     <option value="1">Segunda-feira</option>
                     <option value="2">Terça-feira</option>
@@ -761,7 +798,6 @@ export default function ProfilePage() {
                 <div className={styles.formNote}>
                   <p>* Campos obrigatórios</p>
                   <p>O período de atendimento deve ter pelo menos 1 hora de duração.</p>
-                  <p><strong>Formato:</strong> Os dados serão enviados no formato multipart/form-data conforme especificação da API.</p>
                 </div>
               </div>
 
