@@ -1,13 +1,10 @@
-import { http } from './http';
-
 export const EvaluationService = {
-  async getByProviderId(providerId) {
-    const response = await http.get(`/evaluations/provider/${providerId}`);
-    return response.data;
-  },
+  async createEvaluation({ providerId, rating, comment }) {
+    const formData = new FormData();
+    formData.append('providerId', providerId);
+    formData.append('note', rating);
+    formData.append('comment', comment);
 
-  async createEvaluation(data) {
-    const response = await http.post('/evaluations', data);
-    return response.data;
-  }
+    return authPost('/api/evaluation', formData, true); // true para indicar que é FormData
+  },
 };
