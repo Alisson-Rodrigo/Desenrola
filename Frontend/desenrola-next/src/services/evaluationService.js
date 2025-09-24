@@ -5,6 +5,6 @@ export const EvaluationService = {
     formData.append('note', rating);
     formData.append('comment', comment);
 
-    return authPost('/api/evaluation', formData, true); // true para indicar que é FormData
+    return authPost('/api/evaluation', formData); // true para indicar que é FormData
   },
 };
