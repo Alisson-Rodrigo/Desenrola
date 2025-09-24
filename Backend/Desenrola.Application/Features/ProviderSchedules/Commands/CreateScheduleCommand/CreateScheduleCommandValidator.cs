@@ -1,9 +1,5 @@
-﻿using FluentValidation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Desenrola.Domain.Enums;
+using FluentValidation;
 
 namespace Desenrola.Application.Features.ProviderSchedules.Commands.CreateScheduleCommand
 {
@@ -12,10 +8,33 @@ namespace Desenrola.Application.Features.ProviderSchedules.Commands.CreateSchedu
         public CreateScheduleCommandValidator()
         {
             RuleFor(x => x.DayOfWeek)
-                .InclusiveBetween(0, 6).WithMessage("O dia da semana deve estar entre 0 e 6.");
+                .IsInEnum()
+                .WithMessage("O dia da semana informado não é válido.");
+
+            RuleFor(x => x.StartTime)
+                .NotEmpty().WithMessage("O horário inicial é obrigatório.")
+                .Must(BeValidTime).WithMessage("O horário inicial deve estar no formato HH:mm:ss.");
 
             RuleFor(x => x.EndTime)
-                .GreaterThan(x => x.StartTime).WithMessage("O horário final deve ser maior que o inicial.");
+                .NotEmpty().WithMessage("O horário final é obrigatório.")
+                .Must(BeValidTime).WithMessage("O horário final deve estar no formato HH:mm:ss.")
+                .Must((cmd, end) => CompareTimes(cmd.StartTime, end))
+                .WithMessage("O horário final deve ser maior que o inicial.");
+        }
+
+        private bool BeValidTime(string time)
+        {
+            return TimeSpan.TryParse(time, out _);
+        }
+
+        private bool CompareTimes(string start, string end)
+        {
+            if (TimeSpan.TryParse(start, out var startTime) &&
+                TimeSpan.TryParse(end, out var endTime))
+            {
+                return endTime > startTime;
+            }
+            return false;
         }
     }
 }
