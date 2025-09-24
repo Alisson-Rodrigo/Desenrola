@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace Desenrola.Persistence
 {
@@ -12,6 +13,8 @@ namespace Desenrola.Persistence
         // Tabelas do domínio
         public DbSet<Provider> Providers => Set<Provider>();
         public DbSet<ProviderService> ProviderServices => Set<ProviderService>();
+        public DbSet<Evaluation> Evaluations { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -96,6 +99,28 @@ namespace Desenrola.Persistence
                 entity.Property(s => s.CreatedOn)
                       .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
             });
+
+            builder.Entity<Evaluation>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id)
+                      .HasDefaultValueSql("uuid_generate_v4()");
+
+                entity.HasOne(e => e.User)
+                    .WithMany(u => u.Evaluations)
+                    .HasForeignKey(e => e.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Provider)
+                    .WithMany(p => p.Evaluations)
+                    .HasForeignKey(e => e.ProviderId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(e => e.Note)
+                    .IsRequired();
+            });
+
 
             // Aplica configurações adicionais se houver
             builder.ApplyConfigurationsFromAssembly(typeof(DefaultContext).Assembly);
