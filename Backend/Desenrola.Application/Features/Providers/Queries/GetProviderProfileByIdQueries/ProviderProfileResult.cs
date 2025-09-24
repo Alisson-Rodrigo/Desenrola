@@ -21,7 +21,7 @@ namespace Desenrola.Application.Features.Providers.Queries.GetProviderProfileByI
         public ProviderProfileResult(Provider provider)
         {
             Id = provider.Id;
-            UserName = provider.User?.Name ?? string.Empty;
+            UserName = provider.ServiceName;
             CPF = provider.CPF;
             RG = provider.RG;
             Address = provider.Address;
