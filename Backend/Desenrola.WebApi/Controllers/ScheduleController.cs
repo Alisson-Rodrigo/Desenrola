@@ -10,7 +10,6 @@ namespace Desenrola.WebApi.Controllers
 {
     [ApiController]
     [Route("api/schedule")]
-    [Authorize(Roles = "Provider")]
 
     public class ScheduleController : ControllerBase
     {
@@ -21,6 +20,7 @@ namespace Desenrola.WebApi.Controllers
             _mediator = mediator;
         }
 
+        [Authorize(Roles = "Provider")]
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CreateScheduleCommand command)
         {
@@ -28,6 +28,7 @@ namespace Desenrola.WebApi.Controllers
             return Ok(new { message = "Agenda criada com sucesso." });
         }
 
+        [Authorize]
         [HttpGet("provider/{providerId:guid}")]
         public async Task<IActionResult> GetByProvider(Guid providerId)
         {
@@ -35,6 +36,7 @@ namespace Desenrola.WebApi.Controllers
             return Ok(result);
         }
 
+        [Authorize(Roles = "Provider")]
         [HttpPut]
         public async Task<IActionResult> Update([FromForm] UpdateScheduleCommand command)
         {
