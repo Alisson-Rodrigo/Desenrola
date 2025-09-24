@@ -5,13 +5,29 @@ import { useSearchParams } from 'next/navigation';
 import Navbar from '../../../components/Navbar';
 import styles from './AvaliarServico.module.css';
 
+/**
+Página de Avaliação de Prestador de Serviços
+
+Essa página permite que um usuário autenticado avalie um prestador de serviços,
+atribuindo uma nota de 1 a 5 estrelas e escrevendo um comentário.
+
+Funcionalidades principais:
+- Captura o `providerId` da URL para identificar o prestador.
+- Verifica se o usuário já avaliou o prestador antes.
+- Exibe formulário de avaliação caso ainda não tenha avaliado.
+- Exibe mensagens de sucesso ou erro de acordo com a resposta da API.
+*/
 export default function AvaliarServicoPage() {
   const searchParams = useSearchParams();
   const providerId = searchParams.get("providerId");
+
   const [jaAvaliado, setJaAvaliado] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Verifica se já foi avaliado ao carregar a página
+  /**
+   * Efeito que roda ao carregar a página para verificar
+   * se o usuário já avaliou o prestador.
+   */
   useEffect(() => {
     const verificarAvaliacao = async () => {
       const token = localStorage.getItem("auth_token");
@@ -19,9 +35,7 @@ export default function AvaliarServicoPage() {
 
       try {
         const response = await fetch(`http://localhost:5087/api/evaluation/provider/${providerId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          headers: { Authorization: `Bearer ${token}` }
         });
 
         if (response.ok) {
@@ -40,6 +54,16 @@ export default function AvaliarServicoPage() {
     verificarAvaliacao();
   }, [providerId]);
 
+ /**
+Função responsável por enviar a avaliação ao backend.
+- Valida se o usuário está autenticado.
+- Envia via POST para a API.
+- Trata mensagens de erro específicas (ex: já avaliou).
+
+@param {number} nota - Nota da avaliação (1 a 5)
+@param {string} comentario - Texto do comentário escrito pelo usuário
+*/
+
   const handleAvaliar = async (nota, comentario) => {
     const token = localStorage.getItem("auth_token");
     if (!token) {
@@ -55,9 +79,7 @@ export default function AvaliarServicoPage() {
 
       const response = await fetch("http://localhost:5087/api/evaluation", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData
       });
 
@@ -72,7 +94,6 @@ export default function AvaliarServicoPage() {
         } else {
           alert("Erro ao enviar avaliação.");
         }
-
         return;
       }
 
@@ -107,6 +128,16 @@ export default function AvaliarServicoPage() {
   );
 }
 
+/**
+Formulário de Avaliação
+
+Exibe:
+- Botões de estrelas para seleção da nota.
+- Campo de texto para comentário.
+- Botão para envio da avaliação.
+
+@param {Function} onAvaliar - Função callback para processar o envio da avaliação
+*/
 function AvaliarForm({ onAvaliar }) {
   const [nota, setNota] = useState(null);
   const [comentario, setComentario] = useState("");

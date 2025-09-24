@@ -1078,3 +1078,11 @@ select.formInput {
   z-index: 2;
   margin: 0;
 }
+
+.reviewProviderName {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;              /* cinza suave */
+  margin-top: 2px;
+  font-style: italic;       /* deixa com cara de detalhe */
+}

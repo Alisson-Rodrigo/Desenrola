@@ -196,7 +196,7 @@ export default function ProfilePage() {
     </div>
   );
 
-  const ReviewCard = ({ review }) => (
+  const ReviewCard = ({ review, providerName }) => (
   <div className={styles.reviewCard}>
     <div className={styles.reviewHeader}>
       <div className={styles.reviewUserInfo}>
@@ -211,6 +211,7 @@ export default function ProfilePage() {
         </div>
         <div>
           <h4 className={styles.reviewUserName}>{review.userName}</h4>
+          <p className={styles.reviewProviderName}>Avaliado: {providerName}</p> {/* <- Novo */}
           <div className={styles.reviewMeta}>
             <div className={styles.starContainer}>
               {renderStars(review.note)}
@@ -222,6 +223,7 @@ export default function ProfilePage() {
     <p className={styles.reviewComment}>{review.comment}</p>
   </div>
 );
+
 
 
 
@@ -417,13 +419,20 @@ export default function ProfilePage() {
                     </div>
                     <div className={styles.reviewsList}>
                       {reviews.length > 0 ? (
-                        reviews.map((review, index) => <ReviewCard key={index} review={review} />)
+                        reviews.map((review, index) => (
+                          <ReviewCard
+                            key={index}
+                            review={review}
+                            providerName={providerData.userName} // <-- aqui passa o nome do prestador
+                          />
+                        ))
                       ) : (
                         <p>Nenhuma avaliação encontrada.</p>
                       )}
                     </div>
                   </div>
                 )}
+
 
                 {/* Horários */}
                 {activeTab === 'horarios' && (
