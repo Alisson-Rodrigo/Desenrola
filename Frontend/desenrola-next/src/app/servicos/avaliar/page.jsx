@@ -50,7 +50,8 @@ export default function AvaliarServicoPage() {
         {loading ? (
           <p>Carregando avaliações...</p>
         ) : avaliacoes.length === 0 ? (
-          <p>Nenhum serviço pendente de avaliação.</p>
+         <p className={styles.emptyMessage}>😕 Nenhum serviço pendente de avaliação no momento.</p>
+
         ) : (
           <ul className={styles.servicoList}>
             {avaliacoes.map((s) => (
