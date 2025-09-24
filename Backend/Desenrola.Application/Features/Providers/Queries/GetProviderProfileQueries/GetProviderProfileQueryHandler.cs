@@ -49,6 +49,7 @@ namespace Desenrola.Application.Features.Providers.Queries.GetProviderProfileQue
                 ServiceName = provider.ServiceName,
                 Description = provider.Description,
                 Address = provider.Address,
+                RG = provider.RG,
                 PhoneNumber = provider.PhoneNumber,
                 IsVerified = provider.IsVerified,
                 DocumentPhotoUrl = provider.DocumentPhotoUrl ?? new List<string>(),
