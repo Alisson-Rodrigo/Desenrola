@@ -14,6 +14,8 @@ namespace Desenrola.Domain.Entities
         public required List<string> DocumentPhotoUrl { get; set; } // link/arquivo armazenado
         public required string Address { get; set; }
         public virtual List<Evaluation> Evaluations { get; set; } = new();
+        public virtual List<ProviderSchedule> Schedules { get; set; } = new();
+
 
 
 

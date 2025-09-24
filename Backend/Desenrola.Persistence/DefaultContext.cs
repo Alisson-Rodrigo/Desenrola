@@ -14,6 +14,7 @@ namespace Desenrola.Persistence
         public DbSet<Provider> Providers => Set<Provider>();
         public DbSet<ProviderService> ProviderServices => Set<ProviderService>();
         public DbSet<Evaluation> Evaluations { get; set; }
+        public DbSet<ProviderSchedule> ProviderSchedules => Set<ProviderSchedule>();
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -120,6 +121,29 @@ namespace Desenrola.Persistence
                 entity.Property(e => e.Note)
                     .IsRequired();
             });
+
+            builder.Entity<ProviderSchedule>(entity =>
+            {
+                entity.HasKey(s => s.Id);
+
+                entity.Property(s => s.Id)
+                      .HasDefaultValueSql("uuid_generate_v4()");
+
+                entity.HasOne(s => s.Provider)
+                      .WithMany(p => p.Schedules)
+                      .HasForeignKey(s => s.ProviderId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(s => s.DayOfWeek)
+                      .IsRequired();
+
+                entity.Property(s => s.StartTime)
+                      .IsRequired();
+
+                entity.Property(s => s.EndTime)
+                      .IsRequired();
+            });
+
 
 
             // Aplica configurações adicionais se houver
