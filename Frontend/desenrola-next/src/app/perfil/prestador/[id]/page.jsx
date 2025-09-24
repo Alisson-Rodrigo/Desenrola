@@ -307,16 +307,7 @@ export default function ProfilePage() {
             </div>
 
             <div className={styles.actionButtons}>
-              <button className={styles.primaryButton}>
-                <MessageCircle className={styles.buttonIcon} />
-                <span>Solicitar Serviço</span>
-              </button>
-              {providerData.phoneNumber && (
-                <button className={styles.secondaryButton}>
-                  <Phone className={styles.buttonIcon} />
-                  <span>Ligar Agora</span>
-                </button>
-              )}
+         
               <button className={styles.outlineButton}>
                 Enviar Mensagem
               </button>
