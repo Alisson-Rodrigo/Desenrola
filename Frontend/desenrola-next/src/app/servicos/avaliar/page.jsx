@@ -1,109 +1,138 @@
-/**
- * @file Serviço HTTP com autenticação para consumo da API do backend do Desenrola.
- */
+'use client';
 
-export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://localhost:5087';
+import { useState } from 'react';
+import Navbar from '../../../components/Navbar';
+import styles from './AvaliarServico.module.css';
+import { EvaluationService } from '@/services/evaluationService';
 
-/**
- * Obtém o token JWT salvo localmente (se estiver no navegador).
- */
-function getToken() {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('auth_token');
-}
+export default function AvaliarServicoPage() {
+  // 🔧 Mock para exibição; ideal seria carregar via API futuramente
+  const [avaliacoes, setAvaliacoes] = useState([
+    {
+      id: 1,
+      titulo: "Conserto de Encanamento",
+      prestador: "João Silva",
+      providerId: "f99d1cbe-aaa1-4e9d-91bd-3825e6e6cbe4",
+      descricao: "Troca de cano na cozinha",
+      data: "2025-09-10",
+      nota: null,
+      comentario: "",
+    },
+    {
+      id: 2,
+      titulo: "Instalação de Ar-Condicionado",
+      prestador: "Maria Oliveira",
+      providerId: "9aaf7e8d-50ec-4955-a557-8d3cd1a6b4e2",
+      descricao: "Split 12.000 BTUs",
+      data: "2025-09-05",
+      nota: 5,
+      comentario: "Serviço rápido e de qualidade!",
+    },
+  ]);
 
-/**
- * Extrai mensagem de erro da resposta da API.
- */
-async function getErrorMessage(res) {
-  try {
-    const data = await res.json();
-    return data?.message || data?.error || `Erro ${res.status}`;
-  } catch {
-    return `Erro ${res.status}`;
-  }
-}
+  const handleAvaliar = async (id, providerId, nota, comentario) => {
+    try {
+      await EvaluationService.createEvaluation({
+        providerId,
+        rating: nota,
+        comment: comentario,
+      });
 
-/**
- * Constrói os headers com o token e tipo de conteúdo apropriado.
- */
-function buildHeaders(isJson = true) {
-  const token = getToken();
-  if (!token) {
-    const e = new Error('Sem token de autenticação');
-    e.code = 401;
-    throw e;
-  }
+      setAvaliacoes((prev) =>
+        prev.map((a) =>
+          a.id === id ? { ...a, nota, comentario } : a
+        )
+      );
 
-  const headers = {
-    Authorization: `Bearer ${token}`,
+      alert(`Serviço ${id} avaliado com sucesso!`);
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao enviar avaliação. Verifique se o prestador existe e tente novamente.');
+    }
   };
 
-  if (isJson) {
-    headers['Content-Type'] = 'application/json';
-  }
+  return (
+    <>
+      <Navbar />
+      <div className={styles.container}>
+        <h1 className={styles.pageTitle}>Avaliação de serviços</h1>
 
-  return headers;
+        <ul className={styles.servicoList}>
+          {avaliacoes.map((s) => (
+            <li key={s.id} className={styles.servicoCard}>
+              <h2>{s.titulo}</h2>
+              <p><strong>Prestador:</strong> {s.prestador}</p>
+              <p>{s.descricao}</p>
+              <p><strong>Data de realização:</strong> {formatDate(s.data)}</p>
+
+              {s.nota ? (
+                <div className={styles.avaliacaoFeita}>
+                  <p className={styles.avaliado}>⭐ {s.nota}/5</p>
+                  <p className={styles.comentario}>
+                    <strong>Comentário:</strong> {s.comentario}
+                  </p>
+                </div>
+              ) : (
+                <AvaliarForm servico={s} onAvaliar={handleAvaliar} />
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  );
 }
 
-export async function authGet(path) {
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: 'GET',
-    headers: buildHeaders(),
-  });
+// 🔹 Formulário de avaliação
+function AvaliarForm({ servico, onAvaliar }) {
+  const [nota, setNota] = useState(null);
+  const [comentario, setComentario] = useState("");
 
-  if (!res.ok) {
-    const msg = await getErrorMessage(res);
-    const e = new Error(msg);
-    e.code = res.status;
-    throw e;
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!nota) {
+      alert("Por favor, escolha uma nota!");
+      return;
+    }
+
+    await onAvaliar(servico.id, servico.providerId, nota, comentario);
   }
 
-  return res.json();
+  return (
+    <form onSubmit={handleSubmit} className={styles.avaliarForm}>
+      <div className={styles.stars}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button
+            key={n}
+            type="button"
+            onClick={() => setNota(n)}
+            className={nota === n ? styles.starSelected : ""}
+          >
+            ⭐
+          </button>
+        ))}
+      </div>
+
+      <textarea
+        className={styles.textarea}
+        placeholder="Escreva um comentário sobre o serviço..."
+        value={comentario}
+        onChange={(e) => setComentario(e.target.value)}
+      />
+
+      <button type="submit" className={styles.btnPrimary}>
+        Enviar Avaliação
+      </button>
+    </form>
+  );
 }
 
-export async function authPost(path, body) {
-  const isFormData = body instanceof FormData;
-
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: 'POST',
-    headers: buildHeaders(!isFormData),
-    body: isFormData ? body : JSON.stringify(body),
+// 🔹 Função para formatar data no padrão brasileiro
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
   });
-
-  if (!res.ok) {
-    const msg = await getErrorMessage(res);
-    const e = new Error(msg);
-    e.code = res.status;
-    throw e;
-  }
-
-  try {
-    return await res.json();
-  } catch {
-    return {};
-  }
-}
-
-export async function authPut(path, body) {
-  const isFormData = body instanceof FormData;
-
-  const res = await fetch(`${BASE_URL}${path}`, {
-    method: 'PUT',
-    headers: buildHeaders(!isFormData),
-    body: isFormData ? body : JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const msg = await getErrorMessage(res);
-    const e = new Error(msg);
-    e.code = res.status;
-    throw e;
-  }
-
-  try {
-    return await res.json();
-  } catch {
-    return {};
-  }
 }

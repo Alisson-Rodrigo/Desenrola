@@ -1,13 +1,11 @@
 /**
  * @file Serviço HTTP com autenticação para consumo da API do backend do Desenrola.
- * @author ...
  */
 
-export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5087';
+export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://localhost:5087';
 
 /**
  * Obtém o token JWT salvo localmente (se estiver no navegador).
- * @returns {string|null}
  */
 function getToken() {
   if (typeof window === 'undefined') return null;
@@ -16,8 +14,6 @@ function getToken() {
 
 /**
  * Extrai mensagem de erro da resposta da API.
- * @param {Response} res
- * @returns {Promise<string>}
  */
 async function getErrorMessage(res) {
   try {
@@ -30,8 +26,6 @@ async function getErrorMessage(res) {
 
 /**
  * Constrói os headers com o token e tipo de conteúdo apropriado.
- * @param {boolean} isJson - Se o conteúdo é JSON
- * @returns {HeadersInit}
  */
 function buildHeaders(isJson = true) {
   const token = getToken();
@@ -52,11 +46,6 @@ function buildHeaders(isJson = true) {
   return headers;
 }
 
-/**
- * Faz uma requisição GET autenticada.
- * @param {string} path - Ex: '/api/user'
- * @returns {Promise<any>}
- */
 export async function authGet(path) {
   const res = await fetch(`${BASE_URL}${path}`, {
     method: 'GET',
@@ -73,12 +62,6 @@ export async function authGet(path) {
   return res.json();
 }
 
-/**
- * Faz uma requisição POST autenticada (JSON ou FormData).
- * @param {string} path
- * @param {object|FormData} body
- * @returns {Promise<any>}
- */
 export async function authPost(path, body) {
   const isFormData = body instanceof FormData;
 
@@ -102,12 +85,6 @@ export async function authPost(path, body) {
   }
 }
 
-/**
- * Faz uma requisição PUT autenticada (JSON ou FormData).
- * @param {string} path
- * @param {object|FormData} body
- * @returns {Promise<any>}
- */
 export async function authPut(path, body) {
   const isFormData = body instanceof FormData;
 
