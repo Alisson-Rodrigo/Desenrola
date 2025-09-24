@@ -13,6 +13,7 @@ namespace Desenrola.Application.Features.ServicesProviders.Queries.PagedRequestP
         public Guid ProviderId { get; set; }
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string ProviderName {  get; set; } = string.Empty;
         public decimal? Price { get; set; }
         public string Category { get; set; } = string.Empty;
         public List<string>? Images { get; set; }
@@ -26,6 +27,7 @@ namespace Desenrola.Application.Features.ServicesProviders.Queries.PagedRequestP
             Title = service.Title;
             Description = service.Description;
             Price = service.Price;
+            ProviderName = service.Provider.ServiceName;
             Category = service.Category.ToString();
             Images = service.ImageUrls;
             IsActive = service.IsActive;
