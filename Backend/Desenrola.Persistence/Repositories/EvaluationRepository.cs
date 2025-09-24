@@ -23,5 +23,20 @@ namespace Desenrola.Persistence.Repositories
             return await _context.Evaluations
                 .AnyAsync(e => e.UserId == userId && e.ProviderId == providerId);
         }
+
+        public async Task<List<Evaluation>> GetByProviderIdAsync(Guid providerId)
+        {
+            return await _context.Evaluations
+                .Where(e => e.ProviderId == providerId)
+                .ToListAsync();
+        }
+
+        public async Task<double> GetAverageByProviderIdAsync(Guid providerId)
+        {
+            return await _context.Evaluations
+                .Where(e => e.ProviderId == providerId)
+                .AverageAsync(e => (double)e.Note);
+        }
+
     }
 }

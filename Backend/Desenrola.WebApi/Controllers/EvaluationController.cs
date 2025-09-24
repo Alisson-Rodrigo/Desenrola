@@ -1,4 +1,5 @@
-﻿using Desenrola.Application.Features.Evaluation.CreatedEvaluationCommand;
+﻿using Desenrola.Application.Features.Evaluation.Command.CreatedEvaluationCommand;
+using Desenrola.Application.Features.Evaluation.Queries.GetEvaluationsByProviderQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -28,6 +29,21 @@ namespace Desenrola.WebApi.Controllers
         {
             await _mediator.Send(command);
             return Ok(new { message = "Avaliação criada com sucesso." });
+        }
+
+        [HttpGet("provider/{providerId:guid}")]
+        public async Task<IActionResult> GetByProvider(Guid providerId)
+        {
+            var result = await _mediator.Send(new GetEvaluationsByProviderQuery(providerId));
+            return Ok(result);
+        }
+
+
+        [HttpGet("provider/{providerId:guid}/average")]
+        public async Task<IActionResult> GetAverage(Guid providerId)
+        {
+            var result = await _mediator.Send(new GetAverageEvaluationQuery(providerId));
+            return Ok(new { average = result });
         }
     }
 }

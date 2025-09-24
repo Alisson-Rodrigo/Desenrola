@@ -4,7 +4,7 @@ using Desenrola.Domain.Exception;
 using MediatR;
 
 
-namespace Desenrola.Application.Features.Evaluation.CreatedEvaluationCommand
+namespace Desenrola.Application.Features.Evaluation.Command.CreatedEvaluationCommand
 {
     public class CreateEvaluationCommandHandler : IRequestHandler<CreatedEvaluationCommand, Unit>
     {
