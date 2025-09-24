@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Star, Phone, MapPin, Award, CheckCircle,
-  Clock, Loader2, AlertCircle
+  Clock, Loader2, AlertCircle, X
 } from 'lucide-react';
 import styles from './ProfilePage.module.css';
 import Navbar from '../../../../components/Navbar';
@@ -18,6 +18,13 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reviews, setReviews] = useState([]);
+
+  // Estados do modal de avaliação
+  const [showModal, setShowModal] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [hoverRating, setHoverRating] = useState(0);
 
   // ================================
   // MAPAS AUXILIARES
@@ -100,35 +107,96 @@ export default function ProfilePage() {
   };
 
   const fetchReviews = async (providerId) => {
-  try {
-    const token = localStorage.getItem("auth_token"); // pega o token salvo
-    const headers = {
-      "Content-Type": "application/json"
-    };
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+    try {
+      const token = localStorage.getItem("auth_token");
+      const headers = {
+        "Content-Type": "application/json"
+      };
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
 
-    const response = await fetch(`http://localhost:5087/api/evaluation/provider/${providerId}`, {
-      method: "GET",
-      headers
-    });
+      const response = await fetch(`http://localhost:5087/api/evaluation/provider/${providerId}`, {
+        method: "GET",
+        headers
+      });
 
-    if (response.ok) {
-      const data = await response.json();
-      console.log("📥 Avaliações recebidas:", data); // debug
-      setReviews(data);
-    } else {
-      console.warn("⚠️ Erro ao buscar avaliações:", response.status);
+      if (response.ok) {
+        const data = await response.json();
+        console.log("📥 Avaliações recebidas:", data);
+        setReviews(data);
+      } else {
+        console.warn("⚠️ Erro ao buscar avaliações:", response.status);
+        setReviews([]);
+      }
+    } catch (err) {
+      console.error("❌ Erro ao buscar avaliações:", err);
       setReviews([]);
     }
-  } catch (err) {
-    console.error("❌ Erro ao buscar avaliações:", err);
-    setReviews([]);
-  }
-};
+  };
 
+  // ================================
+  // FUNÇÕES DO MODAL DE AVALIAÇÃO
+  // ================================
+  const handleOpenModal = () => {
+    setShowModal(true);
+    setRating(0);
+    setComment('');
+    setHoverRating(0);
+  };
 
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setRating(0);
+    setComment('');
+    setHoverRating(0);
+  };
+
+  const handleSubmitEvaluation = async (e) => {
+    e.preventDefault();
+    
+    if (rating === 0) {
+      alert('Por favor, selecione uma avaliação de 1 a 5 estrelas.');
+      return;
+    }
+
+    setModalLoading(true);
+    
+    try {
+      const token = localStorage.getItem("auth_token");
+      const formData = new FormData();
+      
+      formData.append('ProviderId', params.id);
+      formData.append('Note', rating.toString());
+      formData.append('Comment', comment);
+
+      const headers = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch('http://localhost:5087/api/evaluation', {
+        method: 'POST',
+        headers,
+        body: formData
+      });
+
+      if (response.ok) {
+        alert('Avaliação enviada com sucesso!');
+        handleCloseModal();
+        // Recarrega as avaliações
+        fetchReviews(params.id);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Erro ao enviar avaliação');
+      }
+    } catch (err) {
+      console.error('Erro ao enviar avaliação:', err);
+      alert('Erro ao enviar avaliação: ' + err.message);
+    } finally {
+      setModalLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (params?.id) {
@@ -156,6 +224,22 @@ export default function ProfilePage() {
     [...Array(5)].map((_, i) => (
       <Star key={i} className={`${styles.star} ${i < rating ? styles.starFilled : styles.starEmpty}`} />
     ))
+  );
+
+  const renderInteractiveStars = () => (
+    <div className={styles.starsContainer}>
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={`${styles.interactiveStar} ${
+            star <= (hoverRating || rating) ? styles.starFilled : styles.starEmpty
+          }`}
+          onMouseEnter={() => setHoverRating(star)}
+          onMouseLeave={() => setHoverRating(0)}
+          onClick={() => setRating(star)}
+        />
+      ))}
+    </div>
   );
 
   // ================================
@@ -197,35 +281,102 @@ export default function ProfilePage() {
   );
 
   const ReviewCard = ({ review, providerName }) => (
-  <div className={styles.reviewCard}>
-    <div className={styles.reviewHeader}>
-      <div className={styles.reviewUserInfo}>
-        <div className={styles.reviewAvatar}>
-          {review.userImage ? (
-            <img src={review.userImage} alt={review.userName} className={styles.reviewAvatarImg} />
-          ) : (
-            <span className={styles.reviewAvatarText}>
-              {getInitials(review.userName)}
-            </span>
-          )}
-        </div>
-        <div>
-          <h4 className={styles.reviewUserName}>{review.userName}</h4>
-          <p className={styles.reviewProviderName}>Avaliado: {providerName}</p> {/* <- Novo */}
-          <div className={styles.reviewMeta}>
-            <div className={styles.starContainer}>
-              {renderStars(review.note)}
+    <div className={styles.reviewCard}>
+      <div className={styles.reviewHeader}>
+        <div className={styles.reviewUserInfo}>
+          <div className={styles.reviewAvatar}>
+            {review.userImage ? (
+              <img src={review.userImage} alt={review.userName} className={styles.reviewAvatarImg} />
+            ) : (
+              <span className={styles.reviewAvatarText}>
+                {getInitials(review.userName)}
+              </span>
+            )}
+          </div>
+          <div>
+            <h4 className={styles.reviewUserName}>{review.userName}</h4>
+            <p className={styles.reviewProviderName}>Avaliado: {providerName}</p>
+            <div className={styles.reviewMeta}>
+              <div className={styles.starContainer}>
+                {renderStars(review.note)}
+              </div>
             </div>
           </div>
         </div>
       </div>
+      <p className={styles.reviewComment}>{review.comment}</p>
     </div>
-    <p className={styles.reviewComment}>{review.comment}</p>
-  </div>
-);
+  );
 
+  // Modal de Avaliação
+  const EvaluationModal = () => (
+    showModal && (
+      <div className={styles.modalOverlay}>
+        <div className={styles.modalContent}>
+          <div className={styles.modalHeader}>
+            <h3>Avaliar {providerData?.userName}</h3>
+            <button onClick={handleCloseModal} className={styles.closeButton}>
+              <X size={24} />
+            </button>
+          </div>
+          
+          <form onSubmit={handleSubmitEvaluation} className={styles.modalForm}>
+            <div className={styles.ratingSection}>
+              <label className={styles.modalLabel}>Sua avaliação:</label>
+              {renderInteractiveStars()}
+              <p className={styles.ratingText}>
+                {rating === 0 && 'Clique nas estrelas para avaliar'}
+                {rating === 1 && 'Muito ruim'}
+                {rating === 2 && 'Ruim'}
+                {rating === 3 && 'Regular'}
+                {rating === 4 && 'Bom'}
+                {rating === 5 && 'Excelente'}
+              </p>
+            </div>
 
+            <div className={styles.commentSection}>
+              <label htmlFor="comment" className={styles.modalLabel}>
+                Comentário (opcional):
+              </label>
+              <textarea
+                id="comment"
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                placeholder="Conte como foi sua experiência com este profissional..."
+                className={styles.commentTextarea}
+                rows={4}
+              />
+            </div>
 
+            <div className={styles.modalActions}>
+              <button 
+                type="button" 
+                onClick={handleCloseModal}
+                className={styles.cancelButton}
+                disabled={modalLoading}
+              >
+                Cancelar
+              </button>
+              <button 
+                type="submit" 
+                className={styles.submitButton}
+                disabled={modalLoading || rating === 0}
+              >
+                {modalLoading ? (
+                  <>
+                    <Loader2 size={16} className={styles.loadingIcon} />
+                    Enviando...
+                  </>
+                ) : (
+                  'Enviar Avaliação'
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )
+  );
 
   // ================================
   // RENDERIZAÇÃO
@@ -295,7 +446,7 @@ export default function ProfilePage() {
               <button className={styles.outlineButton}>Enviar Mensagem</button>
               <button
                 className={styles.primaryButton}
-                onClick={() => router.push(`/servicos/avaliar?providerId=${params.id}`)}
+                onClick={handleOpenModal}
               >
                 <Star className={styles.buttonIcon} />
                 Avaliar Prestador
@@ -423,7 +574,7 @@ export default function ProfilePage() {
                           <ReviewCard
                             key={index}
                             review={review}
-                            providerName={providerData.userName} // <-- aqui passa o nome do prestador
+                            providerName={providerData.userName}
                           />
                         ))
                       ) : (
@@ -432,7 +583,6 @@ export default function ProfilePage() {
                     </div>
                   </div>
                 )}
-
 
                 {/* Horários */}
                 {activeTab === 'horarios' && (
@@ -460,6 +610,9 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Avaliação */}
+      <EvaluationModal />
     </div>
   );
 }
