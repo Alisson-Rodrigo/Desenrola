@@ -663,3 +663,96 @@
   .toolbar { flex-direction: column; align-items: stretch; gap: .75rem; }
   .filtersSidebar { position: fixed; inset: auto 0 0 0; top: auto; border-radius: 16px 16px 0 0; z-index: 50; }
 }
+/* Estilo para o nome do provedor clicável */
+.cardProvider {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4f46e5;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  
+  /* Resetar estilos de botão */
+  outline: none;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.cardProvider:hover {
+  background-color: #f0f9ff;
+  color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.cardProvider:active {
+  transform: translateY(0);
+  background-color: #e0f2fe;
+}
+
+.cardProvider:focus-visible {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #4f46e5;
+}
+
+/* Ícone do usuário dentro do botão */
+.cardProvider svg {
+  flex-shrink: 0;
+  color: inherit;
+  transition: color 0.2s ease;
+}
+
+/* Estado de hover com sublinhado */
+.cardProvider::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+  transform-origin: left;
+}
+
+
+
+
+/* Versão mais compacta */
+.cardProvider.compact {
+  padding: 2px 6px;
+  font-size: 13px;
+  border-radius: 4px;
+}
+
+/* Versão com destaque */
+.cardProvider.highlighted {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.cardProvider.highlighted:hover {
+  background-color: #fde68a;
+  color: #b45309;
+}
+
+
+/* Responsivo para telas pequenas */
+@media (max-width: 768px) {
+  .cardProvider {
+    font-size: 13px;
+    padding: 3px 6px;
+  }
+  
+  .cardProvider svg {
+    width: 12px;
+    height: 12px;
+  }
+}

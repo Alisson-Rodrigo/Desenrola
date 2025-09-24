@@ -377,10 +377,16 @@ function HomePage({ hasToken }) {
 
                       <div className={styles.cardMeta}>
                         {service.providerName && (
-                          <div className={styles.cardProvider}>
+                          <button 
+                            className={styles.cardProvider}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`perfil/prestador/${service.providerId}`);
+                            }}
+                          >
                             <User size={14} />
                             {service.providerName}
-                          </div>
+                          </button>
                         )}
                         <div className={styles.cardDate}>
                           <Clock size={14} />
