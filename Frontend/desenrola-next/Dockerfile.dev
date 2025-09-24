@@ -11,15 +11,15 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Copiar código e dar permissões corretas
+# Copiar código (mas como no compose só bindamos src/public/package*, isso ajuda no build inicial)
 COPY . .
 
 # Criar diretórios necessários e dar permissões
-RUN mkdir -p .next && \
+RUN mkdir -p /app/.next && \
     chmod -R 755 /app && \
     chown -R node:node /app
 
-# Usar usuário node (já existe na imagem)
+# Usar usuário node (segurança e compatibilidade)
 USER node
 
 # Variáveis de ambiente para desenvolvimento
@@ -30,5 +30,5 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 EXPOSE 3000
 
-# Comando padrão (pode ser sobrescrito no docker-compose)
+# Comando padrão (sobrescrito pelo docker-compose em dev)
 CMD ["npm", "run", "dev"]

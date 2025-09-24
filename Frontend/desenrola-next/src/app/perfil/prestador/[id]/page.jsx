@@ -1,20 +1,7 @@
 "use client";
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { 
-  Star, 
-  Phone, 
-  MessageCircle, 
-  MapPin, 
-  Award, 
-  Users, 
-  CheckCircle,
-  ChevronRight,
-  Clock,
-  Loader2,
-  AlertCircle
-} from 'lucide-react';
+import { Star, Phone, MessageCircle, MapPin, Award, Users, CheckCircle, ChevronRight, Clock, Loader2, AlertCircle } from 'lucide-react';
 import styles from './ProfilePage.module.css';
 import Navbar from '../../../../components/Navbar';
 
@@ -23,8 +10,20 @@ export default function ProfilePage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('servicos');
   const [providerData, setProviderData] = useState(null);
+  const [scheduleData, setScheduleData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Mapeamento dos dias da semana
+  const daysOfWeek = {
+    0: 'Domingo',
+    1: 'Segunda-feira',
+    2: 'Terça-feira',
+    3: 'Quarta-feira',
+    4: 'Quinta-feira',
+    5: 'Sexta-feira',
+    6: 'Sábado'
+  };
 
   // Mapeamento das categorias
   const categoriaMap = {
@@ -97,13 +96,9 @@ export default function ProfilePage() {
   const fetchProviderData = async (providerId) => {
     setLoading(true);
     setError(null);
-    
     try {
       const token = localStorage.getItem("auth_token");
-      const headers = {
-        'Content-Type': 'application/json'
-      };
-
+      const headers = { 'Content-Type': 'application/json' };
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
@@ -130,15 +125,44 @@ export default function ProfilePage() {
     }
   };
 
+  // Buscar horários de trabalho do provedor
+  const fetchScheduleData = async (providerId) => {
+    try {
+      const token = localStorage.getItem("auth_token");
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`http://localhost:5087/api/schedule/provider/${providerId}`, {
+        method: 'GET',
+        headers
+      });
+
+      if (response.ok) {
+        const scheduleData = await response.json();
+        setScheduleData(scheduleData);
+      } else {
+        console.warn('Não foi possível carregar os horários de trabalho');
+        setScheduleData([]);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar horários de trabalho:', err);
+      setScheduleData([]);
+    }
+  };
+
   useEffect(() => {
     if (params?.id) {
       fetchProviderData(params.id);
+      fetchScheduleData(params.id);
     }
   }, [params?.id]);
 
   // Funções utilitárias
-  const formatPrice = (price) => new Intl.NumberFormat('pt-BR', {
-    style: 'currency', currency: 'BRL'
+  const formatPrice = (price) => new Intl.NumberFormat('pt-BR', { 
+    style: 'currency', 
+    currency: 'BRL' 
   }).format(price);
 
   const formatPhone = (phone) => {
@@ -155,18 +179,21 @@ export default function ProfilePage() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  const formatTime = (time) => {
+    if (!time) return '';
+    // Assumindo que o tempo vem no formato "HH:MM"
+    return time.slice(0, 5);
+  };
+
   const tabs = [
     { key: 'servicos', label: 'Serviços Oferecidos', icon: Award },
     { key: 'avaliacoes', label: 'Avaliações dos Clientes', icon: Star },
-    { key: 'portfolio', label: 'Galeria de Trabalhos', icon: Users }
+    { key: 'horarios', label: 'Horários de Trabalho', icon: Clock }
   ];
 
   const renderStars = (rating) => {
     return [...Array(5)].map((_, i) => (
-      <Star 
-        key={i} 
-        className={`${styles.star} ${i < rating ? styles.starFilled : styles.starEmpty}`}
-      />
+      <Star key={i} className={`${styles.star} ${i < rating ? styles.starFilled : styles.starEmpty}`} />
     ));
   };
 
@@ -184,6 +211,30 @@ export default function ProfilePage() {
         {categoriaStringMap[service.category] || service.category}
       </div>
       <div className={styles.servicePrice}>{formatPrice(service.price)}</div>
+    </div>
+  );
+
+  const ScheduleItem = ({ schedule }) => (
+    <div className={styles.scheduleItem}>
+      <div className={styles.scheduleDay}>
+        <span className={styles.scheduleDayName}>{daysOfWeek[schedule.dayOfWeek]}</span>
+      </div>
+      <div className={styles.scheduleTime}>
+        {schedule.isAvailable ? (
+          <span className={styles.scheduleAvailable}>
+            {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
+          </span>
+        ) : (
+          <span className={styles.scheduleUnavailable}>Indisponível</span>
+        )}
+      </div>
+      <div className={styles.scheduleStatus}>
+        {schedule.isAvailable ? (
+          <CheckCircle className={styles.availableIcon} />
+        ) : (
+          <AlertCircle className={styles.unavailableIcon} />
+        )}
+      </div>
     </div>
   );
 
@@ -218,7 +269,7 @@ export default function ProfilePage() {
 
   if (!providerData) return null;
 
-  // Mock data para avaliações e portfolio (já que não vem da API)
+  // Mock data para avaliações
   const reviews = [
     {
       name: 'Ana ',
@@ -232,11 +283,6 @@ export default function ProfilePage() {
       date: '1 semana',
       comment: 'Trabalho impecável, muito atencioso aos detalhes e cumpriu todos os prazos.'
     }
-  ];
-
-  const portfolio = [
-    { id: 1, title: 'Projeto Residencial', category: 'Elétrica' },
-    { id: 2, title: 'Instalação Comercial', category: 'Hidráulica' }
   ];
 
   const ReviewCard = ({ review }) => (
@@ -260,16 +306,6 @@ export default function ProfilePage() {
         </div>
       </div>
       <p className={styles.reviewComment}>{review.comment}</p>
-    </div>
-  );
-
-  const PortfolioItem = ({ item }) => (
-    <div className={styles.portfolioItem}>
-      <div className={styles.portfolioIcon}>
-        <Award className={styles.portfolioIconSvg} />
-      </div>
-      <h3 className={styles.portfolioTitle}>{item.title}</h3>
-      <p className={styles.portfolioCategory}>{item.category}</p>
     </div>
   );
 
@@ -307,9 +343,15 @@ export default function ProfilePage() {
             </div>
 
             <div className={styles.actionButtons}>
-         
               <button className={styles.outlineButton}>
                 Enviar Mensagem
+              </button>
+              <button 
+                className={styles.primaryButton}
+                onClick={() => router.push(`/servicos/avaliar?providerId=${params.id}`)}
+              >
+                <Star className={styles.buttonIcon} />
+                Avaliar Prestador
               </button>
             </div>
 
@@ -378,6 +420,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
+
               <div className={styles.metricsContainer}>
                 <MetricCard value="4.8" label="Avaliação Média" colorClass="green" />
                 <MetricCard value={providerData.services?.length || 0} label="Serviços Oferecidos" colorClass="blue" />
@@ -437,18 +480,27 @@ export default function ProfilePage() {
                   </div>
                 )}
 
-                {activeTab === 'portfolio' && (
+                {activeTab === 'horarios' && (
                   <div>
                     <div className={styles.tabHeader}>
-                      <h2 className={styles.tabTitle}>Galeria de Trabalhos</h2>
+                      <h2 className={styles.tabTitle}>Horários de Trabalho</h2>
                       <div className={styles.tabCounter}>
-                        {portfolio.length} projetos
+                        {scheduleData.length} dias configurados
                       </div>
                     </div>
-                    <div className={styles.portfolioGrid}>
-                      {portfolio.map((item) => (
-                        <PortfolioItem key={item.id} item={item} />
-                      ))}
+                    <div className={styles.scheduleList}>
+                      {scheduleData.length > 0 ? (
+                        scheduleData
+                          .sort((a, b) => a.dayOfWeek - b.dayOfWeek)
+                          .map((schedule) => (
+                            <ScheduleItem key={schedule.id} schedule={schedule} />
+                          ))
+                      ) : (
+                        <div className={styles.noSchedule}>
+                          <Clock size={48} className={styles.noScheduleIcon} />
+                          <p>Horários de trabalho não configurados ainda.</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
