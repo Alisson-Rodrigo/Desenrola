@@ -32,6 +32,9 @@ namespace Desenrola.Application.Features.ServicesProviders.Queries.PagedRequestP
             if (request.ServiceCategory.HasValue)
                 query = query.Where(s => s.Category == request.ServiceCategory);
 
+            if (request.ServiceId.HasValue)
+                query = query.Where(s => s.Id == request.ServiceId);
+
             // 🔎 busca textual
             if (!string.IsNullOrWhiteSpace(request.Search))
             {
