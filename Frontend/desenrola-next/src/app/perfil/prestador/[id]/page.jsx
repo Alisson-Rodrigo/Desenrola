@@ -221,7 +221,7 @@ export default function ProfilePage() {
   // Mock data para avaliações e portfolio (já que não vem da API)
   const reviews = [
     {
-      name: 'Ana Luiza',
+      name: 'Ana ',
       rating: 5,
       date: '2 dias',
       comment: 'Excelente profissional! Resolveu meu problema de forma rápida e objetiva.'
