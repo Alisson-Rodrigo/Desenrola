@@ -10,6 +10,7 @@ namespace Desenrola.Application.Contracts.Persistance.Repositories
     public interface IEvaluationRepository : IBaseRepository<Evaluation>
     {
         Task<bool> Exists(string userId, Guid providerId);
-
+        Task<List<Domain.Entities.Evaluation>> GetByProviderIdAsync(Guid providerId);
+        Task<double> GetAverageByProviderIdAsync(Guid providerId);
     }
 }

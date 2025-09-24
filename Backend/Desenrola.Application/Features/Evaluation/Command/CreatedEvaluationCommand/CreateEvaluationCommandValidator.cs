@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Desenrola.Application.Features.Evaluation.CreatedEvaluationCommand
+namespace Desenrola.Application.Features.Evaluation.Command.CreatedEvaluationCommand
 {
     public class CreateEvaluationCommandValidator : AbstractValidator<CreatedEvaluationCommand>
     {
