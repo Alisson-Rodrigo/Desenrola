@@ -1,34 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Navbar from '../../../components/Navbar';
 import styles from './AvaliarServico.module.css';
-import { EvaluationService } from '@/services/evaluationService';
+import { EvaluationService } from '../../../services/evaluationService';
 
 export default function AvaliarServicoPage() {
-  // 🔧 Mock para exibição; ideal seria carregar via API futuramente
-  const [avaliacoes, setAvaliacoes] = useState([
-    {
-      id: 1,
-      titulo: "Conserto de Encanamento",
-      prestador: "João Silva",
-      providerId: "f99d1cbe-aaa1-4e9d-91bd-3825e6e6cbe4",
-      descricao: "Troca de cano na cozinha",
-      data: "2025-09-10",
-      nota: null,
-      comentario: "",
-    },
-    {
-      id: 2,
-      titulo: "Instalação de Ar-Condicionado",
-      prestador: "Maria Oliveira",
-      providerId: "9aaf7e8d-50ec-4955-a557-8d3cd1a6b4e2",
-      descricao: "Split 12.000 BTUs",
-      data: "2025-09-05",
-      nota: 5,
-      comentario: "Serviço rápido e de qualidade!",
-    },
-  ]);
+  const [avaliacoes, setAvaliacoes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAvaliacoes() {
+      try {
+        const data = await EvaluationService.getPendingEvaluations();
+        setAvaliacoes(data);
+      } catch (err) {
+        console.error("Erro ao carregar serviços para avaliar:", err);
+        alert("Erro ao carregar serviços para avaliar.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAvaliacoes();
+  }, []);
 
   const handleAvaliar = async (id, providerId, nota, comentario) => {
     try {
@@ -38,11 +33,8 @@ export default function AvaliarServicoPage() {
         comment: comentario,
       });
 
-      setAvaliacoes((prev) =>
-        prev.map((a) =>
-          a.id === id ? { ...a, nota, comentario } : a
-        )
-      );
+      // Remove serviço da lista após avaliação
+      setAvaliacoes((prev) => prev.filter((a) => a.id !== id));
 
       alert(`Serviço ${id} avaliado com sucesso!`);
     } catch (err) {
@@ -57,27 +49,24 @@ export default function AvaliarServicoPage() {
       <div className={styles.container}>
         <h1 className={styles.pageTitle}>Avaliação de serviços</h1>
 
-        <ul className={styles.servicoList}>
-          {avaliacoes.map((s) => (
-            <li key={s.id} className={styles.servicoCard}>
-              <h2>{s.titulo}</h2>
-              <p><strong>Prestador:</strong> {s.prestador}</p>
-              <p>{s.descricao}</p>
-              <p><strong>Data de realização:</strong> {formatDate(s.data)}</p>
+        {loading ? (
+          <p>Carregando avaliações...</p>
+        ) : avaliacoes.length === 0 ? (
+          <p>Nenhum serviço pendente de avaliação.</p>
+        ) : (
+          <ul className={styles.servicoList}>
+            {avaliacoes.map((s) => (
+              <li key={s.id} className={styles.servicoCard}>
+                <h2>{s.titulo}</h2>
+                <p><strong>Prestador:</strong> {s.prestador}</p>
+                <p>{s.descricao}</p>
+                <p><strong>Data de realização:</strong> {formatDate(s.data)}</p>
 
-              {s.nota ? (
-                <div className={styles.avaliacaoFeita}>
-                  <p className={styles.avaliado}>⭐ {s.nota}/5</p>
-                  <p className={styles.comentario}>
-                    <strong>Comentário:</strong> {s.comentario}
-                  </p>
-                </div>
-              ) : (
                 <AvaliarForm servico={s} onAvaliar={handleAvaliar} />
-              )}
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </>
   );

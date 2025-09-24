@@ -1,3 +1,5 @@
+import { authPost, authGet } from './http';
+
 export const EvaluationService = {
   async createEvaluation({ providerId, rating, comment }) {
     const formData = new FormData();
@@ -5,6 +7,10 @@ export const EvaluationService = {
     formData.append('note', rating);
     formData.append('comment', comment);
 
-    return authPost('/api/evaluation', formData); // true para indicar que é FormData
+    return authPost('/api/evaluation', formData); // POST avaliação
   },
+
+  async getPendingEvaluations() {
+    return authGet('/api/evaluation/pending'); // Altere aqui conforme sua rota real
+  }
 };
