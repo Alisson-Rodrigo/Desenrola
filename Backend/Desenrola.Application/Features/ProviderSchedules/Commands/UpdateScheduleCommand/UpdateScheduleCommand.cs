@@ -1,9 +1,5 @@
-﻿using MediatR;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Desenrola.Domain.Enums;
+using MediatR;
 
 namespace Desenrola.Application.Features.ProviderSchedules.Commands.UpdateScheduleCommand
 {
@@ -11,9 +7,9 @@ namespace Desenrola.Application.Features.ProviderSchedules.Commands.UpdateSchedu
     {
         public Guid ScheduleId { get; set; }       // ID da agenda que será atualizada
         public Guid ProviderId { get; set; }       // Garantir que pertence ao prestador
-        public int DayOfWeek { get; set; }         // Novo dia
-        public TimeSpan StartTime { get; set; }    // Novo horário inicial
-        public TimeSpan EndTime { get; set; }      // Novo horário final
+        public WeekDay DayOfWeek { get; set; }     // Enum do dia da semana
+        public string StartTime { get; set; } = string.Empty; // Recebe como string
+        public string EndTime { get; set; } = string.Empty;   // Recebe como string
         public bool IsAvailable { get; set; }      // Ativo ou não
     }
 }

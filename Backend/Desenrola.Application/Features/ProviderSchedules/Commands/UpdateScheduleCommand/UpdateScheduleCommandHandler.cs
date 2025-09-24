@@ -42,8 +42,8 @@ namespace Desenrola.Application.Features.ProviderSchedules.Commands.UpdateSchedu
 
             // Atualiza os campos
             schedule.DayOfWeek = request.DayOfWeek;
-            schedule.StartTime = request.StartTime;
-            schedule.EndTime = request.EndTime;
+            schedule.StartTime = TimeSpan.Parse(request.StartTime);
+            schedule.EndTime = TimeSpan.Parse(request.EndTime);
             schedule.IsAvailable = request.IsAvailable;
 
             await _scheduleRepository.Update(schedule);
