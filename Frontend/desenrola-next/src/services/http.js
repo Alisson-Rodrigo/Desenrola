@@ -2,7 +2,7 @@
  * @file Serviço HTTP com autenticação para consumo da API do backend do Desenrola.
  */
 
-export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://localhost:5087';
+export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5087';
 
 /**
  * Obtém o token JWT salvo localmente (se estiver no navegador).
