@@ -10,8 +10,8 @@ using Desenrola.Application.Contracts.Persistance.Repositories; // precisa impor
 namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
 {
     /// <summary>
-    /// Handler responsável por processar o comando <see cref="CreateProviderCommand"/> 
-    /// e realizar o cadastro de um novo prestador de serviços.
+    /// Handler responsï¿½vel por processar o comando <see cref="CreateProviderCommand"/> 
+    /// e realizar o cadastro de um novo prestador de serviï¿½os.
     /// </summary>
     public class CreateProviderCommandHandler : IRequestHandler<CreateProviderCommand, Guid>
     {
@@ -20,16 +20,16 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
         private readonly ICPF _cpfValidator;
         private readonly IWebHostEnvironment _env;
 
-        // URL pública base (ajuste porta se necessário)
-        private readonly string _publicBaseUrl = "https://localhost:7014/imagens/providers/documents/";
+        // URL pï¿½blica base (ajuste porta se necessï¿½rio)
+        private readonly string _publicBaseUrl = "http://localhost:5087/imagens/providers/documents/";
 
         /// <summary>
-        /// Construtor que inicializa as dependências necessárias.
+        /// Construtor que inicializa as dependï¿½ncias necessï¿½rias.
         /// </summary>
-        /// <param name="providerRepository">Repositório para persistência de prestadores.</param>
-        /// <param name="logged">Serviço para recuperar o usuário logado.</param>
-        /// <param name="cpfValidator">Serviço para validação de CPF.</param>
-        /// <param name="env">Ambiente web para manipulação de diretórios e arquivos.</param>
+        /// <param name="providerRepository">Repositï¿½rio para persistï¿½ncia de prestadores.</param>
+        /// <param name="logged">Serviï¿½o para recuperar o usuï¿½rio logado.</param>
+        /// <param name="cpfValidator">Serviï¿½o para validaï¿½ï¿½o de CPF.</param>
+        /// <param name="env">Ambiente web para manipulaï¿½ï¿½o de diretï¿½rios e arquivos.</param>
 
         public CreateProviderCommandHandler(
             IProviderRepository providerRepository,
@@ -44,25 +44,25 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
         }
 
         /// <summary>
-        /// Manipula o comando de criação de prestador de serviços.
+        /// Manipula o comando de criaï¿½ï¿½o de prestador de serviï¿½os.
         /// </summary>
         /// <param name="request">Comando contendo os dados do prestador a ser criado.</param>
-        /// <param name="cancellationToken">Token de cancelamento assíncrono.</param>
+        /// <param name="cancellationToken">Token de cancelamento assï¿½ncrono.</param>
         /// <returns>Retorna o <see cref="Guid"/> do prestador criado.</returns>
         /// <exception cref="BadRequestException">
-        /// Lançada quando o usuário não é encontrado, já possui cadastro como prestador
-        /// ou os dados fornecidos não são válidos.
+        /// Lanï¿½ada quando o usuï¿½rio nï¿½o ï¿½ encontrado, jï¿½ possui cadastro como prestador
+        /// ou os dados fornecidos nï¿½o sï¿½o vï¿½lidos.
         /// </exception>
         public async Task<Guid> Handle(CreateProviderCommand request, CancellationToken cancellationToken)
         {
             var user = await _logged.UserLogged();
 
             if (user == null)
-                throw new BadRequestException("Usuário não encontrado.");
+                throw new BadRequestException("Usuï¿½rio nï¿½o encontrado.");
 
             var existingProvider = await _providerRepository.GetByUserIdAsync(user.Id);
             if (existingProvider != null)
-                throw new BadRequestException("O usuário já possui um cadastro como prestador.");
+                throw new BadRequestException("O usuï¿½rio jï¿½ possui um cadastro como prestador.");
 
             var validator = new CreateProviderCommandValidator(_cpfValidator);
             var validationResult = await validator.ValidateAsync(request, cancellationToken);
@@ -90,7 +90,7 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
                         await image.SaveAsync(caminhoWebP, encoder, cancellationToken);
                     }
 
-                    // URL acessível externamente
+                    // URL acessï¿½vel externamente
                     var url = $"{_publicBaseUrl}/{nameFile}";
                     imagensUrls.Add(url);
                 }
