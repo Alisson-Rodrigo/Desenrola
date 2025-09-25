@@ -8,6 +8,15 @@ import {
 import styles from './ProfilePage.module.css';
 import Navbar from '../../../../components/Navbar';
 
+/**
+ * Página de perfil do prestador de serviço.
+ * Exibe informações detalhadas do profissional, incluindo:
+ * - Dados pessoais e de contato
+ * - Serviços oferecidos
+ * - Avaliações de clientes
+ * - Horários de trabalho
+ * Permite ao usuário enviar uma avaliação para o prestador.
+ */
 export default function ProfilePage() {
   const params = useParams();
   const router = useRouter();
@@ -29,11 +38,17 @@ export default function ProfilePage() {
   // ================================
   // MAPAS AUXILIARES
   // ================================
+  /**
+   * Mapeamento dos dias da semana para exibição.
+   */
   const daysOfWeek = {
     0: 'Domingo', 1: 'Segunda-feira', 2: 'Terça-feira',
     3: 'Quarta-feira', 4: 'Quinta-feira', 5: 'Sexta-feira', 6: 'Sábado'
   };
 
+  /**
+   * Mapeamento de categorias de serviço para nome e ícone.
+   */
   const categoriaMap = {
     0: { nome: "Elétrica", icon: "⚡" },
     1: { nome: "Hidráulica", icon: "🔧" },
@@ -70,6 +85,10 @@ export default function ProfilePage() {
   // ================================
   // FUNÇÕES DE BUSCA
   // ================================
+  /**
+   * Busca os dados do prestador pelo ID.
+   * @param {string} providerId 
+   */
   const fetchProviderData = async (providerId) => {
     setLoading(true);
     setError(null);
@@ -91,6 +110,10 @@ export default function ProfilePage() {
     }
   };
 
+  /**
+   * Busca os horários de trabalho do prestador.
+   * @param {string} providerId 
+   */
   const fetchScheduleData = async (providerId) => {
     try {
       const token = localStorage.getItem("auth_token");
@@ -106,6 +129,10 @@ export default function ProfilePage() {
     }
   };
 
+  /**
+   * Busca as avaliações do prestador.
+   * @param {string} providerId 
+   */
   const fetchReviews = async (providerId) => {
     try {
       const token = localStorage.getItem("auth_token");
@@ -138,6 +165,9 @@ export default function ProfilePage() {
   // ================================
   // FUNÇÕES DO MODAL DE AVALIAÇÃO
   // ================================
+  /**
+   * Abre o modal de avaliação.
+   */
   const handleOpenModal = () => {
     setShowModal(true);
     setRating(0);
@@ -145,6 +175,9 @@ export default function ProfilePage() {
     setHoverRating(0);
   };
 
+  /**
+   * Fecha o modal de avaliação.
+   */
   const handleCloseModal = () => {
     setShowModal(false);
     setRating(0);
@@ -152,6 +185,10 @@ export default function ProfilePage() {
     setHoverRating(0);
   };
 
+  /**
+   * Envia a avaliação do usuário para o prestador.
+   * @param {Event} e 
+   */
   const handleSubmitEvaluation = async (e) => {
     e.preventDefault();
     
@@ -209,23 +246,56 @@ export default function ProfilePage() {
   // ================================
   // FUNÇÕES AUXILIARES
   // ================================
+  /**
+   * Formata o preço para o padrão BRL.
+   * @param {number} price 
+   * @returns {string}
+   */
   const formatPrice = (price) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price);
+
+  /**
+   * Formata o telefone para o padrão brasileiro.
+   * @param {string} phone 
+   * @returns {string}
+   */
   const formatPhone = (phone) => phone?.replace(/\D/g, '').replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3') || '';
+
+  /**
+   * Retorna as iniciais do nome.
+   * @param {string} name 
+   * @returns {string}
+   */
   const getInitials = (name) => name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'UP';
+
+  /**
+   * Formata o horário (HH:mm).
+   * @param {string} time 
+   * @returns {string}
+   */
   const formatTime = (time) => time?.slice(0, 5) || '';
 
+  /**
+   * Tabs disponíveis na página.
+   */
   const tabs = [
     { key: 'servicos', label: 'Serviços Oferecidos', icon: Award },
     { key: 'avaliacoes', label: 'Avaliações dos Clientes', icon: Star },
     { key: 'horarios', label: 'Horários de Trabalho', icon: Clock }
   ];
 
+  /**
+   * Renderiza estrelas de avaliação (somente leitura).
+   * @param {number} rating 
+   */
   const renderStars = (rating) => (
     [...Array(5)].map((_, i) => (
       <Star key={i} className={`${styles.star} ${i < rating ? styles.starFilled : styles.starEmpty}`} />
     ))
   );
 
+  /**
+   * Renderiza estrelas interativas para avaliação.
+   */
   const renderInteractiveStars = () => (
     <div className={styles.starsContainer}>
       {[1, 2, 3, 4, 5].map((star) => (
@@ -245,6 +315,10 @@ export default function ProfilePage() {
   // ================================
   // SUB-COMPONENTES
   // ================================
+
+  /**
+   * Cartão de métrica (ex: avaliação média, serviços, etc).
+   */
   const MetricCard = ({ value, label, colorClass = 'green' }) => (
     <div className={`${styles.metricCard} ${styles[colorClass]}`}>
       <div className={styles.metricCardValue}>{value}</div>
@@ -252,6 +326,9 @@ export default function ProfilePage() {
     </div>
   );
 
+  /**
+   * Tag de serviço oferecido.
+   */
   const ServiceTag = ({ service }) => (
     <div className={styles.serviceTag}>
       <div className={styles.serviceName}>{service.title}</div>
@@ -262,6 +339,9 @@ export default function ProfilePage() {
     </div>
   );
 
+  /**
+   * Item de horário de trabalho.
+   */
   const ScheduleItem = ({ schedule }) => (
     <div className={styles.scheduleItem}>
       <div className={styles.scheduleDay}>
@@ -280,6 +360,9 @@ export default function ProfilePage() {
     </div>
   );
 
+  /**
+   * Cartão de avaliação de cliente.
+   */
   const ReviewCard = ({ review, providerName }) => (
     <div className={styles.reviewCard}>
       <div className={styles.reviewHeader}>
@@ -308,7 +391,9 @@ export default function ProfilePage() {
     </div>
   );
 
-  // Modal de Avaliação
+  /**
+   * Modal para envio de avaliação.
+   */
   const EvaluationModal = () => (
     showModal && (
       <div className={styles.modalOverlay}>
