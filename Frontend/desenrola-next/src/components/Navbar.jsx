@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronDown, Menu, X, User, LogOut, Shield, Plus } from "lucide-react";
+import { ChevronDown, Menu, X, User, LogOut, Shield, Plus, Crown, UserCheck } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./Navbar.module.css";
 
@@ -41,6 +41,33 @@ export default function Navbar() {
   function normalizeRole(role) {
     if (role === undefined || role === null) return "";
     return String(role).toLowerCase();
+  }
+
+  // Função para obter o tipo de usuário em português
+  function getUserType() {
+    if (!user) return null;
+    
+    if (user.role === "0" || user.role === "admin") return "Administrador";
+    if (user.role === "2" || user.role === "provider") return "Prestador";
+    return "Cliente";
+  }
+
+  // Função para obter a cor do badge
+  function getUserBadgeColor() {
+    if (!user) return "";
+    
+    if (user.role === "0" || user.role === "admin") return styles.adminBadge;
+    if (user.role === "2" || user.role === "provider") return styles.providerBadge;
+    return styles.userBadge;
+  }
+
+  // Função para obter o ícone do usuário
+  function getUserIcon() {
+    if (!user) return <User size={16} />;
+    
+    if (user.role === "0" || user.role === "admin") return <Shield size={16} />;
+    if (user.role === "2" || user.role === "provider") return <Crown size={16} />;
+    return <UserCheck size={16} />;
   }
 
   // Função para logout
@@ -155,12 +182,20 @@ export default function Navbar() {
               onClick={toggleDropdown}
               ref={dropdownRef}
             >
-              <div className={styles.avatar}>
-                {user?.name ? user.name.substring(0, 2).toUpperCase() : "??"}
+              <div className={styles.userInfo}>
+                <div className={styles.avatar}>
+                  {user?.name ? user.name.substring(0, 2).toUpperCase() : "??"}
+                </div>
+                <div className={styles.userDetails}>
+                  <span className={styles.userName}>
+                    {user?.name || "Usuário"}
+                  </span>
+                  <span className={`${styles.userBadge} ${getUserBadgeColor()}`}>
+                    {getUserIcon()}
+                    {getUserType()}
+                  </span>
+                </div>
               </div>
-              <span className={styles.userName}>
-                {user?.name || "Usuário"}
-              </span>
               <ChevronDown className={styles.dropdownIcon} />
 
               <div
@@ -171,6 +206,10 @@ export default function Navbar() {
                 <div className={styles.dropdownHeader}>
                   <h3>{user?.name || "Usuário"}</h3>
                   <p>{user?.email || "email@dominio.com"}</p>
+                  <span className={`${styles.dropdownBadge} ${getUserBadgeColor()}`}>
+                    {getUserIcon()}
+                    {getUserType()}
+                  </span>
                 </div>
 
                 {/* Link Perfil condicional */}
@@ -241,6 +280,22 @@ export default function Navbar() {
           isMobileMenuOpen ? styles.open : ""
         }`}
       >
+        {/* Informações do usuário no mobile */}
+        {user && (
+          <div className={styles.mobileUserInfo}>
+            <div className={styles.mobileAvatar}>
+              {user?.name ? user.name.substring(0, 2).toUpperCase() : "??"}
+            </div>
+            <div>
+              <div className={styles.mobileUserName}>{user?.name || "Usuário"}</div>
+              <div className={`${styles.mobileUserBadge} ${getUserBadgeColor()}`}>
+                {getUserIcon()}
+                {getUserType()}
+              </div>
+            </div>
+          </div>
+        )}
+
         <Link href="/" className={getLinkClass("/")}>
           Dashboard
         </Link>

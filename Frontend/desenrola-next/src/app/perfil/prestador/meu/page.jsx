@@ -15,7 +15,8 @@ import {
   Calendar,
   Clock,
   Plus,
-  Trash2
+  Trash2,
+  MessageCircle
 } from 'lucide-react';
 import styles from './ProfilePage.module.css';
 import Navbar from '../../../../components/Navbar'; 
@@ -78,16 +79,41 @@ const formatTime = (timeString) => {
   return timeString;
 };
 
+// 🔑 NOVA FUNÇÃO: Renderizar estrelas da avaliação
+const renderStars = (rating) => {
+  const stars = [];
+  const maxStars = 5;
+  
+  for (let i = 1; i <= maxStars; i++) {
+    stars.push(
+      <Star 
+        key={i}
+        size={16} 
+        fill={i <= rating ? '#FFD700' : 'none'}
+        stroke={i <= rating ? '#FFD700' : '#DDD'}
+      />
+    );
+  }
+  
+  return <div className={styles.starsContainer}>{stars}</div>;
+};
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeSection, setActiveSection] = useState('perfil'); // 🔑 NOVO: Controla qual seção está ativa
   const [isEditing, setIsEditing] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
   const [schedules, setSchedules] = useState([]);
   const [loadingSchedules, setLoadingSchedules] = useState(false);
+  
+  // 🔑 NOVO: Estados para avaliações
+  const [evaluations, setEvaluations] = useState([]);
+  const [loadingEvaluations, setLoadingEvaluations] = useState(false);
+  const [evaluationAverage, setEvaluationAverage] = useState(0);
   
   // Estado para o formulário de agenda
   const [scheduleForm, setScheduleForm] = useState({
@@ -169,12 +195,62 @@ export default function ProfilePage() {
     }
   };
 
-  // Carregar agendas quando o perfil estiver disponível
+  // 🔑 NOVA FUNÇÃO: Buscar avaliações do provider
+  const fetchEvaluations = async () => {
+    if (!profile?.id) return;
+    
+    setLoadingEvaluations(true);
+    try {
+      const token = localStorage.getItem('auth_token');
+      
+      // Buscar avaliações
+      const evaluationsResponse = await fetch(`http://localhost:5087/api/evaluation/provider/${profile.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Buscar média das avaliações
+      const averageResponse = await fetch(`http://localhost:5087/api/evaluation/provider/${profile.id}/average`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (evaluationsResponse.ok) {
+        const evaluationsData = await evaluationsResponse.json();
+        console.log('Avaliações recebidas:', evaluationsData);
+        setEvaluations(evaluationsData);
+      } else {
+        console.error('Erro ao carregar avaliações:', evaluationsResponse.status);
+      }
+
+      if (averageResponse.ok) {
+        const averageData = await averageResponse.json();
+        console.log('Média recebida:', averageData);
+        setEvaluationAverage(averageData.average || 0);
+      } else {
+        console.error('Erro ao carregar média:', averageResponse.status);
+      }
+    } catch (err) {
+      console.error('Erro ao carregar avaliações:', err);
+    } finally {
+      setLoadingEvaluations(false);
+    }
+  };
+
+  // Carregar dados quando o perfil estiver disponível
   useEffect(() => {
     if (profile?.id) {
       fetchSchedules();
+      fetchEvaluations(); // 🔑 NOVO: Carrega avaliações quando perfil estiver disponível
     }
   }, [profile?.id]);
+
+  // 🔑 NOVA FUNÇÃO: Controlar mudança de seção
+  const handleSectionChange = (section) => {
+    setActiveSection(section);
+  };
 
   // 🔑 NOVA FUNÇÃO: Deletar agenda
   const handleDeleteSchedule = async (scheduleId) => {
@@ -477,18 +553,27 @@ export default function ProfilePage() {
           </div>
 
           <nav className={styles.sidebarMenu}>
-            <a href="/perfil" className={`${styles.menuItem} ${styles.active}`}>
+            <button 
+              onClick={() => handleSectionChange('perfil')} 
+              className={`${styles.menuItem} ${activeSection === 'perfil' ? styles.active : ''}`}
+            >
               <User size={16} style={{ marginRight: '8px' }} />
               Meu Perfil
-            </a>
-            <a href="/servicos" className={styles.menuItem}>
+            </button>
+            <button 
+              onClick={() => handleSectionChange('servicos')} 
+              className={`${styles.menuItem} ${activeSection === 'servicos' ? styles.active : ''}`}
+            >
               <Wrench size={16} style={{ marginRight: '8px' }} />
               Meus Serviços
-            </a>
-            <a href="/avaliacoes" className={styles.menuItem}>
+            </button>
+            <button 
+              onClick={() => handleSectionChange('avaliacoes')} 
+              className={`${styles.menuItem} ${activeSection === 'avaliacoes' ? styles.active : ''}`}
+            >
               <Star size={16} style={{ marginRight: '8px' }} />
               Avaliações
-            </a>
+            </button>
           </nav>
 
           <button className={styles.assistanceButton}>
@@ -499,122 +584,202 @@ export default function ProfilePage() {
 
         {/* Main Content */}
         <div className={styles.mainContent}>
-          <div className={styles.pageHeader}>
-            <h1 className={styles.pageTitle}>Meu Perfil</h1>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button className={styles.editButton} onClick={handleOpenScheduleModal}>
-                <Calendar size={16} style={{ marginRight: '6px' }} />
-                Cadastrar Agenda
-              </button>
-              <button className={styles.editButton} onClick={handleEditClick}>
-                <Edit size={16} style={{ marginRight: '6px' }} />
-                Editar Perfil
-              </button>
-            </div>
-          </div>
-
-          {/* Profile Information */}
-          <div className={styles.profileInfo}>
-            <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>Nome Completo</span>
-              <span className={styles.infoValue}>{profile?.serviceName || 'Não informado'}</span>
-            </div>
-            
-            <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>E-mail</span>
-              <span className={styles.infoValue}>{profile?.email || 'Não informado'}</span>
-            </div>
-            
-            <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>Telefone</span>
-              <span className={styles.infoValue}>{profile?.phoneNumber || 'Não informado'}</span>
-            </div>
-            
-            <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>CPF</span>
-              <span className={styles.infoValue}>{profile?.cpf || 'Não informado'}</span>
-            </div>
-
-            <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>RG</span>
-              <span className={styles.infoValue}>{profile?.rg || 'Não informado'}</span>
-            </div>
-            
-            <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>Endereço</span>
-              <span className={styles.infoValue}>{profile?.address || 'Não informado'}</span>
-            </div>
-
-            <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>Descrição</span>
-              <span className={styles.infoValue}>{profile?.description || 'Não informado'}</span>
-            </div>
-            
-            <div className={styles.infoGroup}>
-              <span className={styles.infoLabel}>Status</span>
-              <span className={styles.infoValue}>
-                {profile?.isVerified ? 'Verificado' : 'Pendente'}
-              </span>
-            </div>
-          </div>
-
-          {/* Services Section */}
-          {profile?.categories && profile.categories.length > 0 && (
-            <div className={styles.servicesSection}>
-              <h3 className={styles.sectionTitle}>
-                <Wrench size={20} />
-                Serviços Oferecidos
-              </h3>
-              <div className={styles.servicesGrid}>
-                {profile.categories.map((cat, index) => (
-                  <span key={index} className={styles.serviceTag}>
-                    {categoryMap[cat] || `Categoria ${cat}`}
-                  </span>
-                ))}
+          {/* Conteúdo baseado na seção ativa */}
+          {activeSection === 'perfil' && (
+            <>
+              <div className={styles.pageHeader}>
+                <h1 className={styles.pageTitle}>Meu Perfil</h1>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button className={styles.editButton} onClick={handleOpenScheduleModal}>
+                    <Calendar size={16} style={{ marginRight: '6px' }} />
+                    Cadastrar Agenda
+                  </button>
+                  <button className={styles.editButton} onClick={handleEditClick}>
+                    <Edit size={16} style={{ marginRight: '6px' }} />
+                    Editar Perfil
+                  </button>
+                </div>
               </div>
-            </div>
+
+              {/* Profile Information */}
+              <div className={styles.profileInfo}>
+                <div className={styles.infoGroup}>
+                  <span className={styles.infoLabel}>Nome Completo</span>
+                  <span className={styles.infoValue}>{profile?.serviceName || 'Não informado'}</span>
+                </div>
+                
+                <div className={styles.infoGroup}>
+                  <span className={styles.infoLabel}>E-mail</span>
+                  <span className={styles.infoValue}>{profile?.email || 'Não informado'}</span>
+                </div>
+                
+                <div className={styles.infoGroup}>
+                  <span className={styles.infoLabel}>Telefone</span>
+                  <span className={styles.infoValue}>{profile?.phoneNumber || 'Não informado'}</span>
+                </div>
+                
+                <div className={styles.infoGroup}>
+                  <span className={styles.infoLabel}>CPF</span>
+                  <span className={styles.infoValue}>{profile?.cpf || 'Não informado'}</span>
+                </div>
+
+                <div className={styles.infoGroup}>
+                  <span className={styles.infoLabel}>RG</span>
+                  <span className={styles.infoValue}>{profile?.rg || 'Não informado'}</span>
+                </div>
+                
+                <div className={styles.infoGroup}>
+                  <span className={styles.infoLabel}>Endereço</span>
+                  <span className={styles.infoValue}>{profile?.address || 'Não informado'}</span>
+                </div>
+
+                <div className={styles.infoGroup}>
+                  <span className={styles.infoLabel}>Descrição</span>
+                  <span className={styles.infoValue}>{profile?.description || 'Não informado'}</span>
+                </div>
+                
+                <div className={styles.infoGroup}>
+                  <span className={styles.infoLabel}>Status</span>
+                  <span className={styles.infoValue}>
+                    {profile?.isVerified ? 'Verificado' : 'Pendente'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Schedule Section */}
+              <div className={styles.servicesSection}>
+                <h3 className={styles.sectionTitle}>
+                  <Calendar size={20} />
+                  Agenda de Serviço
+                </h3>
+                {loadingSchedules ? (
+                  <p>Carregando agenda...</p>
+                ) : schedules.length > 0 ? (
+                  <div className={styles.scheduleGrid}>
+                    {schedules.map((schedule, index) => (
+                      <div key={schedule.id || index} className={styles.scheduleItem}>
+                        <div className={styles.scheduleDay}>
+                          {daysOfWeek[schedule.dayOfWeek]}
+                        </div>
+                        <div className={styles.scheduleTime}>
+                          <Clock size={14} />
+                          {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
+                        </div>
+                        <div className={styles.scheduleStatus}>
+                          <span className={schedule.isAvailable ? styles.available : styles.unavailable}>
+                            {schedule.isAvailable ? 'Disponível' : 'Indisponível'}
+                          </span>
+                        </div>
+                        <button 
+                          className={styles.deleteButton}
+                          onClick={() => handleDeleteSchedule(schedule.id)}
+                          title="Excluir agenda"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className={styles.noSchedule}>
+                    Nenhuma agenda cadastrada. Clique em "Cadastrar Agenda" para adicionar seus horários disponíveis.
+                  </p>
+                )}
+              </div>
+            </>
           )}
 
-          {/* 🔑 SEÇÃO ATUALIZADA: Schedule Section com novo formato de exibição */}
-          <div className={styles.servicesSection}>
-            <h3 className={styles.sectionTitle}>
-              <Calendar size={20} />
-              Agenda de Serviço
-            </h3>
-            {loadingSchedules ? (
-              <p>Carregando agenda...</p>
-            ) : schedules.length > 0 ? (
-              <div className={styles.scheduleGrid}>
-                {schedules.map((schedule, index) => (
-                  <div key={schedule.id || index} className={styles.scheduleItem}>
-                    <div className={styles.scheduleDay}>
-                      {daysOfWeek[schedule.dayOfWeek]}
-                    </div>
-                    <div className={styles.scheduleTime}>
-                      <Clock size={14} />
-                      {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
-                    </div>
-                    <div className={styles.scheduleStatus}>
-                      <span className={schedule.isAvailable ? styles.available : styles.unavailable}>
-                        {schedule.isAvailable ? 'Disponível' : 'Indisponível'}
-                      </span>
-                    </div>
-                    <button 
-                      className={styles.deleteButton}
-                      onClick={() => handleDeleteSchedule(schedule.id)}
-                      title="Excluir agenda"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                ))}
+          {/* Services Section */}
+          {activeSection === 'servicos' && (
+            <>
+              <div className={styles.pageHeader}>
+                <h1 className={styles.pageTitle}>Meus Serviços</h1>
               </div>
-            ) : (
-              <p className={styles.noSchedule}>
-                Nenhuma agenda cadastrada. Clique em "Cadastrar Agenda" para adicionar seus horários disponíveis.
-              </p>
-            )}
-          </div>
+
+              {profile?.categories && profile.categories.length > 0 ? (
+                <div className={styles.servicesSection}>
+                  <h3 className={styles.sectionTitle}>
+                    <Wrench size={20} />
+                    Serviços Oferecidos
+                  </h3>
+                  <div className={styles.servicesGrid}>
+                    {profile.categories.map((cat, index) => (
+                      <span key={index} className={styles.serviceTag}>
+                        {categoryMap[cat] || `Categoria ${cat}`}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.noServicesMessage}>
+                  <Wrench size={48} color="#ccc" />
+                  <h3>Nenhum serviço cadastrado</h3>
+                  <p>Adicione os serviços que você oferece editando seu perfil.</p>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* 🔑 NOVA SEÇÃO: Avaliações */}
+          {activeSection === 'avaliacoes' && (
+            <>
+              <div className={styles.pageHeader}>
+                <h1 className={styles.pageTitle}>Avaliações</h1>
+                {evaluationAverage > 0 && (
+                  <div className={styles.averageRating}>
+                    <div className={styles.averageNumber}>{evaluationAverage.toFixed(1)}</div>
+                    {renderStars(Math.round(evaluationAverage))}
+                    <span className={styles.totalEvaluations}>({evaluations.length} avaliações)</span>
+                  </div>
+                )}
+              </div>
+
+              {loadingEvaluations ? (
+                <div className={styles.loadingMessage}>
+                  <p>Carregando avaliações...</p>
+                </div>
+              ) : evaluations.length > 0 ? (
+                <div className={styles.evaluationsSection}>
+                  <div className={styles.evaluationsList}>
+                    {evaluations.map((evaluation, index) => (
+                      <div key={index} className={styles.evaluationCard}>
+                        <div className={styles.evaluationHeader}>
+                          <div className={styles.userInfo}>
+                            <div className={styles.userAvatar}>
+                              {evaluation.userImage ? (
+                                <img src={evaluation.userImage} alt={evaluation.userName} />
+                              ) : (
+                                evaluation.userName?.[0]?.toUpperCase() || 'U'
+                              )}
+                            </div>
+                            <div className={styles.userDetails}>
+                              <span className={styles.userName}>{evaluation.userName || 'Usuário Anônimo'}</span>
+                              {renderStars(evaluation.note)}
+                            </div>
+                          </div>
+                          <div className={styles.evaluationRating}>
+                            <span className={styles.ratingNumber}>{evaluation.note}</span>
+                          </div>
+                        </div>
+                        {evaluation.comment && (
+                          <div className={styles.evaluationComment}>
+                            <MessageCircle size={16} />
+                            <p>{evaluation.comment}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.noEvaluationsMessage}>
+                  <Star size={48} color="#ccc" />
+                  <h3>Nenhuma avaliação ainda</h3>
+                  <p>Suas avaliações de clientes aparecerão aqui.</p>
+                </div>
+              )}
+            </>
+          )}
         </div>
 
         {/* Modal de Edição */}

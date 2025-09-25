@@ -2,6 +2,17 @@
 import React, { useState } from 'react';
 import styles from './ClientProfileView.module.css';
 
+/**
+ * Componente de visualização do perfil do cliente (visão do prestador).
+ * Exibe informações do cliente, histórico de serviços, avaliações e indicadores de confiabilidade.
+ * 
+ * Funcionalidades:
+ * - Exibe dados do cliente (nome, avatar, estatísticas)
+ * - Tabs para alternar entre histórico de serviços, avaliações e confiabilidade
+ * - Lista de serviços contratados pelo cliente
+ * - Lista de avaliações recebidas
+ * - Indicadores de confiabilidade verificados
+ */
 const ClientProfileView = () => {
   const [activeTab, setActiveTab] = useState('historico');
 
@@ -17,6 +28,7 @@ const ClientProfileView = () => {
     joinDate: 'Março 2023'
   };
 
+  // Histórico de serviços contratados pelo cliente
   const serviceHistory = [
     {
       id: 1,
@@ -44,6 +56,7 @@ const ClientProfileView = () => {
     }
   ];
 
+  // Avaliações detalhadas recebidas pelo cliente
   const reviews = [
     {
       id: 1,
@@ -68,6 +81,7 @@ const ClientProfileView = () => {
     }
   ];
 
+  // Indicadores de confiabilidade do cliente
   const trustIndicators = [
     { title: 'Pagamentos', status: '✓' },
     { title: 'Identidade', status: '✓' },
@@ -77,7 +91,6 @@ const ClientProfileView = () => {
 
   return (
     <div className={styles.container}>
-     
       <main className={styles.main}>
         {/* Sidebar com perfil */}
         <aside className={styles.sidebar}>
