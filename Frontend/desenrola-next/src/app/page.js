@@ -401,7 +401,7 @@ function HomePage({ hasToken }) {
                             if (!hasToken) {
                               setShowOverlay(true);
                             } else {
-                              router.push(`/servicos/${service.id}`);
+                             router.push(`/servicos/visualizar/${service.id}`);
                             }
                           }}
                           className={styles.cardButton}
