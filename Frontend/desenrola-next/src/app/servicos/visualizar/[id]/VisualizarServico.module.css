@@ -908,3 +908,530 @@
     opacity: 0.5;
   }
 }
+
+/* Adicione estes estilos ao seu VisualizarServico.module.css existente */
+
+/* Estados de Loading e Error */
+.loadingContainer,
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+  padding: 2rem;
+}
+
+.loadingSpinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f4f6;
+  border-left: 4px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorContainer h2 {
+  color: #dc2626;
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.errorContainer p {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+/* Status Badges com cores */
+.statusAvailable .statusDot {
+  background-color: #10b981;
+}
+
+.statusUnavailable .statusDot {
+  background-color: #ef4444;
+}
+
+.statusBadge.statusAvailable {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.statusBadge.statusUnavailable {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+/* Seção de Imagens */
+.imagesSection {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.imagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.serviceImage {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.serviceImage:hover {
+  transform: scale(1.05);
+}
+
+/* Estados da Agenda no Modal */
+.agendaLoading,
+.agendaError,
+.agendaEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.agendaLoading .loadingSpinner {
+  width: 30px;
+  height: 30px;
+  border-width: 3px;
+  margin-bottom: 1rem;
+}
+
+.agendaError {
+  color: #dc2626;
+}
+
+.agendaEmpty {
+  color: #6b7280;
+}
+
+.agendaDays {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+/* Scroll personalizado para agenda */
+.agendaDays::-webkit-scrollbar {
+  width: 6px;
+}
+
+.agendaDays::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.agendaDays::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.agendaDays::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.agendaDay {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #f8fafc;
+}
+
+.dayHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dayTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+.dayDate {
+  font-size: 0.875rem;
+  color: #64748b;
+  background: #e2e8f0;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.horariosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 0.5rem;
+}
+
+.horarioButton {
+  padding: 0.5rem 0.25rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.horarioButton.disponivel {
+  border-color: #10b981;
+  color: #047857;
+  background: #ecfdf5;
+}
+
+.horarioButton.disponivel:hover {
+  background: #d1fae5;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.horarioButton.indisponivel {
+  border-color: #ef4444;
+  color: #991b1b;
+  background: #fef2f2;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsividade da agenda */
+@media (max-width: 768px) {
+  .agendaDays {
+    max-height: 300px;
+  }
+  
+  .dayHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .horariosGrid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  }
+  
+  .horarioButton {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.2rem;
+  }
+}
+
+/* Estilos para as Avaliações - Adicionar ao VisualizarServico.module.css */
+
+/* Wrapper das avaliações no card do prestador */
+.avaliacoesWrapper {
+  margin: 20px 0;
+  padding: 15px 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.avaliacoesLoading, 
+.avaliacoesError {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.avaliacoesError {
+  color: #ef4444;
+}
+
+/* Seção de rating média */
+.ratingSection {
+  margin: 15px 0;
+}
+
+.averageRating {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ratingStars {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.starFull {
+  color: #fbbf24;
+  font-size: 18px;
+}
+
+.starHalf {
+  color: #fbbf24;
+  font-size: 18px;
+  opacity: 0.7;
+}
+
+.starEmpty {
+  color: #d1d5db;
+  font-size: 18px;
+}
+
+.ratingInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ratingValue {
+  font-weight: 600;
+  font-size: 18px;
+  color: #1f2937;
+}
+
+.ratingCount {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.noRating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.noRatingText {
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Seção de avaliações detalhadas */
+.avaliacoesSection {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.avaliacoesList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.avaliacaoCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.avaliacaoCard:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.avaliacaoHeader {
+  margin-bottom: 12px;
+}
+
+.avaliacaoUser {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.userAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+.userImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.userInitials {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.userInfo {
+  flex: 1;
+}
+
+.userName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.userRating {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ratingNumber {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.avaliacaoComment {
+  margin-top: 8px;
+}
+
+.avaliacaoComment p {
+  margin: 0;
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.5;
+  font-style: italic;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border-left: 3px solid #e5e7eb;
+}
+
+.moreAvaliacoes {
+  text-align: center;
+  padding: 16px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  border: 2px dashed #cbd5e1;
+}
+
+.moreAvaliacoes p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Responsividade para avaliações */
+@media (max-width: 768px) {
+  .avaliacoesSection {
+    padding: 16px;
+  }
+  
+  .avaliacaoCard {
+    padding: 12px;
+  }
+  
+  .avaliacaoUser {
+    gap: 8px;
+  }
+  
+  .userAvatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+  
+  .userName {
+    font-size: 14px;
+  }
+  
+  .ratingStars {
+    gap: 1px;
+  }
+  
+  .starFull,
+  .starHalf,
+  .starEmpty {
+    font-size: 14px;
+  }
+  
+  .ratingValue {
+    font-size: 16px;
+  }
+  
+  .averageRating {
+    gap: 8px;
+  }
+}
+
+/* Animações para as estrelas */
+.starFull,
+.starHalf {
+  transition: all 0.2s ease;
+}
+
+.starFull:hover,
+.starHalf:hover {
+  transform: scale(1.1);
+}
+
+/* Melhorias visuais */
+.avaliacoesWrapper {
+  border-top: 2px solid #f1f5f9;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px -20px;
+}
+
+.averageRating {
+  background: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Estados de loading específicos para avaliações */
+.avaliacoesLoading .loadingSpinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
