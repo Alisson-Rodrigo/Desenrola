@@ -14,6 +14,12 @@ export default function VisualizarServico({ params }) {
   const [agenda, setAgenda] = useState([]);
   const [loadingAgenda, setLoadingAgenda] = useState(false);
   const [errorAgenda, setErrorAgenda] = useState(null);
+  
+  // 🔹 Estados para avaliações
+  const [avaliacoes, setAvaliacoes] = useState([]);
+  const [mediaAvaliacoes, setMediaAvaliacoes] = useState(null);
+  const [loadingAvaliacoes, setLoadingAvaliacoes] = useState(false);
+  const [errorAvaliacoes, setErrorAvaliacoes] = useState(null);
 
   // 🔹 Função para obter o token de autenticação
   const getAuthToken = () => {
@@ -34,6 +40,63 @@ export default function VisualizarServico({ params }) {
     }
     
     return headers;
+  };
+
+  // 🔹 Buscar avaliações do prestador
+  const fetchAvaliacoes = async (providerId) => {
+    try {
+      setLoadingAvaliacoes(true);
+      setErrorAvaliacoes(null);
+      
+      console.log('Buscando avaliações para providerId:', providerId);
+      
+      // Buscar avaliações
+      const responseAvaliacoes = await fetch(
+        `http://localhost:5087/api/evaluation/provider/${providerId}`,
+        {
+          method: 'GET',
+          headers: getAuthHeaders(),
+        }
+      );
+      
+      // Buscar média das avaliações
+      const responseMedia = await fetch(
+        `http://localhost:5087/api/evaluation/provider/${providerId}/average`,
+        {
+          method: 'GET',
+          headers: getAuthHeaders(),
+        }
+      );
+      
+      if (!responseAvaliacoes.ok) {
+        if (responseAvaliacoes.status === 401) {
+          throw new Error('Token de autenticação inválido ou expirado');
+        }
+        throw new Error(`Erro na API de avaliações: ${responseAvaliacoes.status} - ${responseAvaliacoes.statusText}`);
+      }
+      
+      if (!responseMedia.ok) {
+        if (responseMedia.status === 401) {
+          throw new Error('Token de autenticação inválido ou expirado');
+        }
+        throw new Error(`Erro na API de média: ${responseMedia.status} - ${responseMedia.statusText}`);
+      }
+      
+      const avaliacoesData = await responseAvaliacoes.json();
+      const mediaData = await responseMedia.json();
+      
+      console.log('Avaliações retornadas:', avaliacoesData);
+      console.log('Média retornada:', mediaData);
+      
+      setAvaliacoes(avaliacoesData);
+      setMediaAvaliacoes(mediaData.average);
+      
+    } catch (err) {
+      console.error('Erro ao buscar avaliações:', err);
+      setErrorAvaliacoes(err.message || 'Erro ao carregar avaliações do prestador');
+    } finally {
+      setLoadingAvaliacoes(false);
+    }
   };
 
   // 🔹 Buscar agenda do prestador
@@ -114,6 +177,63 @@ export default function VisualizarServico({ params }) {
     return slots;
   };
 
+  // 🔹 Função para renderizar estrelas da avaliação
+  const renderStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(
+        <span key={i} className={styles.starFull}>⭐</span>
+      );
+    }
+    
+    if (hasHalfStar) {
+      stars.push(
+        <span key="half" className={styles.starHalf}>⭐</span>
+      );
+    }
+    
+    const emptyStars = 5 - Math.ceil(rating);
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(
+        <span key={`empty-${i}`} className={styles.starEmpty}>☆</span>
+      );
+    }
+    
+    return stars;
+  };
+
+  // 🔹 Função para renderizar a média das avaliações
+  const renderAverageRating = () => {
+    if (mediaAvaliacoes === null || mediaAvaliacoes === undefined) {
+      return (
+        <div className={styles.ratingSection}>
+          <div className={styles.noRating}>
+            <span className={styles.noRatingText}>Sem avaliações ainda</span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.ratingSection}>
+        <div className={styles.averageRating}>
+          <div className={styles.ratingStars}>
+            {renderStars(mediaAvaliacoes)}
+          </div>
+          <div className={styles.ratingInfo}>
+            <span className={styles.ratingValue}>{mediaAvaliacoes.toFixed(1)}</span>
+            <span className={styles.ratingCount}>
+              ({avaliacoes.length} avaliação{avaliacoes.length !== 1 ? 'ões' : ''})
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   // 🔹 Buscar dados do serviço pela API
   useEffect(() => {
     const fetchServico = async () => {
@@ -152,16 +272,12 @@ export default function VisualizarServico({ params }) {
             categoria: servicoData.category,
             endereco: "Endereço não informado", // API não retorna endereço
             prestador: {
-              nome: servicoData.providerName,
-              telefone: "(89) 99999-0000", // Dados não disponíveis na API
-              email: "contato@email.com", // Dados não disponíveis na API
+              nome: servicoData.providerName, // Dados não disponíveis na API
               iniciais: getInitials(servicoData.providerName),
               especialidade: `Especialista em ${servicoData.category}`,
             },
             status: servicoData.isAvailable ? "Disponível" : "Indisponível",
             preco: `R$ ${servicoData.price.toFixed(2)}`,
-            duracao: "2-3 horas", // Dado não disponível na API
-            urgencia: "Média", // Dado não disponível na API
             dataServico: new Date(servicoData.dateTime).toLocaleDateString('pt-BR'),
             isActive: servicoData.isActive,
             images: servicoData.images || []
@@ -169,6 +285,11 @@ export default function VisualizarServico({ params }) {
           
           console.log('Dados do serviço carregados:', servicoFormatado); // Debug
           setServico(servicoFormatado);
+
+          // 🔹 Buscar avaliações após carregar o serviço
+          if (servicoData.providerId) {
+            fetchAvaliacoes(servicoData.providerId);
+          }
         } else {
           setError('Serviço não encontrado');
         }
@@ -334,10 +455,7 @@ export default function VisualizarServico({ params }) {
                 <div className={styles.infoValue}>{servico.preco}</div>
                 <div className={styles.infoLabel}>Preço</div>
               </div>
-              <div className={styles.infoCard}>
-                <div className={styles.infoValue}>{servico.duracao}</div>
-                <div className={styles.infoLabel}>Duração Estimada</div>
-              </div>
+        
               <div className={styles.infoCard}>
                 <div className={`${styles.statusBadge} ${servico.status === 'Disponível' ? styles.statusAvailable : styles.statusUnavailable}`}>
                   <span className={styles.statusDot}></span>
@@ -363,19 +481,71 @@ export default function VisualizarServico({ params }) {
               </div>
             </div>
 
-            <div className={styles.contactGrid}>
-              <div className={styles.contactItem}>
-                <div className={styles.contactText}>
-                  {servico.prestador.telefone}
+            {/* 🔹 Seção de Avaliações */}
+            <div className={styles.avaliacoesWrapper}>
+              {loadingAvaliacoes ? (
+                <div className={styles.avaliacoesLoading}>
+                  <div className={styles.loadingSpinner}></div>
+                  <p>Carregando avaliações...</p>
                 </div>
-              </div>
-              <div className={styles.contactItem}>
-                <div className={styles.contactText}>
-                  {servico.prestador.email}
+              ) : errorAvaliacoes ? (
+                <div className={styles.avaliacoesError}>
+                  <p>Erro ao carregar avaliações: {errorAvaliacoes}</p>
                 </div>
+              ) : (
+                renderAverageRating()
+              )}
+            </div>
+
+          
+          </div>
+
+          {/* 🔹 Seção de Avaliações Detalhadas */}
+          {!loadingAvaliacoes && !errorAvaliacoes && avaliacoes.length > 0 && (
+            <div className={styles.avaliacoesSection}>
+              <h3 className={styles.infoTitle}>Avaliações dos Clientes</h3>
+              <div className={styles.avaliacoesList}>
+                {avaliacoes.slice(0, 5).map((avaliacao) => (
+                  <div key={avaliacao.id} className={styles.avaliacaoCard}>
+                    <div className={styles.avaliacaoHeader}>
+                      <div className={styles.avaliacaoUser}>
+                        <div className={styles.userAvatar}>
+                          {avaliacao.userImage ? (
+                            <img 
+                              src={avaliacao.userImage} 
+                              alt={avaliacao.userName}
+                              className={styles.userImage}
+                            />
+                          ) : (
+                            <span className={styles.userInitials}>
+                              {getInitials(avaliacao.userName)}
+                            </span>
+                          )}
+                        </div>
+                        <div className={styles.userInfo}>
+                          <h4 className={styles.userName}>{avaliacao.userName}</h4>
+                          <div className={styles.userRating}>
+                            {renderStars(avaliacao.note)}
+                            <span className={styles.ratingNumber}>({avaliacao.note})</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {avaliacao.comment && (
+                      <div className={styles.avaliacaoComment}>
+                        <p>"{avaliacao.comment}"</p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {avaliacoes.length > 5 && (
+                  <div className={styles.moreAvaliacoes}>
+                    <p>E mais {avaliacoes.length - 5} avaliação{avaliacoes.length - 5 !== 1 ? 'ões' : ''}...</p>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
+          )}
 
           {/* Imagens do Serviço (se houver) */}
           {servico.images && servico.images.length > 0 && (
@@ -396,9 +566,7 @@ export default function VisualizarServico({ params }) {
 
           {/* Ações */}
           <div className={styles.actions}>
-            <Link href="/servicos/solicitarservico">
-              <button className={styles.btnPrimary}>Solicitar Serviço</button>
-            </Link>
+           
             <button
               onClick={openAgendaModal}
               className={styles.btnSecondary}
