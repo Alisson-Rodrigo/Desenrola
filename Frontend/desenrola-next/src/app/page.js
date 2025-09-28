@@ -94,6 +94,28 @@ function HomePage({ hasToken }) {
     { id: "Beleza", name: "Beleza", icon: "✨" }
   ];
 
+  // Função para formatar data
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      
+      // Verifica se a data é válida
+      if (isNaN(date.getTime())) {
+        return 'Data inválida';
+      }
+      
+      // Formata a data no padrão brasileiro
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.error('Erro ao formatar data:', error);
+      return 'Data inválida';
+    }
+  };
+
   // Buscar serviços
   const fetchServices = async (page = 1, searchTerm = '', onlyActive = true, providerId = '') => {
     setLoading(true);
@@ -120,7 +142,7 @@ function HomePage({ hasToken }) {
       if (data.items) {
         setServices(data.items);
         setTotalPages(data.totalPages || 1);
-        setTotalItems(data.totalItems || 0); // Corrigido: usar totalItems da resposta da API
+        setTotalItems(data.totalItems || 0);
       } else if (Array.isArray(data)) {
         setServices(data);
         setTotalPages(1);
@@ -390,7 +412,7 @@ function HomePage({ hasToken }) {
                         )}
                         <div className={styles.cardDate}>
                           <Clock size={14} />
-                          {new Date(service.createdAt).toLocaleDateString('pt-BR')}
+                          {formatDate(service.dateTime)}
                         </div>
                       </div>
 

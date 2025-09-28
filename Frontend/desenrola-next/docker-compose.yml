@@ -9,25 +9,20 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # monta apenas código e public
       - ./src:/app/src
       - ./public:/app/public
       - ./package.json:/app/package.json
       - ./package-lock.json:/app/package-lock.json
-      # cache do Next.js
       - nextjs-cache:/app/.next
-      # mantém node_modules interno sem sobrescrever
       - /app/node_modules
     environment:
       - NODE_ENV=development
       - HOST=0.0.0.0
       - NEXT_TELEMETRY_DISABLED=1
-      # Forçar polling para hot reload
       - WATCHPACK_POLLING=true
       - WATCHPACK_POLLING_INTERVAL=1000
       - CHOKIDAR_USEPOLLING=true
-      - CHOKIDAR_INTERVAL=1000
-      # Fast Refresh
+      - CHOKIDAR_INTERVAL=1000=-
       - FAST_REFRESH=true
     command: ["npx", "next", "dev", "-H", "0.0.0.0", "-p", "3000"]
     init: true
