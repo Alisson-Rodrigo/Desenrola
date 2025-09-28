@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react"; // Added 'use' import
 import Link from "next/link";
 import styles from "./VisualizarServico.module.css";
 import Navbar from "../../../../components/Navbar"; // caminho mantido
 
 export default function VisualizarServico({ params }) {
-  const { id } = params;
+  // 🔹 Use React.use() to unwrap the params Promise
+  const { id } = use(params);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [servico, setServico] = useState(null);
   const [loading, setLoading] = useState(true);
