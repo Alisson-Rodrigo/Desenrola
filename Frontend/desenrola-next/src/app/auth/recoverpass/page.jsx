@@ -4,11 +4,20 @@ import { useState } from 'react';
 import Link from 'next/link';
 import styles from './RecoverPassword.module.css';
 import { forgotPassword } from '../../../services/authApi';
+  /**
+  Componente de recuperação de senha.
+  Permite que o usuário solicite um link para redefinir a senha via e-mail.
+  */
 
 export default function RecoverPassword() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: null, text: '' });
+  /**
+  Envia o formulário para solicitar recuperação de senha.
+  Valida o e-mail informado e chama a API para enviar o link de redefinição.
+  @param {React.FormEvent<HTMLFormElement>} e Evento de envio do formulário
+  */
 
   async function handleSubmit(e) {
     e.preventDefault();

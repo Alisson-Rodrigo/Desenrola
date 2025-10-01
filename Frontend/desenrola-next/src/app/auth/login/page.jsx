@@ -46,7 +46,6 @@ export default function LoginPage() {
   }, [router]);
   
   
-  
   /**
   Envia o formulário de login, autentica o usuário e redireciona conforme o tipo.
   @param {React.FormEvent<HTMLFormElement>} e Evento de envio do formulário
