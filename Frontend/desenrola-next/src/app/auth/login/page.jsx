@@ -19,12 +19,24 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: null, text: '' });
 
+
+  /**
+  Atualiza o estado do formulário conforme o usuário digita nos campos.
+  @param {React.ChangeEvent<HTMLInputElement>} e Evento de input
+  */
+
   function handleChange(e) {
     const { id, value } = e.target;
     setForm((prev) => ({ ...prev, [id]: value }));
   }
 
+
+
   // Prefetch para rotas mais usadas
+
+  /**
+  Realiza o prefetch de rotas comuns para melhorar a performance da navegação.
+  */
   useEffect(() => {
     router.prefetch('/auth/register');
     router.prefetch('/auth/recoverpass');
@@ -32,6 +44,13 @@ export default function LoginPage() {
     router.prefetch('/admin');
     router.prefetch('/provider'); // Se tiver rota para provider
   }, [router]);
+  
+  
+  
+  /**
+  Envia o formulário de login, autentica o usuário e redireciona conforme o tipo.
+  @param {React.FormEvent<HTMLFormElement>} e Evento de envio do formulário
+  */
 
   async function handleSubmit(e) {
     e.preventDefault();
