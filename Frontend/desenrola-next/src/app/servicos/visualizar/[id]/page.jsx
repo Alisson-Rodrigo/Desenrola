@@ -22,6 +22,14 @@ export default function VisualizarServico({ params }) {
   const [mediaAvaliacoes, setMediaAvaliacoes] = useState(null);
   const [loadingAvaliacoes, setLoadingAvaliacoes] = useState(false);
   const [errorAvaliacoes, setErrorAvaliacoes] = useState(null);
+  
+  
+  
+  
+  /**
+  Obtém o token de autenticação salvo no localStorage.
+  @return {string|null} Token JWT ou null se não encontrado
+  */
 
   // 🔹 Função para obter o token de autenticação
   const getAuthToken = () => {
@@ -29,6 +37,13 @@ export default function VisualizarServico({ params }) {
     const token = localStorage.getItem('auth_token') || localStorage.getItem('token') || localStorage.getItem('authToken');
     return token;
   };
+
+
+
+  /**
+  Gera o cabeçalho padrão com token de autenticação (se existir).
+  @return {Object} Objeto com os headers da requisição
+  */
 
   // 🔹 Headers padrão com autenticação
   const getAuthHeaders = () => {
@@ -43,6 +58,13 @@ export default function VisualizarServico({ params }) {
     
     return headers;
   };
+
+
+
+  /**
+  Busca as avaliações e a média de avaliações do prestador pelo ID.
+  @param {string} providerId ID do prestador
+  */
 
   // 🔹 Buscar avaliações do prestador
   const fetchAvaliacoes = async (providerId) => {
@@ -101,6 +123,15 @@ export default function VisualizarServico({ params }) {
     }
   };
 
+
+
+
+
+  /**
+  Busca os horários disponíveis (agenda) do prestador.
+  @param {string} providerId ID do prestador
+  */
+
   // 🔹 Buscar agenda do prestador
   const fetchAgenda = async (providerId) => {
     try {
@@ -136,6 +167,7 @@ export default function VisualizarServico({ params }) {
     }
   };
 
+
   // 🔹 Função para abrir modal e buscar agenda
   const openAgendaModal = () => {
     setIsModalOpen(true);
@@ -145,6 +177,15 @@ export default function VisualizarServico({ params }) {
       setErrorAgenda('ID do prestador não encontrado');
     }
   };
+
+
+
+
+  /**
+  Retorna o nome do dia da semana baseado no número (0 a 6).
+  @param {number} dayOfWeek Índice do dia (0 = domingo)
+  @return {string} Nome do dia da semana
+  */
 
   // 🔹 Função para mapear dia da semana
   const getDayName = (dayOfWeek) => {
@@ -159,6 +200,17 @@ export default function VisualizarServico({ params }) {
     ];
     return days[dayOfWeek] || 'Dia inválido';
   };
+
+
+
+
+
+  /**
+  Gera horários de 1 em 1 hora entre o horário de início e fim.
+  @param {string} startTime Horário inicial (formato HH:MM)
+  @param {string} endTime Horário final (formato HH:MM)
+  @return {string[]} Lista de horários disponíveis
+  */
 
   // 🔹 Função para gerar horários entre start e end
   const generateTimeSlots = (startTime, endTime) => {
@@ -178,6 +230,14 @@ export default function VisualizarServico({ params }) {
     
     return slots;
   };
+
+
+
+  /**
+  Renderiza estrelas cheias, meia estrela e vazias com base na nota.
+  @param {number} rating Nota da avaliação (ex: 4.5)
+  @return {JSX.Element[]} Elementos visuais das estrelas
+  */
 
   // 🔹 Função para renderizar estrelas da avaliação
   const renderStars = (rating) => {
@@ -206,6 +266,12 @@ export default function VisualizarServico({ params }) {
     
     return stars;
   };
+
+
+  /**
+  Renderiza visualmente a média das avaliações ou uma mensagem padrão.
+  @return {JSX.Element} Elemento com estrelas e média ou aviso de ausência
+  */
 
   // 🔹 Função para renderizar a média das avaliações
   const renderAverageRating = () => {
@@ -308,6 +374,11 @@ export default function VisualizarServico({ params }) {
       fetchServico();
     }
   }, [id]);
+  /**
+  Gera as iniciais a partir do nome completo do prestador.
+  @param {string} nome Nome completo
+  @return {string} Iniciais em maiúsculo
+  */
 
   const getInitials = (nome) => {
     if (!nome) return "??";
@@ -318,6 +389,11 @@ export default function VisualizarServico({ params }) {
       .toUpperCase()
       .slice(0, 2);
   };
+  /**
+  Retorna o emoji correspondente à categoria do serviço.
+  @param {string} categoria Nome da categoria
+  @return {string} Emoji da categoria
+  */
 
   const getCategoryIcon = (categoria) => {
     const icons = {
