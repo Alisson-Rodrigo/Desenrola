@@ -66,6 +66,15 @@ const daysOfWeek = {
   6: "Sábado"        // Saturday
 };
 
+  /**
+  Formata uma string de horário para o formato HH:MM.
+  Ex: "08:00:00" → "08:00"
+  @param {string} timeString Horário retornado da API
+  @return {string} Horário formatado ou 'N/A'
+  */
+
+
+
 // 🔑 NOVA FUNÇÃO: Formatar horário recebido da API
 const formatTime = (timeString) => {
   if (!timeString) return 'N/A';
@@ -78,6 +87,14 @@ const formatTime = (timeString) => {
   
   return timeString;
 };
+
+
+
+  /**
+  Renderiza estrelas preenchidas de acordo com a nota fornecida.
+  @param {number} rating Nota da avaliação (0 a 5)
+  @return {JSX.Element} Conjunto de ícones de estrelas
+  */
 
 // 🔑 NOVA FUNÇÃO: Renderizar estrelas da avaliação
 const renderStars = (rating) => {
@@ -387,6 +404,11 @@ export default function ProfilePage() {
       endTime: ''
     });
   };
+  /**
+  Atualiza o valor de um campo do formulário de agenda.
+  @param {string} field Campo do formulário
+  @param {string} value Valor a ser atribuído
+  */
 
   const handleScheduleInputChange = (field, value) => {
     setScheduleForm(prev => ({
@@ -394,6 +416,14 @@ export default function ProfilePage() {
       [field]: value
     }));
   };
+
+  /**
+  Valida os horários inseridos no formulário de agenda.
+  Garante formato correto e intervalo mínimo de 1 hora.
+  @param {string} startTime Horário de início
+  @param {string} endTime Horário de fim
+  @return {object} Objeto com isValid e mensagem
+  */
 
   // Função de validação de horários
   const validateScheduleTimes = (startTime, endTime) => {
