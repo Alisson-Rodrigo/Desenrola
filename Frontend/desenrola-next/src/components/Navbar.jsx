@@ -36,12 +36,27 @@ export default function Navbar() {
     router.prefetch("/admin");
     router.prefetch("/perfil/prestador/servicos/cadastrar");
   }, [router]);
+  
+  
+  /**
+   * Converte o valor da role para uma string minúscula.
+   * @param {any} role - Valor da role (pode ser número ou string)
+   * @returns {string} Role normalizada como string
+   */
 
   // Normaliza role para string em minúsculo
   function normalizeRole(role) {
     if (role === undefined || role === null) return "";
     return String(role).toLowerCase();
   }
+  
+  
+  
+  
+  /**
+   * Retorna o tipo de usuário em português com base na role.
+   * @returns {string|null} Tipo de usuário: "Administrador", "Prestador" ou "Cliente"
+   */
 
   // Função para obter o tipo de usuário em português
   function getUserType() {
@@ -52,6 +67,13 @@ export default function Navbar() {
     return "Cliente";
   }
 
+
+
+  /**
+   * Retorna a classe CSS correspondente à cor do badge do tipo de usuário.
+   * @returns {string} Classe de estilo para o badge do usuário
+   */
+
   // Função para obter a cor do badge
   function getUserBadgeColor() {
     if (!user) return "";
@@ -60,6 +82,15 @@ export default function Navbar() {
     if (user.role === "2" || user.role === "provider") return styles.providerBadge;
     return styles.userBadge;
   }
+
+
+
+
+
+  /**
+   * Retorna o ícone correspondente ao tipo de usuário.
+   * @returns {JSX.Element} Ícone React para Administrador, Prestador ou Cliente
+   */
 
   // Função para obter o ícone do usuário
   function getUserIcon() {
@@ -126,6 +157,18 @@ export default function Navbar() {
 
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
+
+
+
+
+
+  
+  /**
+   * Retorna a classe CSS do link de navegação, marcando o ativo com estilo especial.
+   * @param {string} href - Caminho da rota
+   * @returns {string} Classe CSS completa para o link
+   */
 
   // helper para marcar ativo
   const getLinkClass = (href) =>
