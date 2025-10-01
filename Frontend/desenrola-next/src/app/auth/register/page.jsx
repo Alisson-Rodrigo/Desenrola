@@ -18,10 +18,20 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: null, text: '' });
 
+  /**
+  Atualiza o estado do formulário com os valores digitados pelo usuário.
+  @param {React.ChangeEvent<HTMLInputElement>} e Evento de input
+  */
+
   function handleChange(e) {
     const { id, value } = e.target;
     setForm((prev) => ({ ...prev, [id]: value }));
   }
+  /**
+  Traduz mensagens de erro técnicas da API para mensagens mais amigáveis em português.
+  @param {string} msg Mensagem original retornada pela API
+  @return {string} Mensagem traduzida
+  */
 
   function traduzirMensagem(msg) {
     return msg
@@ -38,6 +48,9 @@ export default function Register() {
         'A senha deve ter pelo menos uma letra maiúscula (A-Z).'
       );
   }
+  /**
+  Faz prefetch da rota de login para melhorar a performance da navegação.
+  */
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -47,6 +60,11 @@ export default function Register() {
       });
     }
   }, []);
+  /**
+  Envia o formulário de cadastro.
+  Valida os dados e chama a API para registrar um novo usuário.
+  @param {React.FormEvent<HTMLFormElement>} e Evento de envio do formulário
+  */
 
   async function handleSubmit(e) {
     e.preventDefault();
