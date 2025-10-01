@@ -1,131 +1,210 @@
-import React from 'react';
+// page.jsx
+'use client';
+
+import { useState } from 'react';
 import styles from './AssinarPlano.module.css';
-import { FiCheck, FiX } from 'react-icons/fi'; // Ícones para listas de funcionalidades
+import { FiCheck, FiX } from 'react-icons/fi'; // <-- Essa linha precisa da biblioteca instalada!
 
 /**
- * @component Planos
- * @description A página principal para exibir e selecionar os planos de assinatura.
- * * Funcionalidades:
- * - Exibe um cabeçalho com título e descrição da página.
- * - Apresenta um seletor para planos Mensais ou Anuais.
- * - Mostra três opções de planos (Normal, VIP, Master) em um grid.
- * - Cada plano detalha seu preço, descrição e uma lista de funcionalidades.
- * - Destaca o plano "VIP" como o mais popular.
- * - Inclui uma seção de garantia e uma lista de Perguntas Frequentes (FAQ).
- * * @returns {JSX.Element} O componente renderizado da página de planos.
+ * @fileoverview Página de planos de assinatura do Desenrola.
+ * Contém a renderização dos cartões de plano, alternância de ciclo de cobrança
+ * e uma seção de perguntas frequentes (FAQ).
  */
-const Planos = () => {
-  // OBS: Os dados dos planos e FAQ estão estáticos (hardcoded) no JSX.
-  // No futuro, eles podem ser extraídos de um array de objetos e renderizados dinamicamente.
 
-  return (
-    <div className={styles.container}>
-      {/* Seção do Cabeçalho: Título, subtítulo e seletor de período */}
-      <div className={styles.header}>
-        <h1>Escolha o Plano Ideal para Você</h1>
-        <p>Encontre prestadores de confiança, solicite serviços com facilidade e tenha acesso a recursos exclusivos. Comece grátis e evolua quando precisar!</p>
-        <div className={styles.toggle}>
-          <button className={`${styles.toggleButton} ${styles.active}`}>Mensal</button>
-          <button className={styles.toggleButton}>Anual <span className={styles.discount}>-10%</span></button>
+/**
+ * Estrutura de uma feature do plano.
+ * @typedef {Object} Feature
+ * @property {string} text - Texto descritivo da feature
+ * @property {boolean} included - Se a feature está incluída no plano
+ */
+
+/**
+ * Estrutura de preços do plano.
+ * @typedef {Object} PlanPrice
+ * @property {number} monthly - Preço mensal
+ * @property {number} annually - Preço anual
+ */
+
+/**
+ * Estrutura de um plano.
+ * @typedef {Object} Plan
+ * @property {string} id - Identificador do plano
+ * @property {string} name - Nome do plano
+ * @property {PlanPrice} price - Preços do plano
+ * @property {string} description - Descrição do plano
+ * @property {boolean} [popular] - Se o plano é marcado como popular
+ * @property {Feature[]} features - Lista de features
+ */
+
+/**
+ * Estrutura de um item de FAQ.
+ * @typedef {Object} FaqItem
+ * @property {number} id
+ * @property {string} question
+ * @property {string} answer
+ */
+
+/**
+ * Componente principal da página de planos.
+ * Exibe os planos disponíveis, alternância de ciclo e FAQs.
+ * @returns {JSX.Element}
+ */
+export default function Planos() {
+    /**
+     * Dados estáticos dos planos.
+     * @type {Record<string, Plan>}
+     */
+    const plansData = {
+        normal: { id: 'normal', name: 'Normal', price: { monthly: 0, annually: 0 }, description: 'Perfeito para começar a usar o Desenrola', features: [
+            { text: 'Cadastro de serviços básicos', included: true },
+            { text: 'Perfil visível, mas sem destaque', included: true },
+            { text: 'Pode receber avaliações e usar feedback básico', included: true },
+            { text: 'Sem prioridade no catálogo', included: false },
+            { text: 'Relatórios limitados', included: false },
+        ]},
+        vip: { id: 'vip', name: 'VIP', price: { monthly: 29.90, annually: 322.92 }, description: 'Ideal para prestadores que querem se destacar', popular: true, features: [
+            { text: 'Serviços aparecem com prioridade média no catálogo', included: true },
+            { text: 'Perfil ganha selo VIP nas solicitações', included: true },
+            { text: 'Mais chances básicas (respostas, estatísticas como visualizações e cliques no perfil)', included: true },
+            { text: 'Suporte prioritário', included: true },
+            { text: 'Relatórios completos', included: false },
+        ]},
+        master: { id: 'master', name: 'Master', price: { monthly: 59.90, annually: 646.92 }, description: 'Para profissionais que querem dominar o mercado', features: [
+            { text: 'Máxima visibilidade (sempre no topo do catálogo)', included: true },
+            { text: 'Perfil com selo exclusivo (ex: filtros, destaque especial)', included: true },
+            { text: 'Relatórios completos (taxas, conversões, avaliações)', included: true },
+            { text: 'Suporte prioritário e gerente de conta dedicado', included: true },
+            { text: 'Acesso antecipado a novos recursos', included: true },
+        ]},
+    };
+
+    /**
+     * Perguntas frequentes mostradas na página.
+     * @type {FaqItem[]}
+     */
+    const faqData = [
+        { id: 1, question: 'Posso cancelar a qualquer momento?', answer: 'Sim! Você pode cancelar sua assinatura a qualquer momento, sem taxas ou multas. Seu acesso continuará ativo até o fim do período já pago.' },
+        { id: 2, question: 'Como funciona o plano gratuito?', answer: 'O plano "Normal" é gratuito e não tem limite de tempo. Ele oferece funcionalidades básicas para você começar. Você pode fazer o upgrade para um plano pago quando quiser.' },
+        { id: 3, question: 'Posso mudar de plano depois?', answer: 'Com certeza! Você pode fazer upgrade ou downgrade do seu plano a qualquer momento diretamente no seu painel de controle.' },
+        { id: 4, question: 'Quais formas de pagamento vocês aceitam?', answer: 'Aceitamos os principais cartões de crédito (Visa, MasterCard, American Express) e Pix.' },
+    ];
+
+    /**
+     * Estado que controla o ciclo de cobrança selecionado pelo usuário.
+     * Pode ser 'monthly' ou 'annually'.
+     * @type {[('monthly'|'annually'), function]}
+     */
+    const [billingCycle, setBillingCycle] = useState('monthly');
+
+    /**
+     * Estado com o id do plano atualmente selecionado na UI.
+     * @type {[string, function]}
+     */
+    const [selectedPlan, setSelectedPlan] = useState('vip');
+
+    /**
+     * Estado que guarda qual item de FAQ está aberto (id) ou null quando nenhum.
+     * @type {[number|null, function]}
+     */
+    const [openFaq, setOpenFaq] = useState(null);
+
+    /**
+     * Alterna a FAQ aberta (expande/colapsa).
+     * @param {number} id - ID do item FAQ a alternar
+     */
+    const handleFaqToggle = (id) => {
+        setOpenFaq(openFaq === id ? null : id);
+    };
+
+    return (
+        <div className={styles.container}>
+            {/* Cabeçalho da página com título e descrição */}
+            <div className={styles.header}>
+                <h1>Escolha o Plano Ideal para Você</h1>
+                <p>Encontre prestadores de confiança, solicite serviços com facilidade e tenha acesso a recursos exclusivos. Comece grátis e evolua quando precisar!</p>
+                {/* Alternador de ciclo de cobrança (mensal / anual) */}
+                <div className={styles.toggle}>
+                    <button 
+                        className={`${styles.toggleButton} ${billingCycle === 'monthly' ? styles.active : ''}`}
+                        onClick={() => setBillingCycle('monthly')}
+                    >
+                        Mensal
+                    </button>
+                    <button 
+                        className={`${styles.toggleButton} ${billingCycle === 'annually' ? styles.active : ''}`}
+                        onClick={() => setBillingCycle('annually')}
+                    >
+                        Anual <span className={styles.discount}>-10%</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* Grid que renderiza todos os cartões de plano dinamicamente */}
+            <div className={styles.plansGrid}>
+                {Object.values(plansData).map(plan => {
+                    // Determina se o cartão atual está selecionado
+                    const isSelected = selectedPlan === plan.id;
+                    // Preço atual baseado no ciclo selecionado
+                    const currentPrice = plan.price[billingCycle];
+                    const priceFormatted = currentPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+                    const pricePeriod = billingCycle === 'monthly' ? '/mês' : '/ano';
+
+                    return (
+                        <div 
+                            key={plan.id}
+                            className={`${styles.planCard} ${isSelected ? styles.vipCard : ''}`}
+                            onClick={() => setSelectedPlan(plan.id)}
+                        >
+                            {/* Badge para o plano mais popular */}
+                            {plan.popular && <div className={styles.mostPopular}>MAIS POPULAR</div>}
+                            <h2>{plan.name}</h2>
+                            <div className={styles.price}>
+                                <span className={styles.currency}>R$</span>
+                                <span className={styles.amount}>{priceFormatted}</span>
+                                <span className={styles.period}>{plan.price.monthly > 0 ? pricePeriod : '/grátis'}</span>
+                            </div>
+                            <p className={styles.description}>{plan.description}</p>
+                            <ul className={styles.featuresList}>
+                                {plan.features.map((feature, index) => (
+                                    <li key={index}>
+                                        {feature.included ? <FiCheck className={styles.checkIcon} /> : <FiX className={styles.xIcon} />}
+                                        {feature.text}
+                                    </li>
+                                ))}
+                            </ul>
+                            <button className={plan.id === 'vip' ? styles.buttonVip : styles.buttonPrimary}>
+                                {plan.id === 'normal' ? 'COMEÇAR GRÁTIS' : `ASSINAR ${plan.name.toUpperCase()}`}
+                            </button>
+                        </div>
+                    )
+                })}
+            </div>
+
+            {/* Caixa de garantia com política de reembolso */}
+            <div className={styles.guaranteeBox}>
+                <h3>Garantia de 30 Dias</h3>
+                <p>Não ficou satisfeito? Oferecemos reembolso total em até 30 dias. Experimente sem riscos e veja como o Desenrola pode transformar seu negócio!</p>
+            </div>
+
+            {/* Seção de Perguntas Frequentes (FAQ) */}
+            <div className={styles.faqSection}>
+                <h2>? Perguntas Frequentes</h2>
+                {faqData.map(item => (
+                    <div key={item.id} className={styles.faqWrapper}>
+                        {/* Item clicável que alterna a resposta */}
+                        <div className={styles.faqItem} onClick={() => handleFaqToggle(item.id)}>
+                            <h3>{item.question}</h3>
+                            <span style={{ transform: openFaq === item.id ? 'rotate(45deg)' : 'rotate(0)' }}>+</span>
+                        </div>
+                        {/* Resposta visível apenas quando o item está aberto */}
+                        {openFaq === item.id && (
+                            <div className={styles.faqAnswer}>
+                                <p>{item.answer}</p>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
         </div>
-      </div>
-
-      {/* Grid que segura os três cartões de plano */}
-      <div className={styles.plansGrid}>
-        
-        {/* Cartão do Plano Normal (Grátis) */}
-        <div className={styles.planCard}>
-          <h2>Normal</h2>
-          <div className={styles.price}>
-            <span className={styles.currency}>R$</span>
-            <span className={styles.amount}>0,00</span>
-            <span className={styles.period}>/grátis</span>
-          </div>
-          <p className={styles.description}>Perfeito para começar a usar o Desenrola</p>
-
-          <ul className={styles.featuresList}>
-            {/* Funcionalidades incluídas (ícone de check) */}
-            <li><FiCheck className={styles.checkIcon} /> Cadastro de serviços básicos</li>
-            <li><FiCheck className={styles.checkIcon} /> Perfil visível, mas sem destaque</li>
-            <li><FiCheck className={styles.checkIcon} /> Pode receber avaliações e usar feedback básico</li>
-            {/* Funcionalidades não incluídas (ícone de X) */}
-            <li><FiX className={styles.xIcon} /> Sem prioridade no catálogo</li>
-            <li><FiX className={styles.xIcon} /> Relatórios limitados</li>
-          </ul>
-          <button className={styles.buttonPrimary}>COMEÇAR GRÁTIS</button>
-        </div>
-
-        {/* Cartão do Plano VIP (Destaque de "Mais Popular") */}
-        <div className={`${styles.planCard} ${styles.vipCard}`}>
-          <div className={styles.mostPopular}>MAIS POPULAR</div>
-          <h2>VIP</h2>
-          <div className={styles.price}>
-            <span className={styles.currency}>R$</span>
-            <span className={styles.amount}>29,90</span>
-            <span className={styles.period}>/mês</span>
-          </div>
-          <p className={styles.description}>Ideal para prestadores que querem se destacar</p>
-
-          <ul className={styles.featuresList}>
-            <li><FiCheck className={styles.checkIcon} /> Serviços aparecem com prioridade média no catálogo</li>
-            <li><FiCheck className={styles.checkIcon} /> Perfil ganha selo VIP nas solicitações</li>
-            <li><FiCheck className={styles.checkIcon} /> Mais chances básicas (respostas, estatísticas como visualizações e cliques no perfil)</li>
-            <li><FiCheck className={styles.checkIcon} /> Suporte prioritário</li>
-            <li><FiX className={styles.xIcon} /> Relatórios completos</li>
-          </ul>
-          <button className={styles.buttonVip}>ASSINAR VIP</button>
-        </div>
-
-        {/* Cartão do Plano Master */}
-        <div className={styles.planCard}>
-          <h2>Master</h2>
-          <div className={styles.price}>
-            <span className={styles.currency}>R$</span>
-            <span className={styles.amount}>59,90</span>
-            <span className={styles.period}>/mês</span>
-          </div>
-          <p className={styles.description}>Para profissionais que querem dominar o mercado</p>
-
-          <ul className={styles.featuresList}>
-            <li><FiCheck className={styles.checkIcon} /> Máxima visibilidade (sempre no topo do catálogo)</li>
-            <li><FiCheck className={styles.checkIcon} /> Perfil com selo exclusivo (ex: filtros, destaque especial)</li>
-            <li><FiCheck className={styles.checkIcon} /> Relatórios completos (taxas, conversões, avaliações)</li>
-            <li><FiCheck className={styles.checkIcon} /> Suporte prioritário e gerente de conta dedicado</li>
-            <li><FiCheck className={styles.checkIcon} /> Acesso antecipado a novos recursos</li>
-          </ul>
-          <button className={styles.buttonPrimary}>ASSINAR MASTER</button>
-        </div>
-      </div>
-
-      {/* Seção da Garantia de 30 Dias */}
-      <div className={styles.guaranteeBox}>
-        <h3>Garantia de 30 Dias</h3>
-        <p>Não ficou satisfeito? Oferecemos reembolso total em até 30 dias. Experimente sem riscos e veja como o Desenrola pode transformar seu negócio!</p>
-      </div>
-
-      {/* Seção de Perguntas Frequentes (FAQ) */}
-      <div className={styles.faqSection}>
-        <h2>? Perguntas Frequentes</h2>
-        {/* Cada item do FAQ pode no futuro ter um estado para abrir/fechar a resposta */}
-        <div className={styles.faqItem}>
-          <h3>Posso cancelar a qualquer momento?</h3>
-          <span>+</span>
-        </div>
-        <div className={styles.faqItem}>
-          <h3>Como funciona o teste gratuito?</h3>
-          <span>+</span>
-        </div>
-        <div className={styles.faqItem}>
-          <h3>Posso mudar de plano depois?</h3>
-          <span>+</span>
-        </div>
-        <div className={styles.faqItem}>
-          <h3>Quais formas de pagamento vocês aceitam?</h3>
-          <span>+</span>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
-
-export default Planos;
