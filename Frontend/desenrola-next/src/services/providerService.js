@@ -1,6 +1,16 @@
 import { jwtDecode } from "jwt-decode";
 
 const API_URL = 'http://localhost:5087/api';
+/**
+ * Envia os dados de cadastro do prestador para a API.
+ * Extrai o `UserId` do token JWT e anexa todas as informações necessárias, incluindo
+ * documentos e categorias. Trata erros de rede e erros de validação do backend.
+ *
+ * @param {Object} providerData - Dados do formulário de cadastro do prestador.
+ * @param {string} token - Token JWT de autenticação do usuário.
+ * @returns {Promise<Object>} Resultado da requisição, podendo conter mensagem ou dados do cadastro.
+ * @throws {Error} Em caso de falha na requisição ou erro de validação.
+ */
 
 export const submitProviderRegistration = async (providerData, token) => {
   const data = new FormData();
