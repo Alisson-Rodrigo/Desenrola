@@ -5,6 +5,9 @@ import { useState, useMemo } from 'react';
 import styles from './Favoritos.module.css';
 import { FaHeart, FaStar } from 'react-icons/fa';
 import { FiMessageSquare, FiUser, FiMapPin, FiHeart } from 'react-icons/fi';
+import Navbar from '../../components/Navbar';
+
+
 
 /**
  * Tipagem local para um prestador (mock).
@@ -94,20 +97,8 @@ export default function FavoritosPage() {
     return (
         <div className={styles.pageWrapper}>
             {/* Barra de navegação superior */}
-            <nav className={styles.navbar}>
-                <div className={styles.navLogo}>Desenrola</div>
-                <div className={styles.navLinks}>
-                    <a href="#">Início</a><a href="#">Serviços</a><a href="#">Prestadores</a>
-                    <a href="#" className={styles.activeLink}>Favoritos</a>
-                </div>
-                <div className={styles.navUser}>
-                    <div className={styles.userAvatar}>MS</div>
-                    <div className={styles.userInfo}>
-                        <span className={styles.userName}>Nome do Usuário</span>
-                        <span className={styles.userPlan}>VIP</span>
-                    </div>
-                </div>
-            </nav>
+            <Navbar />
+
 
             <main className={styles.mainContent}>
                 {/* Cabeçalho da seção de favoritos */}
