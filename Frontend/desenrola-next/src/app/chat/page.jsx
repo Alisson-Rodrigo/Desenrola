@@ -4,6 +4,7 @@
 import { useState } from 'react'; // Importa o hook useState
 import styles from './Chat.module.css';
 
+
 // --- Ícones (sem alteração) ---
 /**
  * Ícone de seta para baixo (ChevronDown).
@@ -57,6 +58,8 @@ export default function ChatPage() {
     const [activeChat, setActiveChat] = useState(users.user1);
 
     return (
+
+        
         <div className={styles.chatContainer}>
             {/* PAINEL DA ESQUERDA */}
             <div className={styles.contactList}>
