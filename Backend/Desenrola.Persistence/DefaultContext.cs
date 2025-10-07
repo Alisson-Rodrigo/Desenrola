@@ -15,6 +15,8 @@ namespace Desenrola.Persistence
         public DbSet<ProviderService> ProviderServices => Set<ProviderService>();
         public DbSet<Evaluation> Evaluations { get; set; }
         public DbSet<ProviderSchedule> ProviderSchedules => Set<ProviderSchedule>();
+        public DbSet<Payment> Payments { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -142,6 +144,27 @@ namespace Desenrola.Persistence
 
                 entity.Property(s => s.EndTime)
                       .IsRequired();
+            });
+
+            builder.Entity<Payment>(entity =>
+            {
+                entity.HasKey(p => p.Id);
+                entity.Property(p => p.Id)
+                      .HasDefaultValueSql("uuid_generate_v4()");
+
+                entity.HasOne(p => p.User)
+                      .WithMany(u => u.Payments)
+                      .HasForeignKey(p => p.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(p => p.SessionId).IsRequired();
+                entity.Property(p => p.UserId).IsRequired();
+                entity.Property(p => p.PlanType).IsRequired();
+                entity.Property(p => p.PurchaseDate).IsRequired();
+                entity.Property(p => p.ExpirationDate).IsRequired();
+
+                entity.HasIndex(p => p.SessionId).IsUnique();
+                entity.HasIndex(p => p.PaymentIntentId).IsUnique();
             });
 
 

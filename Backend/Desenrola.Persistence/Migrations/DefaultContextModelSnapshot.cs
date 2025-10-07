@@ -59,6 +59,61 @@ namespace Desenrola.Persistence.Migrations
                     b.ToTable("Evaluations");
                 });
 
+            modelBuilder.Entity("Desenrola.Domain.Entities.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PaymentIntentId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PlanType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("PurchaseDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SessionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StripeInvoiceUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentIntentId")
+                        .IsUnique();
+
+                    b.HasIndex("SessionId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Payments");
+                });
+
             modelBuilder.Entity("Desenrola.Domain.Entities.Provider", b =>
                 {
                     b.Property<Guid>("Id")
@@ -442,6 +497,17 @@ namespace Desenrola.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Desenrola.Domain.Entities.Payment", b =>
+                {
+                    b.HasOne("Desenrola.Domain.Entities.User", "User")
+                        .WithMany("Payments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Desenrola.Domain.Entities.Provider", b =>
                 {
                     b.HasOne("Desenrola.Domain.Entities.User", "User")
@@ -538,6 +604,8 @@ namespace Desenrola.Persistence.Migrations
             modelBuilder.Entity("Desenrola.Domain.Entities.User", b =>
                 {
                     b.Navigation("Evaluations");
+
+                    b.Navigation("Payments");
 
                     b.Navigation("Provider");
                 });
