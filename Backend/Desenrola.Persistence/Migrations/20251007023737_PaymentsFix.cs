@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Desenrola.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class FixImageProfileProvider3 : Migration
+    public partial class PaymentsFix : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -165,6 +165,34 @@ namespace Desenrola.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Payments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    PlanType = table.Column<int>(type: "integer", nullable: false),
+                    SessionId = table.Column<string>(type: "text", nullable: false),
+                    PaymentIntentId = table.Column<string>(type: "text", nullable: true),
+                    StripeInvoiceUrl = table.Column<string>(type: "text", nullable: true),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    PurchaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ExpirationDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Payments_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Providers",
                 columns: table => new
                 {
@@ -177,8 +205,11 @@ namespace Desenrola.Persistence.Migrations
                     ServiceName = table.Column<string>(type: "text", nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     PhoneNumber = table.Column<string>(type: "text", nullable: false),
+                    Categories = table.Column<int[]>(type: "integer[]", nullable: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false),
-                    IsVerified = table.Column<bool>(type: "boolean", nullable: false)
+                    IsVerified = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -189,6 +220,86 @@ namespace Desenrola.Persistence.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Evaluations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ProviderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Note = table.Column<int>(type: "integer", nullable: false),
+                    Comment = table.Column<string>(type: "text", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Evaluations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Evaluations_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Evaluations_Providers_ProviderId",
+                        column: x => x.ProviderId,
+                        principalTable: "Providers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProviderSchedules",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                    ProviderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    DayOfWeek = table.Column<int>(type: "integer", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    IsAvailable = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProviderSchedules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProviderSchedules_Providers_ProviderId",
+                        column: x => x.ProviderId,
+                        principalTable: "Providers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProviderServices",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                    ProviderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    Price = table.Column<decimal>(type: "numeric(10,2)", nullable: true),
+                    Category = table.Column<int>(type: "integer", nullable: false),
+                    ImageUrls = table.Column<List<string>>(type: "text[]", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    IsAvailable = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW() AT TIME ZONE 'UTC'"),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProviderServices", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProviderServices_Providers_ProviderId",
+                        column: x => x.ProviderId,
+                        principalTable: "Providers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -229,10 +340,47 @@ namespace Desenrola.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Evaluations_ProviderId",
+                table: "Evaluations",
+                column: "ProviderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Evaluations_UserId",
+                table: "Evaluations",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_PaymentIntentId",
+                table: "Payments",
+                column: "PaymentIntentId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_SessionId",
+                table: "Payments",
+                column: "SessionId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_UserId",
+                table: "Payments",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Providers_UserId",
                 table: "Providers",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProviderSchedules_ProviderId",
+                table: "ProviderSchedules",
+                column: "ProviderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProviderServices_ProviderId",
+                table: "ProviderServices",
+                column: "ProviderId");
         }
 
         /// <inheritdoc />
@@ -254,10 +402,22 @@ namespace Desenrola.Persistence.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Providers");
+                name: "Evaluations");
+
+            migrationBuilder.DropTable(
+                name: "Payments");
+
+            migrationBuilder.DropTable(
+                name: "ProviderSchedules");
+
+            migrationBuilder.DropTable(
+                name: "ProviderServices");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Providers");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

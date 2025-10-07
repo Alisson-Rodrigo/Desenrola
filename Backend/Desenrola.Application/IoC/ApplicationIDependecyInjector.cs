@@ -19,6 +19,8 @@ namespace Desenrola.Application.IoC
             services.AddScoped<ISend, Send>();
             services.AddScoped<ILogged, Logged>();
             services.AddScoped<ICPF, CPF>();
+            services.AddScoped<IStripeService, StripeService>();
+
 
 
 

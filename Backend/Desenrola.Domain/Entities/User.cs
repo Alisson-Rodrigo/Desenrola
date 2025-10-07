@@ -12,6 +12,12 @@ public class User : IdentityUser
     public bool IsActive { get; set; } = true;
     public string? ImageProfile { get; set; } = string.Empty;
     public virtual List<Evaluation> Evaluations { get; set; } = new();
+    public virtual ICollection<Payment>? Payments { get; set; }
+    public Payment? ActivePayment => Payments?
+        .Where(p => p.Status == PaymentStatus.Completed &&
+                   p.ExpirationDate > DateTime.UtcNow)
+        .OrderByDescending(p => p.ExpirationDate)
+        .FirstOrDefault();
 
     public User() : base() { }
 }

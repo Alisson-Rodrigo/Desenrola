@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Desenrola.Persistence.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    [Migration("20250917145409_CreateEntityProviders")]
-    partial class CreateEntityProviders
+    [Migration("20251007023737_PaymentsFix")]
+    partial class PaymentsFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,6 +26,96 @@ namespace Desenrola.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "uuid-ossp");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Desenrola.Domain.Entities.Evaluation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Note")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("ProviderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProviderId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Evaluations");
+                });
+
+            modelBuilder.Entity("Desenrola.Domain.Entities.Payment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PaymentIntentId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PlanType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("PurchaseDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SessionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StripeInvoiceUrl")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentIntentId")
+                        .IsUnique();
+
+                    b.HasIndex("SessionId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Payments");
+                });
 
             modelBuilder.Entity("Desenrola.Domain.Entities.Provider", b =>
                 {
@@ -47,6 +137,9 @@ namespace Desenrola.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("integer[]");
 
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -60,6 +153,9 @@ namespace Desenrola.Persistence.Migrations
 
                     b.Property<bool>("IsVerified")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -86,6 +182,41 @@ namespace Desenrola.Persistence.Migrations
                     b.ToTable("Providers");
                 });
 
+            modelBuilder.Entity("Desenrola.Domain.Entities.ProviderSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("integer");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("interval");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ProviderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("interval");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProviderId");
+
+                    b.ToTable("ProviderSchedules");
+                });
+
             modelBuilder.Entity("Desenrola.Domain.Entities.ProviderService", b =>
                 {
                     b.Property<Guid>("Id")
@@ -96,7 +227,7 @@ namespace Desenrola.Persistence.Migrations
                     b.Property<int>("Category")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("CreatedOn")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
@@ -119,6 +250,9 @@ namespace Desenrola.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(10,2)");
 
@@ -129,9 +263,6 @@ namespace Desenrola.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -350,6 +481,36 @@ namespace Desenrola.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Desenrola.Domain.Entities.Evaluation", b =>
+                {
+                    b.HasOne("Desenrola.Domain.Entities.Provider", "Provider")
+                        .WithMany("Evaluations")
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Desenrola.Domain.Entities.User", "User")
+                        .WithMany("Evaluations")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Provider");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Desenrola.Domain.Entities.Payment", b =>
+                {
+                    b.HasOne("Desenrola.Domain.Entities.User", "User")
+                        .WithMany("Payments")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Desenrola.Domain.Entities.Provider", b =>
                 {
                     b.HasOne("Desenrola.Domain.Entities.User", "User")
@@ -359,6 +520,17 @@ namespace Desenrola.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Desenrola.Domain.Entities.ProviderSchedule", b =>
+                {
+                    b.HasOne("Desenrola.Domain.Entities.Provider", "Provider")
+                        .WithMany("Schedules")
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Provider");
                 });
 
             modelBuilder.Entity("Desenrola.Domain.Entities.ProviderService", b =>
@@ -425,11 +597,19 @@ namespace Desenrola.Persistence.Migrations
 
             modelBuilder.Entity("Desenrola.Domain.Entities.Provider", b =>
                 {
+                    b.Navigation("Evaluations");
+
+                    b.Navigation("Schedules");
+
                     b.Navigation("Services");
                 });
 
             modelBuilder.Entity("Desenrola.Domain.Entities.User", b =>
                 {
+                    b.Navigation("Evaluations");
+
+                    b.Navigation("Payments");
+
                     b.Navigation("Provider");
                 });
 #pragma warning restore 612, 618
