@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import styles from "./VisualizarServico.module.css";
 import Navbar from "../../../../components/Navbar";
-import { FavoritesService } from "../../../../services/favoritesService";
+import { FavoritesService } from "../../../../services/favoriteService";
 
 
 
