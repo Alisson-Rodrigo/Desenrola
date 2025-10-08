@@ -4,6 +4,9 @@ import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import styles from "./VisualizarServico.module.css";
 import Navbar from "../../../../components/Navbar";
+import { FavoritesService } from "../../../../services/favoritesService";
+
+
 
 export default function VisualizarServico({ params }) {
   const { id } = use(params);
@@ -485,7 +488,23 @@ export default function VisualizarServico({ params }) {
                   className={`${styles.favoriteBox} ${
                     isFavorited ? styles.favorited : ""
                   }`}
-                  onClick={() => setIsFavorited(!isFavorited)}
+                  onClick={async () => {
+                    try {
+                      if (isFavorited) {
+                        // Remover favorito
+                        await FavoritesService.remove(servico.providerId);
+                        setIsFavorited(false);
+                        console.log("❌ Removido dos favoritos");
+                      } else {
+                        // Adicionar favorito
+                        await FavoritesService.add(servico.providerId);
+                        setIsFavorited(true);
+                        console.log("✅ Adicionado aos favoritos");
+                      }
+                    } catch (err) {
+                      console.error("Erro ao alternar favorito:", err);
+                    }
+                  }}
                 >
                   <span
                     className={`${styles.heartIcon} ${
@@ -496,8 +515,7 @@ export default function VisualizarServico({ params }) {
                   </span>
                   {isFavorited ? "Remover favorito" : "Adicionar favorito"}
                 </button>
-                <div className={styles.infoLabel}></div>
-              </div>
+            </div>
             </div>
           </div>
 
