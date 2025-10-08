@@ -150,7 +150,7 @@ export default function Navbar() {
             Início
           </Link>
           
-          <Link href="/servicos" className={getLinkClass("/servicos")}>
+          <Link href="/servicos/todos" className={getLinkClass("/servicos/todos")}>
             <Briefcase size={16} />
             Serviços
           </Link>
@@ -302,7 +302,7 @@ export default function Navbar() {
           Início
         </Link>
         
-        <Link href="/servicos" className={getLinkClass("/servicos")}>
+        <Link href="/servicos/todos" className={getLinkClass("/servicos/todos")}>
           <Briefcase size={18} />
           Serviços
         </Link>
