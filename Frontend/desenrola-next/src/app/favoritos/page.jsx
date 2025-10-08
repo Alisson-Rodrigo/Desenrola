@@ -7,8 +7,6 @@ import { FaHeart, FaStar } from 'react-icons/fa';
 import { FiMessageSquare, FiUser, FiMapPin, FiHeart } from 'react-icons/fi';
 import Navbar from '../../components/Navbar';
 
-
-
 /**
  * Tipagem local para um prestador (mock).
  * @typedef {Object} Prestador
