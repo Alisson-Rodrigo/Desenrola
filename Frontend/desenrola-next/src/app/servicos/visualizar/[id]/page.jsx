@@ -14,6 +14,9 @@ export default function VisualizarServico({ params }) {
   const [error, setError] = useState(null);
   const [agenda, setAgenda] = useState([]);
   const [loadingAgenda, setLoadingAgenda] = useState(false);
+    // Estado local para controle do botão de favorito
+  const [isFavorited, setIsFavorited] = useState(false);
+
   
   // Estados para avaliações
   const [avaliacoes, setAvaliacoes] = useState([]);
@@ -476,10 +479,22 @@ export default function VisualizarServico({ params }) {
                 <div className={styles.infoLabel}>Status</div>
               </div>
 
-              {/* Botão Favorito como card independente */}
+              {/* Favorito */}
               <div className={styles.infoCard}>
-                <button className={styles.favoriteBox}>
-                  ❤️ Adicionar favorito
+                <button
+                  className={`${styles.favoriteBox} ${
+                    isFavorited ? styles.favorited : ""
+                  }`}
+                  onClick={() => setIsFavorited(!isFavorited)}
+                >
+                  <span
+                    className={`${styles.heartIcon} ${
+                      isFavorited ? styles.heartActive : ""
+                    }`}
+                  >
+                    ❤️
+                  </span>
+                  {isFavorited ? "Remover favorito" : "Adicionar favorito"}
                 </button>
                 <div className={styles.infoLabel}></div>
               </div>

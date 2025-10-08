@@ -1435,7 +1435,6 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-
 /* ============================= */
 /* CARD DO BOTÃO FAVORITO        */
 /* ============================= */
@@ -1451,7 +1450,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
   transition: all 0.2s ease;
 }
@@ -1465,8 +1464,24 @@
 
 /* Efeito de clique */
 .favoriteBox:active {
-  background: #54c270;
-  color: #ffffff;
-  border-color: #3ca55c;
-  transform: scale(0.98);
+  transform: scale(0.97);
+}
+
+/* Ícone do coração */
+.heartIcon {
+  font-size: 18px;
+  color: #1a7431; /* cor padrão */
+  transition: color 0.3s ease;
+}
+
+/* Coração ativo */
+.heartActive {
+  color: #ff4b5c; /* vermelho ao clicar */
+}
+
+/* Botão ativo (favoritado) */
+.favorited {
+  background: #ffe9eb;
+  border-color: #ff6f7a;
+  color: #c70039;
 }
