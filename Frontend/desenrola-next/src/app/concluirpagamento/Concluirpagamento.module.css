@@ -1,44 +1,62 @@
-/* --- ESTILO DA PÁGINA (TELA CHEIA) --- */
+/* --- Layout Principal --- */
+
 .container {
+  /* O truque para centralizar o conteúdo perfeitamente na tela */
   display: flex;
-  align-items: center; /* Centraliza verticalmente */
-  justify-content: center; /* Centraliza horizontalmente */
+  align-items: center;
+  justify-content: center;
+
+  /* Garante que o container ocupe, no mínimo, a altura inteira da tela */
   min-height: 100vh;
-  width: 100%;
+
   background-color: #f0f2f5;
   padding: 20px;
+
+  /* Impede que o padding aumente o tamanho total do elemento, evitando quebras de layout */
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
-/* --- ESTILO DO CARD --- */
+
+/* --- Card de Sucesso --- */
+
 .card {
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 40px;
+  /* Flexbox para alinhar o conteúdo interno (ícone, textos, botão) na vertical */
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
+
+  /* Impede que o card fique largo demais em telas grandes */
   max-width: 450px;
   width: 100%;
+
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  text-align: center;
+  
+  /* Sombra sutil de duas camadas para dar uma sensação de profundidade */
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 4px 10px rgba(0, 0, 0, 0.02);
 }
 
+
+/* --- Elementos do Card --- */
+
 .iconWrapper {
+  /* Wrapper para o ícone, garantindo o formato de círculo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 60px;
   height: 60px;
   border-radius: 50%;
   background-color: #e6f7eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   margin-bottom: 24px;
 }
 
 .icon {
   color: #52c41a;
   font-size: 32px;
+  /* Deixa o traço do ícone (que é um SVG) mais grosso */
   stroke-width: 3;
 }
 
@@ -53,20 +71,26 @@
 .subtitle {
   font-size: 15px;
   color: #8c8c8c;
+  /* Melhora a legibilidade do texto em parágrafos */
   line-height: 1.6;
   margin: 0;
   margin-bottom: 32px;
 }
 
+
+/* --- Botão --- */
+
 .button {
-  background-color: #52c41a;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
   padding: 12px 28px;
   font-size: 15px;
   font-weight: 500;
+  color: #ffffff;
+  background-color: #52c41a;
+  border: none;
+  border-radius: 8px;
+  /* Muda o cursor pra "mãozinha", indicando que é clicável */
   cursor: pointer;
+  /* Anima a mudança de cor do background de forma suave */
   transition: background-color 0.2s ease;
 }
 
