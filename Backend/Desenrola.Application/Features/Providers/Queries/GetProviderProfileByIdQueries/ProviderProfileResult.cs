@@ -12,6 +12,9 @@ namespace Desenrola.Application.Features.Providers.Queries.GetProviderProfileByI
         public string RG { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
+
+        public string UserId {  get; set; }
+
         public List<ServiceCategory> Categories { get; set; } = new();
         public string Description { get; set; } = string.Empty;
         public bool IsActive { get; set; }
@@ -24,6 +27,7 @@ namespace Desenrola.Application.Features.Providers.Queries.GetProviderProfileByI
             UserName = provider.ServiceName;
             CPF = provider.CPF;
             RG = provider.RG;
+            UserId = provider.UserId;
             Address = provider.Address;
             PhoneNumber = provider.PhoneNumber;
             Categories = provider.Categories;

@@ -15,6 +15,8 @@ namespace Desenrola.Application.Features.ServicesProviders.Queries.PagedRequestP
         public string Description { get; set; } = string.Empty;
         public string ProviderName {  get; set; } = string.Empty;
 
+        public string UserId { get; set; }
+
         public DateTime DateTime { get; set; }
         public decimal? Price { get; set; }
         public string Category { get; set; } = string.Empty;
@@ -29,6 +31,7 @@ namespace Desenrola.Application.Features.ServicesProviders.Queries.PagedRequestP
             Title = service.Title;
             DateTime = service.CreatedOn;
             Description = service.Description;
+            UserId = service.Provider.UserId;
             Price = service.Price;
             ProviderName = service.Provider.ServiceName;
             Category = service.Category.ToString();
