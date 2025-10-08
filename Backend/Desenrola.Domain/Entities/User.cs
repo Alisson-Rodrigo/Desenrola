@@ -21,5 +21,7 @@ public class User : IdentityUser
         .OrderByDescending(p => p.ExpirationDate)
         .FirstOrDefault();
 
+    public ICollection<Favorite>? Favorites { get; set; }
+
     public User() : base() { }
 }
