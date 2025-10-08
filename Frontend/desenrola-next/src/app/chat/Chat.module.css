@@ -259,3 +259,15 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* In Chat.module.css */
+
+.chatContainer {
+  display: flex;
+  height: 100vh; /* Make it fill the full viewport height */
+  width: 100%;
+  background-color: #fff;
+  
+  /* ---  ADD THESE LINES --- */
+  padding-top: 70px; /* Or the exact height of your NavBar */
+  box-sizing: border-box; /* This is important! It includes the padding in the height calculation */
+}
