@@ -1,5 +1,6 @@
 using Desenrola.Application;
 using Desenrola.Application.IoC;
+using Desenrola.Application.Services;
 using Desenrola.Domain.Enums;
 using Desenrola.Infrastructure.IoC;
 using Desenrola.Persistence.IoC;
@@ -20,6 +21,9 @@ public class Program {
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        builder.Services.AddSignalR();
+
 
         builder.Services
             .InjectPersistenceDependencies(builder.Configuration)
@@ -175,6 +179,7 @@ public class Program {
             app.UseSwaggerUI();
         }
 
+
         app.UseStaticFiles(); // habilita wwwroot
 
         app.UseCors("AllowSpecificOrigin"); // use a policy nomeada
@@ -187,6 +192,10 @@ public class Program {
         app.UseAuthorization();
 
         app.MapControllers();
+
+        // ===== MAPEAR O HUB DO SIGNALR =====
+        app.MapHub<ChatHub>("/chathub");
+        // ===================================
 
         app.Run();
 

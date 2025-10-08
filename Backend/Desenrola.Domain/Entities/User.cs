@@ -11,6 +11,8 @@ public class User : IdentityUser
 
     public bool IsActive { get; set; } = true;
     public string? ImageProfile { get; set; } = string.Empty;
+
+    public ICollection<Conversation>? Conversation { get; set; }
     public virtual List<Evaluation> Evaluations { get; set; } = new();
     public virtual ICollection<Payment>? Payments { get; set; }
     public Payment? ActivePayment => Payments?
