@@ -2,13 +2,17 @@
 
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import styles from "./VisualizarServico.module.css";
 import Navbar from "../../../../components/Navbar";
+import { FavoritesService } from "../../../../services/favoritesService";
+
+
 
 export default function VisualizarServico({ params }) {
   const { id } = use(params);
-  const router = useRouter();
+  const providerId = id;
+
+
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [servico, setServico] = useState(null);
@@ -16,6 +20,9 @@ export default function VisualizarServico({ params }) {
   const [error, setError] = useState(null);
   const [agenda, setAgenda] = useState([]);
   const [loadingAgenda, setLoadingAgenda] = useState(false);
+    // Estado local para controle do botão de favorito
+  const [isFavorited, setIsFavorited] = useState(false);
+
   
   // Estados para avaliações
   const [avaliacoes, setAvaliacoes] = useState([]);
@@ -41,6 +48,18 @@ export default function VisualizarServico({ params }) {
     
     return headers;
   };
+
+
+  const handleFavorite = async () => {
+    try {
+      await FavoritesService.add(providerId);
+      setIsFavorited(true);
+      console.log("✔️ Favoritado com sucesso");
+    } catch (err) {
+      console.error("Erro ao favoritar:", err);
+    }
+  };
+
 
   // Buscar avaliações do prestador
   const fetchAvaliacoes = async (providerId) => {
@@ -245,85 +264,6 @@ export default function VisualizarServico({ params }) {
     );
   };
 
-  // Função para enviar mensagem ao prestador
-  const handleSendMessage = async () => {
-    const token = getAuthToken();
-    if (!token) {
-      alert('Você precisa estar logado para enviar mensagens');
-      router.push('/auth/login');
-      return;
-    }
-
-    if (!servico?.userId) {
-      console.error('❌ userId do prestador não encontrado');
-      alert('Não foi possível iniciar uma conversa com este profissional no momento.');
-      return;
-    }
-
-    console.log('📤 Verificando conversa existente com:', servico.userId);
-    
-    try {
-      // Primeiro, verifica se já existe uma conversa
-      const conversationsResponse = await fetch('http://localhost:5087/api/Message/conversations', {
-        method: 'GET',
-        headers: getAuthHeaders()
-      });
-
-      if (!conversationsResponse.ok) {
-        if (conversationsResponse.status === 401) {
-          localStorage.removeItem("auth_token");
-          alert('Sua sessão expirou. Por favor, faça login novamente.');
-          router.push('/auth/login');
-          return;
-        }
-        throw new Error('Erro ao buscar conversas');
-      }
-
-      const conversations = await conversationsResponse.json();
-      console.log('📋 Conversas existentes:', conversations);
-
-      // Verifica se já existe conversa com este usuário
-      const conversationExists = conversations.some(conv => 
-        conv.otherUserId === servico.userId || 
-        conv.userId === servico.userId ||
-        conv.receiverId === servico.userId
-      );
-
-      if (conversationExists) {
-        console.log('✅ Conversa já existe, redirecionando sem enviar mensagem...');
-        router.push(`/chat?userId=${servico.userId}`);
-        return;
-      }
-
-      // Se não existe, cria a conversa enviando a primeira mensagem
-      console.log('📤 Criando nova conversa...');
-      const mensagemPadrao = `Olá! Tenho interesse no serviço: ${servico.titulo}`;
-      
-      const response = await fetch('http://localhost:5087/api/Message/send', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          receiverId: servico.userId,
-          content: mensagemPadrao
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro ao enviar mensagem: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('✅ Mensagem enviada com sucesso:', data);
-
-      // Redireciona para o chat com o userId para abrir a conversa automaticamente
-      router.push(`/chat?userId=${servico.userId}`);
-      
-    } catch (error) {
-      console.error('❌ Erro ao processar conversa:', error);
-      alert('Erro ao iniciar conversa. Tente novamente.');
-    }
-  };
-
   // Buscar dados do serviço pela API
   useEffect(() => {
     const fetchServico = async () => {
@@ -354,7 +294,6 @@ export default function VisualizarServico({ params }) {
           const servicoFormatado = {
             id: servicoData.id,
             providerId: servicoData.providerId,
-            userId: servicoData.userId,
             titulo: servicoData.title,
             descricao: servicoData.description,
             categoria: servicoData.category,
@@ -537,20 +476,74 @@ export default function VisualizarServico({ params }) {
           {/* Infos */}
           <div className={styles.infoSection}>
             <div className={styles.infoGrid}>
+              {/* Preço */}
               <div className={styles.infoCard}>
                 <div className={styles.infoValue}>{servico.preco}</div>
                 <div className={styles.infoLabel}>Preço</div>
               </div>
-        
+
+              {/* Status */}
               <div className={styles.infoCard}>
-                <div className={`${styles.statusBadge} ${servico.status === 'Disponível' ? styles.statusAvailable : styles.statusUnavailable}`}>
+                <div
+                  className={`${styles.statusBadge} ${
+                    servico.status === "Disponível"
+                      ? styles.statusAvailable
+                      : styles.statusUnavailable
+                  }`}
+                >
                   <span className={styles.statusDot}></span>
                   {servico.status}
                 </div>
                 <div className={styles.infoLabel}>Status</div>
               </div>
+
+              {/* Favorito */}
+                <div className={styles.infoCard}>
+                  <button
+                    className={`${styles.favoriteBox} ${
+                      isFavorited ? styles.favorited : ""
+                    }`}
+                    disabled={!servico?.providerId} // 🔒 evita clique antes de carregar
+                    onClick={async () => {
+                      if (!servico?.providerId) {
+                        console.warn("⚠️ ProviderId ainda não disponível.");
+                        return;
+                      }
+
+                      try {
+                        if (isFavorited) {
+                          // 🔻 Remover favorito
+                          await FavoritesService.remove(servico.providerId);
+                          setIsFavorited(false);
+                          console.log(`❌ Removido dos favoritos (providerId: ${servico.providerId})`);
+                        } else {
+                          // ❤️ Adicionar favorito
+                          await FavoritesService.add(servico.providerId);
+                          setIsFavorited(true);
+                          console.log(`✅ Adicionado aos favoritos (providerId: ${servico.providerId})`);
+                        }
+                      } catch (err) {
+                        console.error("🚨 Erro ao alternar favorito:", err);
+                      }
+                    }}
+                  >
+                    <span
+                      className={`${styles.heartIcon} ${
+                        isFavorited ? styles.heartActive : ""
+                      }`}
+                    >
+                      ❤️
+                    </span>
+                    {isFavorited ? "Remover favorito" : "Adicionar favorito"}
+                  </button>
+                </div>
+
             </div>
           </div>
+
+
+
+
 
           {/* Prestador */}
           <div className={styles.prestadorCard}>
@@ -647,16 +640,10 @@ export default function VisualizarServico({ params }) {
           {/* Ações */}
           <div className={styles.actions}>
             <button
-              onClick={handleSendMessage}
-              className={styles.btnPrimary}
-            >
-              💬 Enviar Mensagem
-            </button>
-            <button
               onClick={openAgendaModal}
               className={styles.btnSecondary}
             >
-              📅 Ver Agenda do Prestador
+              Ver Agenda do Prestador
             </button>
           </div>
         </div>
