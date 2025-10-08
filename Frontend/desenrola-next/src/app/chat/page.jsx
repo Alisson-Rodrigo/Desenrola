@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import styles from './Chat.module.css';
+import Navbar from '../../components/Navbar';
 
 // --- Ícones ---
 const ChevronDownIcon = () => (<svg height="16" viewBox="0 0 24 24" width="16" fill="currentColor"><path d="M7 10l5 5 5-5z"></path></svg>);
@@ -47,10 +48,14 @@ export default function ChatPage() {
     const [authToken, setAuthToken] = useState(null);
     const [currentUserId, setCurrentUserId] = useState(null);
     const [isPolling, setIsPolling] = useState(true);
-    
+    const [showNewChatModal, setShowNewChatModal] = useState(false);
+    const [availableUsers, setAvailableUsers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [loadingUsers, setLoadingUsers] = useState(false);
     const connectionRef = useRef(null);
     const messagesEndRef = useRef(null);
     const pollingIntervalRef = useRef(null);
+    const conversationsPollingRef = useRef(null);
     const lastMessageCountRef = useRef(0);
 
     // Carregar token ao montar o componente
@@ -118,10 +123,22 @@ export default function ChatPage() {
         };
 
         // Registrar todos os eventos possíveis
-        connection.on('ReceiveMessage', handleNewMessage);
-        connection.on('NewMessage', handleNewMessage);
-        connection.on('MessageReceived', handleNewMessage);
-        connection.on('OnMessageReceived', handleNewMessage);
+        connection.on('ReceiveMessage', (message) => {
+            console.log('🔔 ReceiveMessage:', message);
+            handleNewMessage(message);
+        });
+        connection.on('NewMessage', (message) => {
+            console.log('🔔 NewMessage:', message);
+            handleNewMessage(message);
+        });
+        connection.on('MessageReceived', (message) => {
+            console.log('🔔 MessageReceived:', message);
+            handleNewMessage(message);
+        });
+        connection.on('OnMessageReceived', (message) => {
+            console.log('🔔 OnMessageReceived:', message);
+            handleNewMessage(message);
+        });
 
         connection.onreconnecting(() => {
             console.log('🔄 SignalR reconectando...');
@@ -197,6 +214,84 @@ export default function ChatPage() {
             console.error('Erro ao buscar conversas:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    // Buscar usuários disponíveis para nova conversa
+    const fetchAvailableUsers = async (query = '') => {
+        const token = getAuthToken();
+        if (!token) return;
+
+        setLoadingUsers(true);
+        try {
+            // Ajuste este endpoint conforme sua API
+            const response = await fetch(`${API_BASE_URL}/api/User/search?query=${query}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'accept': '*/*'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                // Filtrar para não mostrar o próprio usuário
+                setAvailableUsers(data.filter(user => user.id !== currentUserId));
+            }
+        } catch (error) {
+            console.error('Erro ao buscar usuários:', error);
+        } finally {
+            setLoadingUsers(false);
+        }
+    };
+
+    // Criar nova conversa e enviar mensagem inicial
+    const startNewChat = async (userId, userName) => {
+        const token = getAuthToken();
+        if (!token) return;
+
+        try {
+            // Enviar mensagem inicial automaticamente
+            const response = await fetch(`${API_BASE_URL}/api/Message/send`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'accept': '*/*'
+                },
+                body: JSON.stringify({
+                    receiverId: userId,
+                    content: 'Olá! 👋'
+                })
+            });
+
+            if (response.ok) {
+                const sentMessage = await response.json();
+                console.log('✅ Nova conversa iniciada:', sentMessage);
+                
+                // Fechar modal
+                setShowNewChatModal(false);
+                setSearchQuery('');
+                
+                // Atualizar lista de conversas
+                await fetchConversations();
+                
+                // Encontrar a nova conversa e abrir
+                setTimeout(async () => {
+                    const updatedConversations = await fetch(`${API_BASE_URL}/api/Message/conversations`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'accept': '*/*'
+                        }
+                    }).then(r => r.json());
+                    
+                    const newConv = updatedConversations.find(c => c.otherUserId === userId);
+                    if (newConv) {
+                        selectConversation(newConv);
+                    }
+                }, 500);
+            }
+        } catch (error) {
+            console.error('❌ Erro ao iniciar nova conversa:', error);
         }
     };
 
@@ -302,6 +397,25 @@ export default function ChatPage() {
         }
     }, [authToken]);
 
+ // Polling para atualizar lista de conversas em tempo real
+    useEffect(() => {
+        if (!authToken) return;
+
+        console.log('🔄 Iniciando polling para lista de conversas');
+        
+        // Atualizar lista de conversas a cada 3 segundos
+        conversationsPollingRef.current = setInterval(() => {
+            fetchConversations();
+        }, 3000);
+
+        return () => {
+            if (conversationsPollingRef.current) {
+                console.log('🛑 Parando polling de conversas');
+                clearInterval(conversationsPollingRef.current);
+            }
+        };
+    }, [authToken]);
+
     // Polling para atualizar mensagens em tempo real (fallback se SignalR falhar)
     useEffect(() => {
         if (!activeChat || !isPolling) return;
@@ -324,18 +438,30 @@ export default function ChatPage() {
                 if (response.ok) {
                     const data = await response.json();
                     
-                    // Só atualizar se houver mudanças
-                    if (data.length !== lastMessageCountRef.current) {
-                        console.log('🆕 Novas mensagens detectadas via polling!');
-                        setMessages(data);
-                        lastMessageCountRef.current = data.length;
+                    // Sempre atualizar para pegar mudanças no status isRead
+                    setMessages(prevMessages => {
+                        // Verificar se houve mudanças (novas mensagens ou status de leitura)
+                        const hasChanges = data.length !== prevMessages.length || 
+                            data.some((newMsg, idx) => {
+                                const oldMsg = prevMessages[idx];
+                                return !oldMsg || oldMsg.isRead !== newMsg.isRead || oldMsg.id !== newMsg.id;
+                            });
                         
-                        // Marcar como lida
-                        markAsRead(activeChat.conversationId);
+                        if (hasChanges) {
+                            console.log('🆕 Atualizações detectadas via polling!');
+                            lastMessageCountRef.current = data.length;
+                            
+                            // Marcar como lida se houver mensagens não lidas
+                            const hasUnread = data.some(msg => !msg.isRead && msg.senderId !== currentUserId);
+                            if (hasUnread) {
+                                markAsRead(activeChat.conversationId);
+                            }
+                            
+                            return data;
+                        }
                         
-                        // Atualizar lista de conversas
-                        fetchConversations();
-                    }
+                        return prevMessages;
+                    });
                 }
             } catch (error) {
                 console.error('Erro no polling:', error);
@@ -344,11 +470,11 @@ export default function ChatPage() {
 
         return () => {
             if (pollingIntervalRef.current) {
-                console.log('🛑 Parando polling');
+                console.log('🛑 Parando polling de mensagens');
                 clearInterval(pollingIntervalRef.current);
             }
         };
-    }, [activeChat, isPolling]);
+    }, [activeChat, isPolling, currentUserId]);
 
     // Formatar data
     const formatTime = (dateString) => {
@@ -364,154 +490,319 @@ export default function ChatPage() {
     };
 
     return (
-        <div className={styles.chatContainer}>
-            {/* PAINEL DA ESQUERDA */}
-            <div className={styles.contactList}>
-                <div className={styles.contactListHeader}>
-                    <div className={styles.contactListHeaderLeft}>
-                        <span>Mensagens</span>
-                        <ChevronDownIcon />
-                        <span>{conversations.length}</span>
-                    </div>
-                    <div className={styles.plusIcon}>
-                        <PlusIcon />
-                    </div>
-                </div>
-                
-                <div className={styles.searchBar}>
-                    <input 
-                        type="text" 
-                        className={styles.searchInput} 
-                        placeholder="Pesquisar suas mensagens" 
-                    />
-                </div>
-                
-                {loading ? (
-                    <div style={{ padding: '20px', textAlign: 'center' }}>Carregando...</div>
-                ) : (
-                    conversations.map(conv => (
-                        <div 
-                            key={conv.conversationId}
-                            className={`${styles.contactItem} ${activeChat?.conversationId === conv.conversationId ? styles.active : ''}`}
-                            onClick={() => selectConversation(conv)}
-                        >
-                            <UserAvatarIcon />
-                            <div className={styles.contactItemInfo}>
-                                <h3>{conv.otherUserName}</h3>
-                                <p>{conv.lastMessage}</p>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                                <span className={styles.contactItemTime}>
-                                    {formatTime(conv.lastMessageDate)}
-                                </span>
-                                {conv.unreadMessagesCount > 0 && (
-                                    <span style={{
-                                        backgroundColor: '#0084ff',
-                                        color: 'white',
-                                        borderRadius: '50%',
-                                        width: '20px',
-                                        height: '20px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '12px',
-                                        fontWeight: 'bold'
-                                    }}>
-                                        {conv.unreadMessagesCount}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    ))
-                )}
+        <>
+            <div>
+                <Navbar />
             </div>
-
-            {/* PAINEL DA DIREITA */}
-            <div className={styles.chatWindow}>
-                {activeChat ? (
-                    <>
-                        <div className={styles.chatHeader}>
-                            <UserAvatarIcon />
-                            <div className={styles.chatHeaderInfo}>
-                                <h3>{activeChat.otherUserName}</h3>
-                                <p>Online</p>
-                            </div>
+            <div className={styles.chatContainer}>
+                
+                {/* PAINEL DA ESQUERDA */}
+                <div className={styles.contactList}>
+                    <div className={styles.contactListHeader}>
+                        <div className={styles.contactListHeaderLeft}>
+                            <span>Mensagens</span>
+                            <ChevronDownIcon />
+                            <span>{conversations.length}</span>
                         </div>
-                        
-                        <div className={styles.messagesContainer}>
-                            {messages.map((msg) => {
-                                const isFromMe = msg.senderId === currentUserId;
-                                return (
-                                    <div 
-                                        key={msg.id}
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: isFromMe ? 'flex-end' : 'flex-start',
-                                            marginBottom: '8px',
-                                            padding: '0 16px'
-                                        }}
-                                    >
-                                        <div
-                                            style={{
-                                                maxWidth: '60%',
-                                                padding: '10px 14px',
-                                                borderRadius: '18px',
-                                                backgroundColor: isFromMe ? '#0084ff' : '#e4e6eb',
-                                                color: isFromMe ? 'white' : 'black',
-                                                wordWrap: 'break-word'
-                                            }}
-                                        >
-                                            {msg.content}
-                                            <div style={{
-                                                fontSize: '11px',
-                                                marginTop: '4px',
-                                                opacity: 0.7
-                                            }}>
-                                                {new Date(msg.sentAt).toLocaleTimeString('pt-BR', { 
-                                                    hour: '2-digit', 
-                                                    minute: '2-digit' 
-                                                })}
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                            <div ref={messagesEndRef} />
+                        <div 
+                            className={styles.plusIcon}
+                            onClick={() => {
+                                setShowNewChatModal(true);
+                                fetchAvailableUsers();
+                            }}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <PlusIcon />
                         </div>
-
-                        <div className={styles.inputArea}>
-                            <PaperclipIcon className={styles.paperclipIcon} />
-                            <input 
-                                type="text" 
-                                placeholder="Escreva sua mensagem" 
-                                className={styles.textInput}
-                                value={messageInput}
-                                onChange={(e) => setMessageInput(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                                disabled={sendingMessage}
-                            />
-                            <button 
-                                className={styles.sendButton}
-                                onClick={sendMessage}
-                                disabled={sendingMessage || !messageInput.trim()}
+                    </div>
+                    
+                    <div className={styles.searchBar}>
+                        <input 
+                            type="text" 
+                            className={styles.searchInput} 
+                            placeholder="Pesquisar suas mensagens" 
+                        />
+                    </div>
+                    
+                    {loading ? (
+                        <div style={{ padding: '20px', textAlign: 'center' }}>Carregando...</div>
+                    ) : (
+                        conversations.map(conv => (
+                            <div 
+                                key={conv.conversationId}
+                                className={`${styles.contactItem} ${activeChat?.conversationId === conv.conversationId ? styles.active : ''}`}
+                                onClick={() => selectConversation(conv)}
                             >
-                                <SendIcon />
-                            </button>
-                        </div>
-                    </>
-                ) : (
+                                <UserAvatarIcon />
+                                <div className={styles.contactItemInfo}>
+                                    <h3>{conv.otherUserName}</h3>
+                                    <p>{conv.lastMessage}</p>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                                    <span className={styles.contactItemTime}>
+                                        {formatTime(conv.lastMessageDate)}
+                                    </span>
+                                    {conv.unreadMessagesCount > 0 && (
+                                        <span style={{
+                                            backgroundColor: '#0084ff',
+                                            color: 'white',
+                                            borderRadius: '50%',
+                                            width: '20px',
+                                            height: '20px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '12px',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            {conv.unreadMessagesCount}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+
+                {/* MODAL NOVA CONVERSA */}
+                {showNewChatModal && (
                     <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        height: '100%',
-                        color: '#65676b',
-                        fontSize: '18px'
+                        zIndex: 1000
                     }}>
-                        Selecione uma conversa para começar
+                        <div style={{
+                            backgroundColor: 'white',
+                            borderRadius: '12px',
+                            width: '90%',
+                            maxWidth: '500px',
+                            maxHeight: '80vh',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            overflow: 'hidden'
+                        }}>
+                            {/* Header do Modal */}
+                            <div style={{
+                                padding: '20px',
+                                borderBottom: '1px solid #e0e0e0',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                            }}>
+                                <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '600' }}>Nova Mensagem</h2>
+                                <button
+                                    onClick={() => {
+                                        setShowNewChatModal(false);
+                                        setSearchQuery('');
+                                    }}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        fontSize: '24px',
+                                        cursor: 'pointer',
+                                        color: '#65676b',
+                                        padding: '0',
+                                        width: '32px',
+                                        height: '32px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            </div>
+
+                            {/* Busca de Usuários */}
+                            <div style={{ padding: '16px', borderBottom: '1px solid #e0e0e0' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Buscar pessoa..."
+                                    value={searchQuery}
+                                    onChange={(e) => {
+                                        setSearchQuery(e.target.value);
+                                        fetchAvailableUsers(e.target.value);
+                                    }}
+                                    style={{
+                                        width: '100%',
+                                        padding: '10px 12px',
+                                        border: '1px solid #e0e0e0',
+                                        borderRadius: '20px',
+                                        outline: 'none',
+                                        fontSize: '14px'
+                                    }}
+                                />
+                            </div>
+
+                            {/* Lista de Usuários */}
+                            <div style={{
+                                flex: 1,
+                                overflowY: 'auto',
+                                padding: '8px 0'
+                            }}>
+                                {loadingUsers ? (
+                                    <div style={{ padding: '20px', textAlign: 'center', color: '#65676b' }}>
+                                        Carregando...
+                                    </div>
+                                ) : availableUsers.length === 0 ? (
+                                    <div style={{ padding: '20px', textAlign: 'center', color: '#65676b' }}>
+                                        {searchQuery ? 'Nenhum usuário encontrado' : 'Digite para buscar usuários'}
+                                    </div>
+                                ) : (
+                                    availableUsers.map(user => (
+                                        <div
+                                            key={user.id}
+                                            onClick={() => startNewChat(user.id, user.name)}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                padding: '12px 16px',
+                                                cursor: 'pointer',
+                                                transition: 'background-color 0.2s'
+                                            }}
+                                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0f2f5'}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                        >
+                                            <UserAvatarIcon />
+                                            <div style={{ marginLeft: '12px' }}>
+                                                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: '500' }}>
+                                                    {user.name || user.userName || user.email}
+                                                </h4>
+                                                {user.email && (
+                                                    <p style={{ margin: '2px 0 0 0', fontSize: '13px', color: '#65676b' }}>
+                                                        {user.email}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
                     </div>
                 )}
+
+                {/* PAINEL DA DIREITA */}
+                <div className={styles.chatWindow}>
+                    {activeChat ? (
+                        <>
+                            <div className={styles.chatHeader}>
+                                <UserAvatarIcon />
+                                <div className={styles.chatHeaderInfo}>
+                                    <h3>{activeChat.otherUserName}</h3>
+                                    <p>Online</p>
+                                </div>
+                            </div>
+                            
+                            <div className={styles.messagesContainer}>
+                                {messages.map((msg) => {
+                                    const isFromMe = msg.senderId === currentUserId;
+                                    return (
+                                        <div 
+                                            key={msg.id}
+                                            style={{
+                                                display: 'flex',
+                                                justifyContent: isFromMe ? 'flex-end' : 'flex-start',
+                                                marginBottom: '8px',
+                                                padding: '0 16px'
+                                            }}
+                                        >
+                                            <div
+                                                style={{
+                                                    maxWidth: '60%',
+                                                    padding: '10px 14px',
+                                                    borderRadius: '18px',
+                                                    backgroundColor: isFromMe ? '#E8F5E9' : '#e4e6eb',
+                                                    color: isFromMe ? '#1c1c1c' : 'black',
+                                                    wordWrap: 'break-word'
+                                                }}
+                                            >
+                                                {msg.content}
+                                                <div style={{
+                                                    fontSize: '11px',
+                                                    marginTop: '4px',
+                                                    opacity: 0.6,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
+                                                    justifyContent: 'flex-end'
+                                                }}>
+                                                    <span>
+                                                        {new Date(msg.sentAt).toLocaleTimeString('pt-BR', { 
+                                                            hour: '2-digit', 
+                                                            minute: '2-digit' 
+                                                        })}
+                                                    </span>
+                                                    {isFromMe && (
+                                                        <span style={{
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            marginLeft: '2px'
+                                                        }}>
+                                                            {msg.isRead ? (
+                                                                // Dois checks azuis (lida)
+                                                                <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
+                                                                    <path d="M11.0716 0.928955L4.41421 7.58635L1.92893 5.10107L0.514709 6.51528L4.41421 10.4148L12.4858 2.34317L11.0716 0.928955Z" fill="#4FC3F7"/>
+                                                                    <path d="M15.4858 0.928955L8.82843 7.58635L7.41421 6.17214L6 7.58635L8.82843 10.4148L17 2.24264L15.4858 0.928955Z" fill="#4FC3F7"/>
+                                                                </svg>
+                                                            ) : (
+                                                                // Dois checks cinza (enviada, não lida)
+                                                                <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
+                                                                    <path d="M11.0716 0.928955L4.41421 7.58635L1.92893 5.10107L0.514709 6.51528L4.41421 10.4148L12.4858 2.34317L11.0716 0.928955Z" fill="#757575"/>
+                                                                    <path d="M15.4858 0.928955L8.82843 7.58635L7.41421 6.17214L6 7.58635L8.82843 10.4148L17 2.24264L15.4858 0.928955Z" fill="#757575"/>
+                                                                </svg>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                                <div ref={messagesEndRef} />
+                            </div>
+
+                            <div className={styles.inputArea}>
+                                <PaperclipIcon className={styles.paperclipIcon} />
+                                <input 
+                                    type="text" 
+                                    placeholder="Escreva sua mensagem" 
+                                    className={styles.textInput}
+                                    value={messageInput}
+                                    onChange={(e) => setMessageInput(e.target.value)}
+                                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                                    disabled={sendingMessage}
+                                />
+                                <button 
+                                    className={styles.sendButton}
+                                    onClick={sendMessage}
+                                    disabled={sendingMessage || !messageInput.trim()}
+                                >
+                                    <SendIcon />
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: '100%',
+                            color: '#65676b',
+                            fontSize: '18px'
+                        }}>
+                            Selecione uma conversa para começar
+                        </div>
+                    )}
+                </div>
             </div>
-        </div>
+        </>
     );
 }
