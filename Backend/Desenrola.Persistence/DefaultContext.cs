@@ -21,6 +21,8 @@ namespace Desenrola.Persistence
         public DbSet<Conversation> Conversations { get; set; } = null!;
         public DbSet<Message> Messages { get; set; } = null!;
 
+        public DbSet<Favorite> Favorites { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -208,6 +210,27 @@ namespace Desenrola.Persistence
                       .WithMany()
                       .HasForeignKey(c => c.UserId2)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // --------------------------
+            // Relacionamento de Favoritos
+            // --------------------------
+            builder.Entity<Favorite>(entity =>
+            {
+                // Chave composta (UserId + ProviderId)
+                entity.HasKey(f => new { f.UserId, f.ProviderId });
+
+                // Relacionamento entre FavoriteModel e User (1:N)
+                entity.HasOne(f => f.User)
+                      .WithMany(u => u.Favorites)
+                      .HasForeignKey(f => f.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Relacionamento entre FavoriteModel e Provider (1:N)
+                entity.HasOne(f => f.Provider)
+                      .WithMany(p => p.FavoritedBy)
+                      .HasForeignKey(f => f.ProviderId)
+                      .OnDelete(DeleteBehavior.Cascade);
             });
 
 

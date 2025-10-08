@@ -16,6 +16,9 @@ namespace Desenrola.Domain.Entities
         public virtual List<Evaluation> Evaluations { get; set; } = new();
         public virtual List<ProviderSchedule> Schedules { get; set; } = new();
 
+        public ICollection<Favorite>? FavoritedBy { get; set; }
+
+
 
 
 
