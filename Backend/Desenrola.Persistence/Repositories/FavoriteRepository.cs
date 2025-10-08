@@ -24,7 +24,20 @@ namespace Desenrola.Persistence.Repositories
                 .AnyAsync(f => f.UserId == userId && f.ProviderId == providerId);
         }
 
+        // Obtém um favorito específico
+        public async Task<Favorite> GetFavoriteAsync(string userId, Guid providerId)
+        {
+            return await _context.Favorites
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.ProviderId == providerId);
+        }
 
+        public async Task<List<Favorite>> GetFavoritesByUserId(string userId)
+        {
+            return await _context.Favorites
+                .Include(f => f.Provider)  // Inclui os dados do provedor
+                .Where(f => f.UserId == userId)
+                .ToListAsync();
+        }
 
     }
 }
