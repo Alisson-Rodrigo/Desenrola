@@ -34,10 +34,12 @@ namespace Desenrola.Persistence.Repositories
         public async Task<List<Favorite>> GetFavoritesByUserId(string userId)
         {
             return await _context.Favorites
-                .Include(f => f.Provider)  // Inclui os dados do provedor
+                .Include(f => f.Provider)
+                    .ThenInclude(p => p.User) // <-- inclui o usuário do provedor
                 .Where(f => f.UserId == userId)
                 .ToListAsync();
         }
+
 
     }
 }
