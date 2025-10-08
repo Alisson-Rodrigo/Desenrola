@@ -60,7 +60,7 @@ export default function Footer() {
                 <div className={styles.logoIcon}>
                   <span>🔧</span>
                 </div>
-                <span className={styles.brandName}>ServiçosApp</span>
+                <span className={styles.brandName}>Desenrola</span>
               </div>
               
               <p className={styles.brandDescription}>
@@ -192,7 +192,7 @@ export default function Footer() {
         <div className={styles.container}>
           <div className={styles.footerBottomContent}>
             <p className={styles.copyright}>
-              © {currentYear} ServiçosApp. Todos os direitos reservados.
+              © {currentYear} Desenrola. Todos os direitos reservados.
             </p>
             
             <div className={styles.madeWith}>
