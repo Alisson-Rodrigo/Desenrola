@@ -58,8 +58,9 @@ namespace Desenrola.Application.Features.Payments.Commands.PostPaymentsCommand
                     throw new BadRequestException("Há uma solicitação de plano pendente. Aguarde a confirmação.");
 
                 // Caso tenha passado o limite, remove e libera novo pagamento
+                // Faz o Commit separadamente para garantir que não conflite com a operação de pagamento
                 _paymentRepository.Delete(pendingPlan);
-                await _unitOfWork.Commit();
+                await _unitOfWork.Commit();  // Commit após a exclusão
             }
 
             // 🔹 4) Criar cobrança Stripe
@@ -82,11 +83,13 @@ namespace Desenrola.Application.Features.Payments.Commands.PostPaymentsCommand
                 Status = PaymentStatus.Pending
             };
 
+            // Grava o novo pagamento
             await _paymentRepository.CreateAsync(newPayment);
-            await _unitOfWork.Commit();
+            await _unitOfWork.Commit();  // Commit após o novo pagamento
 
             return stripeResponse;
         }
+
 
         private decimal GetPlanPrice(PlanTypeEnum planType)
         {
