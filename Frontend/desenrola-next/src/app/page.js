@@ -30,7 +30,7 @@ function HomePage({ hasToken }) {
   
   // Estados da busca e filtros
   const [query, setQuery] = useState('');
-  const debouncedQuery = useDebounce(query, 500); // pesquisa em tempo real
+  const debouncedQuery = useDebounce(query, 500);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -50,7 +50,7 @@ function HomePage({ hasToken }) {
     providerId: ''
   });
 
-  // Categorias mapeadas para string (como retorna a API)
+  // Categorias
   const categorias = {
     "Eletrica": "Elétrica",
     "Hidraulica": "Hidráulica", 
@@ -94,17 +94,20 @@ function HomePage({ hasToken }) {
     { id: "Beleza", name: "Beleza", icon: "✨" }
   ];
 
+  // Função para verificar autenticação e redirecionar
+  const requireAuth = (callback) => {
+    if (!hasToken) {
+      setShowOverlay(true);
+      return;
+    }
+    callback();
+  };
+
   // Função para formatar data
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
-      
-      // Verifica se a data é válida
-      if (isNaN(date.getTime())) {
-        return 'Data inválida';
-      }
-      
-      // Formata a data no padrão brasileiro
+      if (isNaN(date.getTime())) return 'Data inválida';
       return date.toLocaleDateString('pt-BR', {
         day: '2-digit',
         month: '2-digit',
@@ -373,7 +376,12 @@ function HomePage({ hasToken }) {
             <>
               <div className={viewMode === 'grid' ? styles.servicesGrid : styles.servicesList}>
                 {services.map((service) => (
-                  <article key={service.id} className={viewMode === 'grid' ? styles.serviceCard : styles.serviceListItem}>
+                  <article 
+                    key={service.id} 
+                    className={viewMode === 'grid' ? styles.serviceCard : styles.serviceListItem}
+                    onClick={() => requireAuth(() => router.push(`/servicos/visualizar/${service.id}`))}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <div className={styles.cardContent}>
                       <div className={styles.cardHeader}>
                         <div className={styles.cardCategory}>
@@ -403,7 +411,7 @@ function HomePage({ hasToken }) {
                             className={styles.cardProvider}
                             onClick={(e) => {
                               e.stopPropagation();
-                              router.push(`perfil/prestador/${service.providerId}`);
+                              requireAuth(() => router.push(`perfil/prestador/${service.providerId}`));
                             }}
                           >
                             <User size={14} />
@@ -419,12 +427,9 @@ function HomePage({ hasToken }) {
                       <div className={styles.cardFooter}>
                         <div className={styles.cardPrice}>{formatPrice(service.price)}</div>
                         <button 
-                          onClick={() => {
-                            if (!hasToken) {
-                              setShowOverlay(true);
-                            } else {
-                             router.push(`/servicos/visualizar/${service.id}`);
-                            }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            requireAuth(() => router.push(`/servicos/visualizar/${service.id}`));
                           }}
                           className={styles.cardButton}
                         >
@@ -456,7 +461,7 @@ function HomePage({ hasToken }) {
           <div className={styles.overlayContent}>
             <div className={styles.overlayIcon}><User size={48} /></div>
             <h3>Acesso Necessário</h3>
-            <p>Faça login para explorar os detalhes dos serviços e conectar-se com profissionais qualificados.</p>
+            <p>Faça login para visualizar os detalhes completos dos serviços e conectar-se com profissionais qualificados.</p>
             <div className={styles.overlayActions}>
               <button onClick={() => router.push('/auth/login')} className={styles.overlayLoginButton}>
                 Fazer Login

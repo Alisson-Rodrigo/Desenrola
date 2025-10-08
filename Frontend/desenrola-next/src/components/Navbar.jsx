@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronDown, Menu, X, User, LogOut, Shield, Plus, Crown, UserCheck } from "lucide-react";
+import { ChevronDown, Menu, X, User, LogOut, Shield, Plus, Crown, UserCheck, Home, Briefcase } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./Navbar.module.css";
 
@@ -29,34 +29,18 @@ export default function Navbar() {
   useEffect(() => {
     router.prefetch("/");
     router.prefetch("/servicos");
-    router.prefetch("/clientes");
     router.prefetch("/perfil/usuario/meu");
     router.prefetch("/perfil/prestador/meu");
     router.prefetch("/auth/login");
     router.prefetch("/admin");
     router.prefetch("/perfil/prestador/servicos/cadastrar");
   }, [router]);
-  
-  
-  /**
-   * Converte o valor da role para uma string minúscula.
-   * @param {any} role - Valor da role (pode ser número ou string)
-   * @returns {string} Role normalizada como string
-   */
 
   // Normaliza role para string em minúsculo
   function normalizeRole(role) {
     if (role === undefined || role === null) return "";
     return String(role).toLowerCase();
   }
-  
-  
-  
-  
-  /**
-   * Retorna o tipo de usuário em português com base na role.
-   * @returns {string|null} Tipo de usuário: "Administrador", "Prestador" ou "Cliente"
-   */
 
   // Função para obter o tipo de usuário em português
   function getUserType() {
@@ -67,13 +51,6 @@ export default function Navbar() {
     return "Cliente";
   }
 
-
-
-  /**
-   * Retorna a classe CSS correspondente à cor do badge do tipo de usuário.
-   * @returns {string} Classe de estilo para o badge do usuário
-   */
-
   // Função para obter a cor do badge
   function getUserBadgeColor() {
     if (!user) return "";
@@ -82,15 +59,6 @@ export default function Navbar() {
     if (user.role === "2" || user.role === "provider") return styles.providerBadge;
     return styles.userBadge;
   }
-
-
-
-
-
-  /**
-   * Retorna o ícone correspondente ao tipo de usuário.
-   * @returns {JSX.Element} Ícone React para Administrador, Prestador ou Cliente
-   */
 
   // Função para obter o ícone do usuário
   function getUserIcon() {
@@ -127,7 +95,7 @@ export default function Navbar() {
       try {
         const decoded = jwtDecode(token);
 
-        // ✅ Verificação de expiração
+        // Verificação de expiração
         if (decoded.exp && decoded.exp * 1000 < Date.now()) {
           console.warn("Token expirado, removendo...");
           handleLogout();
@@ -158,19 +126,7 @@ export default function Navbar() {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-
-
-
-
-
-  
-  /**
-   * Retorna a classe CSS do link de navegação, marcando o ativo com estilo especial.
-   * @param {string} href - Caminho da rota
-   * @returns {string} Classe CSS completa para o link
-   */
-
-  // helper para marcar ativo
+  // Helper para marcar ativo
   const getLinkClass = (href) =>
     `${styles.navLink} ${pathname === href ? styles.active : ""}`;
 
@@ -190,13 +146,13 @@ export default function Navbar() {
         {/* Links Desktop */}
         <div className={styles.nav}>
           <Link href="/" className={getLinkClass("/")}>
-            Página Inicial
+            <Home size={16} />
+            Início
           </Link>
+          
           <Link href="/servicos" className={getLinkClass("/servicos")}>
+            <Briefcase size={16} />
             Serviços
-          </Link>
-          <Link href="/clientes" className={getLinkClass("/clientes")}>
-            Clientes
           </Link>
 
           {/* Botão Cadastrar Serviço - só aparece para Provider */}
@@ -205,6 +161,7 @@ export default function Navbar() {
               href="/perfil/prestador/servicos/cadastrar"
               className={getLinkClass("/perfil/prestador/servicos/cadastrar")}
             >
+              <Plus size={16} />
               Cadastrar Serviço
             </Link>
           )}
@@ -212,6 +169,7 @@ export default function Navbar() {
           {/* Botão Admin */}
           {isAdmin && (
             <Link href="/admin" className={getLinkClass("/admin")}>
+              <Shield size={16} />
               Admin
             </Link>
           )}
@@ -261,7 +219,7 @@ export default function Navbar() {
                     href="/perfil/prestador/meu"
                     className={styles.dropdownItem}
                   >
-                    <User size={16} /> Meu Perfil (Prestador)
+                    <User size={16} /> Meu Perfil
                   </Link>
                 ) : (
                   <Link
@@ -340,30 +298,36 @@ export default function Navbar() {
         )}
 
         <Link href="/" className={getLinkClass("/")}>
-          Dashboard
+          <Home size={18} />
+          Início
         </Link>
+        
         <Link href="/servicos" className={getLinkClass("/servicos")}>
+          <Briefcase size={18} />
           Serviços
-        </Link>
-        <Link href="/clientes" className={getLinkClass("/clientes")}>
-          Clientes
         </Link>
 
         {/* Link Perfil condicional no Mobile */}
-        {isProvider ? (
-          <Link
-            href="/perfil/prestador/meu"
-            className={getLinkClass("/perfil/prestador/meu")}
-          >
-            Meu Perfil (Prestador)
-          </Link>
-        ) : (
-          <Link
-            href="/perfil/usuario/meu"
-            className={getLinkClass("/perfil/usuario/meu")}
-          >
-            Meu Perfil
-          </Link>
+        {user && (
+          <>
+            {isProvider ? (
+              <Link
+                href="/perfil/prestador/meu"
+                className={getLinkClass("/perfil/prestador/meu")}
+              >
+                <User size={18} />
+                Meu Perfil
+              </Link>
+            ) : (
+              <Link
+                href="/perfil/usuario/meu"
+                className={getLinkClass("/perfil/usuario/meu")}
+              >
+                <User size={18} />
+                Meu Perfil
+              </Link>
+            )}
+          </>
         )}
 
         {/* Link Cadastrar Serviço */}
@@ -372,6 +336,7 @@ export default function Navbar() {
             href="/perfil/prestador/servicos/cadastrar"
             className={getLinkClass("/perfil/prestador/servicos/cadastrar")}
           >
+            <Plus size={18} />
             Cadastrar Serviço
           </Link>
         )}
@@ -379,11 +344,20 @@ export default function Navbar() {
         {/* Link Admin */}
         {isAdmin && (
           <Link href="/admin" className={getLinkClass("/admin")}>
+            <Shield size={18} />
             Admin
           </Link>
         )}
 
-        {!user && (
+        {user ? (
+          <button
+            className={styles.mobileLogoutButton}
+            onClick={handleLogout}
+          >
+            <LogOut size={18} />
+            Sair
+          </button>
+        ) : (
           <button
             className={styles.mobileNavLogin}
             onClick={() => router.push("/auth/login")}
