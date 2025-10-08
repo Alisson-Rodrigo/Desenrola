@@ -2,55 +2,46 @@
 
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { withAuth } from '../hooks/withAuth';
 import { useRouter } from 'next/navigation';
-import { useDebounce } from '../hooks/useDebounce';
 import styles from './HomePage.module.css';
 
 import { 
   Search, 
-  Filter, 
-  ChevronLeft, 
-  ChevronRight,
   User,
   MapPin,
   Loader2,
-  X,
   Sparkles,
   TrendingUp,
   Star,
   Clock,
   ArrowRight,
-  Grid3x3,
-  List
+  Crown,
+  Zap,
+  Award,
+  ChevronRight
 } from 'lucide-react';
 
 function HomePage({ hasToken }) {
   const router = useRouter();
   
-  // Estados da busca e filtros
-  const [query, setQuery] = useState('');
-  const debouncedQuery = useDebounce(query, 500);
-  const [services, setServices] = useState([]);
+  const [featuredServices, setFeaturedServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState('grid');
-  
-  // Paginação
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(12);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  
-  // Filtros
-  const [filters, setFilters] = useState({
-    search: '',
-    onlyActive: true,
-    providerId: ''
-  });
 
-  // Categorias
+  // Categorias em destaque
+  const featuredCategories = [
+    { id: "Eletrica", name: "Elétrica", icon: "⚡" },
+    { id: "Hidraulica", name: "Hidráulica", icon: "🔧" },
+    { id: "Pintura", name: "Pintura", icon: "🎨" },
+    { id: "Reformas", name: "Reformas", icon: "🏗️" },
+    { id: "TI", name: "TI", icon: "💻" },
+    { id: "Beleza", name: "Beleza", icon: "✨" },
+    { id: "Limpeza", name: "Limpeza", icon: "🧹" },
+    { id: "Jardinagem", name: "Jardinagem", icon: "🌱" }
+  ];
+
   const categorias = {
     "Eletrica": "Elétrica",
     "Hidraulica": "Hidráulica", 
@@ -84,17 +75,6 @@ function HomePage({ hasToken }) {
     "Gastronomia": "Culinária e Gastronomia"
   };
 
-  // Categorias em destaque
-  const featuredCategories = [
-    { id: "Eletrica", name: "Elétrica", icon: "⚡" },
-    { id: "Hidraulica", name: "Hidráulica", icon: "🔧" },
-    { id: "Pintura", name: "Pintura", icon: "🎨" },
-    { id: "Reformas", name: "Reformas", icon: "🏗️" },
-    { id: "TI", name: "TI", icon: "💻" },
-    { id: "Beleza", name: "Beleza", icon: "✨" }
-  ];
-
-  // Função para verificar autenticação e redirecionar
   const requireAuth = (callback) => {
     if (!hasToken) {
       setShowOverlay(true);
@@ -103,7 +83,6 @@ function HomePage({ hasToken }) {
     callback();
   };
 
-  // Função para formatar data
   const formatDate = (dateString) => {
     try {
       const date = new Date(dateString);
@@ -114,139 +93,55 @@ function HomePage({ hasToken }) {
         year: 'numeric'
       });
     } catch (error) {
-      console.error('Erro ao formatar data:', error);
       return 'Data inválida';
     }
   };
-
-  // Buscar serviços
-  const fetchServices = async (page = 1, searchTerm = '', onlyActive = true, providerId = '') => {
-    setLoading(true);
-    
-    try {
-      const params = new URLSearchParams({
-        Page: page.toString(),
-        PageSize: pageSize.toString(),
-        OnlyActive: onlyActive.toString()
-      });
-
-      if (searchTerm.trim()) params.append('Search', searchTerm.trim());
-      if (providerId.trim()) params.append('ProviderId', providerId.trim());
-
-      const response = await fetch(`http://localhost:5087/api/provider/services/paged?${params}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      if (!response.ok) throw new Error(`Erro ${response.status}: ${response.statusText}`);
-
-      const data = await response.json();
-      
-      if (data.items) {
-        setServices(data.items);
-        setTotalPages(data.totalPages || 1);
-        setTotalItems(data.totalItems || 0);
-      } else if (Array.isArray(data)) {
-        setServices(data);
-        setTotalPages(1);
-        setTotalItems(data.length);
-      } else {
-        setServices([]);
-        setTotalPages(1);
-        setTotalItems(0);
-      }
-    } catch (error) {
-      console.error('Erro ao buscar serviços:', error);
-      setServices([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Pesquisa em tempo real
-  useEffect(() => {
-    fetchServices(1, debouncedQuery, filters.onlyActive, filters.providerId);
-    setCurrentPage(1);
-  }, [debouncedQuery, pageSize, filters.onlyActive, filters.providerId]);
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      fetchServices(newPage, debouncedQuery, filters.onlyActive, filters.providerId);
-    }
-  };
-
-  const applyFilters = () => {
-    setCurrentPage(1);
-    fetchServices(1, debouncedQuery, filters.onlyActive, filters.providerId);
-    setShowFilters(false);
-  };
-
-  const clearFilters = () => {
-    setFilters({ search: '', onlyActive: true, providerId: '' });
-    setQuery('');
-    setCurrentPage(1);
-    fetchServices(1, '', true, '');
-  };
-
-  const handleInputChange = (e) => setQuery(e.target.value);
 
   const formatPrice = (price) => new Intl.NumberFormat('pt-BR', {
     style: 'currency', currency: 'BRL'
   }).format(price);
 
-  const handleCategoryFilter = (categoryId) => {
-    setQuery(categorias[categoryId]);
-    setCurrentPage(1);
-    fetchServices(1, categorias[categoryId], filters.onlyActive, filters.providerId);
+  // Buscar serviços em destaque (VIP e Master)
+  const fetchFeaturedServices = async () => {
+    setLoading(true);
+    try {
+      // TODO: Quando a API suportar filtro por plano, adicionar parâmetros
+      const response = await fetch('http://localhost:5087/api/provider/services/paged?PageSize=6&OnlyActive=true', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) throw new Error(`Erro ${response.status}`);
+
+      const data = await response.json();
+      
+      if (data.items) {
+        // Por enquanto pegamos os 6 primeiros, mas futuramente filtrar por plano VIP/Master
+        setFeaturedServices(data.items);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar serviços em destaque:', error);
+      setFeaturedServices([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Paginação
-  const renderPagination = () => {
-    if (totalPages <= 1) return null;
+  useEffect(() => {
+    fetchFeaturedServices();
+  }, []);
 
-    const pages = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  // Função para retornar badge do plano (preparado para quando implementar)
+  const getPlanBadge = (plan) => {
+    // TODO: Quando a API retornar o plano do prestador
+    switch(plan) {
+      case 'MASTER':
+        return <span className={styles.planBadgeMaster}><Crown size={14} /> Master</span>;
+      case 'VIP':
+        return <span className={styles.planBadgeVip}><Zap size={14} /> VIP</span>;
+      default:
+        return null;
     }
-
-    for (let i = startPage; i <= endPage; i++) pages.push(i);
-
-    return (
-      <div className={styles.pagination}>
-        <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1 || loading} className={styles.paginationButton}>
-          <ChevronLeft size={16} />
-        </button>
-
-        {startPage > 1 && (
-          <>
-            <button onClick={() => handlePageChange(1)} className={styles.paginationPageButton}>1</button>
-            {startPage > 2 && <span className={styles.paginationEllipsis}>...</span>}
-          </>
-        )}
-
-        {pages.map((page) => (
-          <button key={page} onClick={() => handlePageChange(page)} className={`${styles.paginationPageButton} ${currentPage === page ? styles.paginationPageButtonActive : ''}`}>
-            {page}
-          </button>
-        ))}
-
-        {endPage < totalPages && (
-          <>
-            {endPage < totalPages - 1 && <span className={styles.paginationEllipsis}>...</span>}
-            <button onClick={() => handlePageChange(totalPages)} className={styles.paginationPageButton}>{totalPages}</button>
-          </>
-        )}
-
-        <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages || loading} className={styles.paginationButton}>
-          <ChevronRight size={16} />
-        </button>
-      </div>
-    );
   };
 
   return (
@@ -275,24 +170,30 @@ function HomePage({ hasToken }) {
               Qualidade garantida e preços justos.
             </p>
 
-            {/* Barra de busca em tempo real */}
-            <div className={styles.heroSearchWrapper}>
-              <Search className={styles.heroSearchIcon} size={20} />
-              <input
-                type="text"
-                placeholder="O que você precisa? Ex: eletricista, pintor..."
-                value={query}
-                onChange={handleInputChange}
-                className={styles.heroSearchInput}
-              />
-              {loading && <Loader2 size={20} className={styles.spin} />}
+            {/* Search CTA */}
+            <div className={styles.heroSearchCTA}>
+              <button 
+                onClick={() => router.push('/servicos/todos')}
+                className={styles.heroSearchButton}
+              >
+                <Search size={20} />
+                Buscar Serviços
+              </button>
+              
+              <button 
+                onClick={() => router.push('/servicos/todos')}
+                className={styles.heroExploreButton}
+              >
+                Explorar Categorias
+                <ChevronRight size={20} />
+              </button>
             </div>
 
             {/* Quick Stats */}
             <div className={styles.heroStats}>
               <div className={styles.heroStat}>
                 <TrendingUp size={20} />
-                <span><strong>{totalItems}+</strong> Serviços</span>
+                <span><strong>1000+</strong> Serviços</span>
               </div>
               <div className={styles.heroStat}>
                 <User size={20} />
@@ -315,7 +216,7 @@ function HomePage({ hasToken }) {
             {featuredCategories.map(category => (
               <button
                 key={category.id}
-                onClick={() => handleCategoryFilter(category.id)}
+                onClick={() => router.push(`/servicos/todos?categoria=${category.id}`)}
                 className={styles.categoryCard}
               >
                 <span className={styles.categoryIcon}>{category.icon}</span>
@@ -326,132 +227,138 @@ function HomePage({ hasToken }) {
         </div>
       </section>
 
-      {/* Main Content */}
-      <section className={styles.mainContent}>
+      {/* Serviços em Destaque (VIP e Master) */}
+      <section className={styles.featuredSection}>
         <div className={styles.container}>
-          {/* Toolbar */}
-          <div className={styles.toolbar}>
-            <div className={styles.toolbarLeft}>
+          <div className={styles.sectionHeader}>
+            <div>
               <h2 className={styles.sectionTitle}>
-                {query ? `Resultados para "${query}"` : 'Todos os Serviços'}
+                <Award className={styles.sectionIcon} />
+                Serviços em Destaque
               </h2>
-              {!loading && (
-                <span className={styles.resultsCount}>
-                  {totalItems} serviços encontrados
-                </span>
-              )}
+              <p className={styles.sectionSubtitle}>
+                Profissionais premium verificados e avaliados
+              </p>
             </div>
-
-            <div className={styles.toolbarRight}>
-              {/* View Mode Toggle */}
-              <div className={styles.viewToggle}>
-                <button onClick={() => setViewMode('grid')} className={`${styles.viewButton} ${viewMode === 'grid' ? styles.viewButtonActive : ''}`}>
-                  <Grid3x3 size={18} />
-                </button>
-                <button onClick={() => setViewMode('list')} className={`${styles.viewButton} ${viewMode === 'list' ? styles.viewButtonActive : ''}`}>
-                  <List size={18} />
-                </button>
-              </div>
-
-              {/* Filters Button */}
-              <button onClick={() => setShowFilters(!showFilters)} className={styles.filterButton}>
-                <Filter size={18} />
-                Filtros
-                {(filters.providerId || !filters.onlyActive) && (
-                  <span className={styles.filterBadge}>•</span>
-                )}
-              </button>
-            </div>
+            <button 
+              onClick={() => router.push('/servicos/todos')}
+              className={styles.seeAllButton}
+            >
+              Ver Todos
+              <ArrowRight size={18} />
+            </button>
           </div>
 
-          {/* Services Grid/List */}
           {loading ? (
             <div className={styles.loadingState}>
-              <div className={styles.loadingCircle}>
-                <Loader2 size={40} className={styles.loadingSpinner} />
-              </div>
-              <p>Carregando serviços incríveis...</p>
+              <Loader2 size={40} className={styles.loadingSpinner} />
+              <p>Carregando serviços em destaque...</p>
             </div>
-          ) : services.length > 0 ? (
-            <>
-              <div className={viewMode === 'grid' ? styles.servicesGrid : styles.servicesList}>
-                {services.map((service) => (
-                  <article 
-                    key={service.id} 
-                    className={viewMode === 'grid' ? styles.serviceCard : styles.serviceListItem}
-                    onClick={() => requireAuth(() => router.push(`/servicos/visualizar/${service.id}`))}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div className={styles.cardContent}>
-                      <div className={styles.cardHeader}>
-                        <div className={styles.cardCategory}>
-                          <MapPin size={14} />
-                          {categorias[service.category] || service.category}
-                        </div>
-                        <div className={styles.cardStatus}>
-                          {service.isActive ? (
-                            <span className={styles.statusActive}>Disponível</span>
-                          ) : (
-                            <span className={styles.statusInactive}>Indisponível</span>
-                          )}
-                        </div>
+          ) : featuredServices.length > 0 ? (
+            <div className={styles.featuredGrid}>
+              {featuredServices.map((service) => (
+                <article 
+                  key={service.id} 
+                  className={styles.featuredCard}
+                  onClick={() => requireAuth(() => router.push(`/servicos/visualizar/${service.id}`))}
+                >
+                  {/* Badge do Plano - TODO: implementar quando API retornar o plano */}
+                  <div className={styles.planBadgeWrapper}>
+                    {/* {getPlanBadge(service.providerPlan)} */}
+                    <span className={styles.planBadgeFeatured}>
+                      <Star size={14} /> Destaque
+                    </span>
+                  </div>
+
+                  <div className={styles.cardContent}>
+                    <div className={styles.cardHeader}>
+                      <div className={styles.cardCategory}>
+                        <MapPin size={14} />
+                        {categorias[service.category] || service.category}
                       </div>
-
-                      <h3 className={styles.cardTitle}>{service.title}</h3>
-                      
-                      <p className={styles.cardDescription}>
-                        {service.description.length > 150 
-                          ? service.description.substring(0, 150) + '...' 
-                          : service.description}
-                      </p>
-
-                      <div className={styles.cardMeta}>
-                        {service.providerName && (
-                          <button 
-                            className={styles.cardProvider}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              requireAuth(() => router.push(`perfil/prestador/${service.providerId}`));
-                            }}
-                          >
-                            <User size={14} />
-                            {service.providerName}
-                          </button>
+                      <div className={styles.cardStatus}>
+                        {service.isActive ? (
+                          <span className={styles.statusActive}>Disponível</span>
+                        ) : (
+                          <span className={styles.statusInactive}>Indisponível</span>
                         )}
-                        <div className={styles.cardDate}>
-                          <Clock size={14} />
-                          {formatDate(service.dateTime)}
-                        </div>
-                      </div>
-
-                      <div className={styles.cardFooter}>
-                        <div className={styles.cardPrice}>{formatPrice(service.price)}</div>
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            requireAuth(() => router.push(`/servicos/visualizar/${service.id}`));
-                          }}
-                          className={styles.cardButton}
-                        >
-                          Ver Detalhes
-                          <ArrowRight size={16} />
-                        </button>
                       </div>
                     </div>
-                  </article>
-                ))}
-              </div>
 
-              {renderPagination()}
-            </>
+                    <h3 className={styles.cardTitle}>{service.title}</h3>
+                    
+                    <p className={styles.cardDescription}>
+                      {service.description.length > 120 
+                        ? service.description.substring(0, 120) + '...' 
+                        : service.description}
+                    </p>
+
+                    <div className={styles.cardMeta}>
+                      {service.providerName && (
+                        <button 
+                          className={styles.cardProvider}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            requireAuth(() => router.push(`perfil/prestador/${service.providerId}`));
+                          }}
+                        >
+                          <User size={14} />
+                          {service.providerName}
+                        </button>
+                      )}
+                      <div className={styles.cardDate}>
+                        <Clock size={14} />
+                        {formatDate(service.dateTime)}
+                      </div>
+                    </div>
+
+                    <div className={styles.cardFooter}>
+                      <div className={styles.cardPrice}>{formatPrice(service.price)}</div>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          requireAuth(() => router.push(`/servicos/visualizar/${service.id}`));
+                        }}
+                        className={styles.cardButton}
+                      >
+                        Ver Detalhes
+                        <ArrowRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
           ) : (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyStateIcon}><Search size={64} /></div>
-              <h3>Nenhum serviço encontrado</h3>
-              <p>Tente ajustar os filtros ou buscar por outros termos.</p>
-              <button onClick={clearFilters} className={styles.emptyStateButton}>Limpar filtros e tentar novamente</button>
+            <div className={styles.emptyStateFeatured}>
+              <Award size={48} />
+              <p>Serviços em destaque estarão disponíveis em breve</p>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className={styles.ctaSection}>
+        <div className={styles.container}>
+          <div className={styles.ctaCard}>
+            <div className={styles.ctaContent}>
+              <h2 className={styles.ctaTitle}>Pronto para encontrar o profissional ideal?</h2>
+              <p className={styles.ctaDescription}>
+                Explore nossa plataforma e conecte-se com especialistas qualificados
+              </p>
+              <button 
+                onClick={() => router.push('/servicos/todos')}
+                className={styles.ctaButton}
+              >
+                Explorar Todos os Serviços
+                <ArrowRight size={20} />
+              </button>
+            </div>
+            <div className={styles.ctaIllustration}>
+              <Sparkles size={80} />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -473,6 +380,8 @@ function HomePage({ hasToken }) {
           </div>
         </div>
       )}
+
+      <Footer />
     </div>
   );
 }
