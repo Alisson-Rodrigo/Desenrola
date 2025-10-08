@@ -10,6 +10,10 @@ namespace Desenrola.Application.Contracts.Persistance.Repositories
     public interface IFavoriteRepository : IBaseRepository<Favorite>
     {
         Task<bool> Exists(string userId, Guid providerId);
+        Task<Favorite> GetFavoriteAsync(string userId, Guid providerId);
+        Task<List<Favorite>> GetFavoritesByUserId(string userId);
+
+
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Desenrola.Application.Features.Favorite.Commands.CreateFavoriteCommand;
-
+using Desenrola.Application.Features.Favorite.Commands.RemoveFavoriteCommand;
+using Desenrola.Application.Features.Favorite.Queries.GetUserFavoritesQuery;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -29,5 +30,26 @@ namespace Desenrola.WebApi.Controllers
             return CreatedAtAction(nameof(CreateFavorite), new { providerId = request.ProviderId }, null);
         }
 
+        // Remover um favorito
+        [Authorize(Roles = "Customer, Admin, Provider")]
+        [HttpDelete]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RemoveFavorite([FromBody] RemoveFavoriteCommand request)
+        {
+            await _mediator.Send(request);
+            return NoContent();
+        }
+
+        // Obter provedores favoritados pelo usuário
+        [Authorize(Roles = "Customer, Admin, Provider")]
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetUserFavorites()
+        {
+            var result = await _mediator.Send(new GetUserFavoritesQuery());
+            return Ok(result);
+        }
     }
 }
