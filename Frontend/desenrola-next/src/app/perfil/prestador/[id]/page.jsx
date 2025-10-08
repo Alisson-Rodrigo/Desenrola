@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   Star, Phone, MapPin, Award, CheckCircle,
-  Clock, Loader2, AlertCircle, X
+  Clock, Loader2, AlertCircle, X, MessageCircle
 } from 'lucide-react';
 import styles from './ProfilePage.module.css';
 import Navbar from '../../../../components/Navbar';
@@ -200,23 +200,22 @@ export default function ProfilePage() {
   const router = useRouter();
 
   // Estados do Componente
-  const [activeTab, setActiveTab] = useState('servicos'); // Controla a aba ativa ('servicos', 'avaliacoes', 'horarios').
-  const [providerData, setProviderData] = useState(null); // Armazena os dados do perfil do prestador.
-  const [scheduleData, setScheduleData] = useState([]); // Armazena os horários de trabalho do prestador.
-  const [reviews, setReviews] = useState([]); // Armazena as avaliações recebidas pelo prestador.
-  const [loading, setLoading] = useState(true); // Controla o estado de carregamento inicial da página.
-  const [error, setError] = useState(null); // Armazena mensagens de erro, caso ocorram.
+  const [activeTab, setActiveTab] = useState('servicos');
+  const [providerData, setProviderData] = useState(null);
+  const [scheduleData, setScheduleData] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Estados do Modal de Avaliação
-  const [showModal, setShowModal] = useState(false); // Controla a visibilidade do modal de avaliação.
-  const [modalLoading, setModalLoading] = useState(false); // Controla o estado de carregamento do envio da avaliação.
-  const [rating, setRating] = useState(0); // Armazena a nota (estrelas) da avaliação.
-  const [comment, setComment] = useState(''); // Armazena o comentário da avaliação.
-  const [hoverRating, setHoverRating] = useState(0); // Controla o efeito de hover nas estrelas de avaliação.
+  const [showModal, setShowModal] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [hoverRating, setHoverRating] = useState(0);
 
   /**
    * Mapa memoizado para nomes e ícones de categorias de serviço.
-   * Evita a recriação deste objeto a cada renderização.
    */
   const categoriaMap = useMemo(() => ({
     0: { nome: "Elétrica", icon: "⚡" }, 1: { nome: "Hidráulica", icon: "🔧" }, 2: { nome: "Pintura", icon: "🎨" },
@@ -317,6 +316,66 @@ export default function ProfilePage() {
   const handleRatingLeave = useCallback(() => setHoverRating(0), []);
 
   /**
+   * Redireciona para a página de chat, enviando uma instrução
+   * para iniciar uma nova conversa com o ID do usuário do prestador.
+   */
+  /**
+   * Envia mensagem "Oi" e redireciona para o chat
+   */
+  const handleSendMessage = useCallback(async () => {
+    if (!providerData?.userId) {
+      console.error('❌ userId do prestador não encontrado');
+      alert('Não foi possível iniciar uma conversa com este profissional no momento.');
+      return;
+    }
+
+    console.log('📤 Enviando mensagem "Oi" para:', providerData.userId);
+
+    try {
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        alert('Você precisa estar logado para enviar mensagens.');
+        router.push('/login');
+        return;
+      }
+
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      };
+
+      // Envia a mensagem "Oi"
+      const response = await fetch('http://localhost:5087/api/Message/send', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          receiverId: providerData.userId,
+          content: 'Oi'
+        })
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem("auth_token");
+          alert('Sua sessão expirou. Por favor, faça login novamente.');
+          router.push('/login');
+          return;
+        }
+        throw new Error(`Erro ao enviar mensagem: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Mensagem enviada com sucesso:', data);
+
+      // Redireciona para o chat
+      router.push(`/chat?receiverId=${providerData.userId}`);
+
+    } catch (err) {
+      console.error('❌ Erro ao enviar mensagem:', err);
+      alert('Erro ao iniciar conversa. Tente novamente.');
+    }
+  }, [providerData, router]);
+  /**
    * Submete a nova avaliação para a API.
    * @param {React.FormEvent} e - O evento do formulário.
    */
@@ -341,7 +400,7 @@ export default function ProfilePage() {
       }
       alert('Avaliação enviada com sucesso!');
       handleCloseModal();
-      fetchReviews(params.id); // Re-busca as avaliações para atualizar a lista.
+      fetchReviews(params.id);
     } catch (err) {
       console.error('Erro ao enviar avaliação:', err);
       alert('Erro ao enviar avaliação: ' + err.message);
@@ -440,8 +499,14 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className={styles.actionButtons}>
-              <button className={styles.outlineButton}>Enviar Mensagem</button>
-              <button className={styles.primaryButton} onClick={handleOpenModal}><Star className={styles.buttonIcon} />Avaliar Prestador</button>
+              <button className={styles.outlineButton} onClick={handleSendMessage}>
+                <MessageCircle className={styles.buttonIcon} />
+                Enviar Mensagem
+              </button>
+              <button className={styles.primaryButton} onClick={handleOpenModal}>
+                <Star className={styles.buttonIcon} />
+                Avaliar Prestador
+              </button>
             </div>
             <div className={styles.contactSection}>
               <h3 className={styles.contactTitle}><Phone className={styles.contactIcon} /> Informações de Contato</h3>

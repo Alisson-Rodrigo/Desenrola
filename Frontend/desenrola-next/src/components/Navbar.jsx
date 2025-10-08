@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronDown, Menu, X, User, LogOut, Shield, Plus, Crown, UserCheck, Home, Briefcase } from "lucide-react";
+import { ChevronDown, Menu, X, User, LogOut, Shield, Plus, Crown, UserCheck, Home, Briefcase, MessageCircle } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./Navbar.module.css";
 
@@ -10,6 +10,7 @@ export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -34,7 +35,50 @@ export default function Navbar() {
     router.prefetch("/auth/login");
     router.prefetch("/admin");
     router.prefetch("/perfil/prestador/servicos/cadastrar");
+    router.prefetch("/chat");
   }, [router]);
+
+  // Buscar quantidade de mensagens não lidas
+  useEffect(() => {
+    async function fetchUnreadMessages() {
+      if (!user) {
+        setUnreadCount(0);
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem("auth_token");
+        if (!token) return;
+
+        const headers = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        };
+
+        // ALTERAÇÃO 1: URL corrigida
+        const response = await fetch('http://localhost:5087/api/Message/unread-count', {
+          method: 'GET',
+          headers
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          // ALTERAÇÃO 2: Propriedade corrigida de 'count' para 'unreadCount'
+          setUnreadCount(data.unreadCount || 0);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar mensagens não lidas:', err);
+      }
+    }
+
+    // Busca imediatamente
+    fetchUnreadMessages();
+
+    // Atualiza a cada 30 segundos
+    const interval = setInterval(fetchUnreadMessages, 30000);
+
+    return () => clearInterval(interval);
+  }, [user]);
 
   // Normaliza role para string em minúsculo
   function normalizeRole(role) {
@@ -74,6 +118,7 @@ export default function Navbar() {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("auth_user");
     setUser(null);
+    setUnreadCount(0);
     router.push("/auth/login");
     window.dispatchEvent(new Event("storage"));
   };
@@ -155,6 +200,33 @@ export default function Navbar() {
             Serviços
           </Link>
 
+          {/* Link para Chat - só aparece se estiver logado */}
+          {user && (
+            <Link href="/chat" className={getLinkClass("/chat")}>
+              <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                <MessageCircle size={16} />
+                {unreadCount > 0 && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '-8px',
+                    right: '-8px',
+                    backgroundColor: '#ef4444',
+                    color: 'white',
+                    borderRadius: '10px',
+                    padding: '2px 6px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    minWidth: '18px',
+                    textAlign: 'center'
+                  }}>
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </div>
+              Mensagens
+            </Link>
+          )}
+
           {/* Botão Cadastrar Serviço - só aparece para Provider */}
           {isProvider && (
             <Link
@@ -229,6 +301,30 @@ export default function Navbar() {
                     <User size={16} /> Meu Perfil
                   </Link>
                 )}
+
+                {/* Link Mensagens */}
+                <Link
+                  href="/chat"
+                  className={styles.dropdownItem}
+                >
+                  <MessageCircle size={16} /> 
+                  Mensagens
+                  {unreadCount > 0 && (
+                    <span style={{
+                      marginLeft: 'auto',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      borderRadius: '10px',
+                      padding: '2px 8px',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      minWidth: '20px',
+                      textAlign: 'center'
+                    }}>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </Link>
 
                 {/* Link Cadastrar Serviço */}
                 {isProvider && (
@@ -306,6 +402,29 @@ export default function Navbar() {
           <Briefcase size={18} />
           Serviços
         </Link>
+
+        {/* Link Mensagens Mobile */}
+        {user && (
+          <Link href="/chat" className={getLinkClass("/chat")}>
+            <MessageCircle size={18} />
+            Mensagens
+            {unreadCount > 0 && (
+              <span style={{
+                marginLeft: 'auto',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                borderRadius: '10px',
+                padding: '2px 8px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                minWidth: '20px',
+                textAlign: 'center'
+              }}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </Link>
+        )}
 
         {/* Link Perfil condicional no Mobile */}
         {user && (
