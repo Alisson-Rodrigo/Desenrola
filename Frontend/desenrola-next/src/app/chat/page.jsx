@@ -79,7 +79,7 @@ export default function ChatPage() {
         if (!token) {
             console.error('Token não encontrado. Usuário não autenticado.');
             // Redirecionar para login se necessário
-            // window.location.href = '/login';
+            window.location.href = '/auth/login';
             return;
         }
         
