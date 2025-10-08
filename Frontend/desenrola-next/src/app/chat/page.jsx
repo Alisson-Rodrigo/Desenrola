@@ -12,11 +12,18 @@ const UserAvatarIcon = ({ className }) => (<svg className={className || styles.a
 const PaperclipIcon = () => (<svg height="24" viewBox="0 0 24 24" width="24" fill="currentColor"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v11.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"></path></svg>);
 const SendIcon = () => (<svg height="24" viewBox="0 0 24 24" width="24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>);
 
+/**
+ * Página principal do chat.
+ * Gerencia conversas, mensagens, integração com SignalR e UI.
+ */
 export default function ChatPage() {
     // Configuração da API
     const API_BASE_URL = 'http://localhost:5087';
     
-    // Função para obter o token do localStorage
+    /**
+     * Obtém o token de autenticação do localStorage ou sessionStorage.
+     * @returns {string|null} Token JWT ou null se não encontrado.
+     */
     const getAuthToken = () => {
         if (typeof window !== 'undefined') {
             return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
@@ -24,7 +31,10 @@ export default function ChatPage() {
         return null;
     };
     
-    // Função para decodificar JWT e extrair userId
+    /**
+     * Decodifica o JWT para extrair o userId.
+     * @returns {string|null} ID do usuário ou null se falhar.
+     */
     const getUserIdFromToken = () => {
         const token = getAuthToken();
         if (!token) return null;
@@ -60,6 +70,9 @@ export default function ChatPage() {
 
     // Carregar token ao montar o componente
     useEffect(() => {
+        /**
+         * Hook para carregar token e userId ao montar o componente.
+         */
         const token = getAuthToken();
         const userId = getUserIdFromToken();
         
@@ -74,17 +87,25 @@ export default function ChatPage() {
         setCurrentUserId(userId);
     }, []);
 
-    // Scroll automático para última mensagem
+    /**
+     * Faz scroll automático para a última mensagem.
+     */
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
     useEffect(() => {
+        /**
+         * Hook para scroll automático ao atualizar mensagens.
+         */
         scrollToBottom();
     }, [messages]);
 
     // Inicializar SignalR
     useEffect(() => {
+        /**
+         * Hook para inicializar conexão SignalR e registrar eventos.
+         */
         if (!authToken) return;
 
         const connection = new signalR.HubConnectionBuilder()
@@ -174,7 +195,10 @@ export default function ChatPage() {
         };
     }, [authToken]);
 
-    // Marcar mensagens como lidas
+    /**
+     * Marca todas as mensagens de uma conversa como lidas.
+     * @param {string} conversationId - ID da conversa.
+     */
     const markAsRead = async (conversationId) => {
         const token = getAuthToken();
         if (!token) return;
@@ -193,7 +217,9 @@ export default function ChatPage() {
         }
     };
 
-    // Buscar conversas
+    /**
+     * Busca todas as conversas do usuário autenticado.
+     */
     const fetchConversations = async () => {
         const token = getAuthToken();
         if (!token) return;
@@ -217,7 +243,10 @@ export default function ChatPage() {
         }
     };
 
-    // Buscar usuários disponíveis para nova conversa
+    /**
+     * Busca usuários disponíveis para iniciar nova conversa.
+     * @param {string} query - Texto de busca.
+     */
     const fetchAvailableUsers = async (query = '') => {
         const token = getAuthToken();
         if (!token) return;
@@ -244,7 +273,11 @@ export default function ChatPage() {
         }
     };
 
-    // Criar nova conversa e enviar mensagem inicial
+    /**
+     * Inicia uma nova conversa e envia mensagem inicial.
+     * @param {string} userId - ID do usuário destino.
+     * @param {string} userName - Nome do usuário destino.
+     */
     const startNewChat = async (userId, userName) => {
         const token = getAuthToken();
         if (!token) return;
@@ -295,7 +328,11 @@ export default function ChatPage() {
         }
     };
 
-    // Buscar mensagens de uma conversa
+    /**
+     * Busca o histórico de mensagens de uma conversa.
+     * @param {string} conversationId - ID da conversa.
+     * @param {boolean} silent - Se true, não loga no console.
+     */
     const fetchMessages = async (conversationId, silent = false) => {
         const token = getAuthToken();
         if (!token) return;
@@ -321,7 +358,9 @@ export default function ChatPage() {
         }
     };
 
-    // Enviar mensagem
+    /**
+     * Envia uma mensagem na conversa ativa.
+     */
     const sendMessage = async () => {
         if (!messageInput.trim() || !activeChat || sendingMessage) return;
 
@@ -377,7 +416,10 @@ export default function ChatPage() {
         }
     };
 
-    // Selecionar conversa
+    /**
+     * Seleciona uma conversa e carrega suas mensagens.
+     * @param {object} conversation - Objeto da conversa.
+     */
     const selectConversation = async (conversation) => {
         setActiveChat(conversation);
         await fetchMessages(conversation.conversationId);
@@ -392,13 +434,19 @@ export default function ChatPage() {
 
     // Carregar conversas ao montar
     useEffect(() => {
+        /**
+         * Hook para buscar conversas ao montar componente.
+         */
         if (authToken) {
             fetchConversations();
         }
     }, [authToken]);
 
- // Polling para atualizar lista de conversas em tempo real
+    // Polling para atualizar lista de conversas em tempo real
     useEffect(() => {
+        /**
+         * Hook para polling da lista de conversas.
+         */
         if (!authToken) return;
 
         console.log('🔄 Iniciando polling para lista de conversas');
@@ -418,6 +466,9 @@ export default function ChatPage() {
 
     // Polling para atualizar mensagens em tempo real (fallback se SignalR falhar)
     useEffect(() => {
+        /**
+         * Hook para polling das mensagens da conversa ativa.
+         */
         if (!activeChat || !isPolling) return;
 
         console.log('🔄 Iniciando polling para conversa:', activeChat.conversationId);
@@ -476,7 +527,11 @@ export default function ChatPage() {
         };
     }, [activeChat, isPolling, currentUserId]);
 
-    // Formatar data
+    /**
+     * Formata a data/hora da mensagem para exibição.
+     * @param {string} dateString - Data em formato ISO.
+     * @returns {string} Data formatada.
+     */
     const formatTime = (dateString) => {
         const date = new Date(dateString);
         const now = new Date();
