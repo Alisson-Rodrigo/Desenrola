@@ -36,6 +36,7 @@ public static class InfrastructureDependecyInjector {
         services.AddScoped<IPaymentRepository, PaymentRepository>();
         services.AddScoped<IMessagesRepository, MessagesRepository>();
         services.AddScoped<IConversationRepository, MessagesRepository>();
+        services.AddScoped<IFavoriteRepository, FavoriteRepository>();
 
 
         return services;
