@@ -17,6 +17,10 @@ namespace Desenrola.Persistence
         public DbSet<ProviderSchedule> ProviderSchedules => Set<ProviderSchedule>();
         public DbSet<Payment> Payments { get; set; }
 
+        // Tabelas de Message e Conversation
+        public DbSet<Conversation> Conversations { get; set; } = null!;
+        public DbSet<Message> Messages { get; set; } = null!;
+
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -165,6 +169,45 @@ namespace Desenrola.Persistence
 
                 entity.HasIndex(p => p.SessionId).IsUnique();
                 entity.HasIndex(p => p.PaymentIntentId).IsUnique();
+            });
+
+            // --------------------------
+            // Mapeamento de Message
+            // --------------------------
+            builder.Entity<Message>(entity =>
+            {
+                entity.HasKey(m => m.Id);
+                entity.Property(m => m.Id).HasDefaultValueSql("uuid_generate_v4()");
+                entity.Property(m => m.Content).IsRequired();
+                entity.Property(m => m.SentAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
+
+                // Relacionamento 1:N entre Message e Conversation
+                entity.HasOne(m => m.Conversation)
+                      .WithMany(c => c.Messages)
+                      .HasForeignKey(m => m.ConversationId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // --------------------------
+            // Mapeamento de Conversation
+            // --------------------------
+            builder.Entity<Conversation>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+                entity.Property(c => c.Id).HasDefaultValueSql("uuid_generate_v4()");
+                entity.Property(c => c.CreatedAt).HasDefaultValueSql("NOW() AT TIME ZONE 'UTC'");
+
+                // Relacionamento 1:1 entre Conversation e User (User1)
+                entity.HasOne(c => c.User1)
+                      .WithMany()
+                      .HasForeignKey(c => c.UserId1)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Relacionamento 1:1 entre Conversation e User (User2)
+                entity.HasOne(c => c.User2)
+                      .WithMany()
+                      .HasForeignKey(c => c.UserId2)
+                      .OnDelete(DeleteBehavior.Restrict);
             });
 
 
