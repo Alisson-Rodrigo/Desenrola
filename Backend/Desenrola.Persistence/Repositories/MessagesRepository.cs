@@ -100,7 +100,7 @@ namespace Desenrola.Persistence.Repositories
             foreach (var message in unreadMessages)
             {
                 message.IsRead = true;
-                message.ReadAt = DateTime.Now; // Adicionar este campo ao modelo se não existir
+                message.ReadAt = DateTime.UtcNow; // Adicionar este campo ao modelo se não existir
             }
 
             _context.Messages.UpdateRange(unreadMessages);
