@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './Register.module.css';
 import { registerUser } from '../../../services/userApi';
 
 export default function Register() {
+  const router = useRouter();
+  
   const [form, setForm] = useState({
     userName: '',
     fullName: '',
@@ -53,13 +56,9 @@ export default function Register() {
   */
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      import('next/navigation').then(({ useRouter }) => {
-        const router = useRouter();
-        router.prefetch('/auth/login');
-      });
-    }
-  }, []);
+    router.prefetch('/auth/login');
+  }, [router]);
+
   /**
   Envia o formulário de cadastro.
   Valida os dados e chama a API para registrar um novo usuário.

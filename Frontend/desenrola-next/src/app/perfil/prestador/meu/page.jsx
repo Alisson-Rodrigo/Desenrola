@@ -18,6 +18,7 @@ import {
   Trash2,
   MessageCircle
 } from 'lucide-react';
+import { useRouter } from 'next/navigation'; // Adicione este import no topo
 import styles from './ProfilePage.module.css';
 import Navbar from '../../../../components/Navbar'; 
 
@@ -116,6 +117,7 @@ const renderStars = (rating) => {
 };
 
 export default function ProfilePage() {
+  const router = useRouter(); // Adicione esta linha dentro do componente
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -606,7 +608,10 @@ export default function ProfilePage() {
             </button>
           </nav>
 
-          <button className={styles.assistanceButton}>
+          <button
+            className={styles.assistanceButton}
+            onClick={() => router.push('/planos')}
+          >
             <HelpCircle size={16} />
             Torne-se Vip
           </button>

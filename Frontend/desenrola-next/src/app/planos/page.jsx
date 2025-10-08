@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import styles from './AssinarPlano.module.css';
 import { FiCheck, FiX } from 'react-icons/fi';
-import Navbar from '../../components/Navbar'; // ✅ Importa o Navbar
+import Navbar from '../../components/Navbar';
 
 export default function Planos() {
     const plansData = {
@@ -60,14 +60,71 @@ export default function Planos() {
     const [billingCycle, setBillingCycle] = useState('monthly');
     const [selectedPlan, setSelectedPlan] = useState('vip');
     const [openFaq, setOpenFaq] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const handleFaqToggle = (id) => {
         setOpenFaq(openFaq === id ? null : id);
     };
 
+    const handleCheckout = async (planId) => {
+        setLoading(true);
+        try {
+            // Recupera o token do localStorage
+            const token = localStorage.getItem('auth_token');
+            
+            if (!token) {
+                alert('Você precisa estar logado para assinar um plano!');
+                // Redireciona para login
+                window.location.href = '/login';
+                return;
+            }
+
+            // Mapeia os IDs dos planos para números
+            const planIdMap = {
+                'normal': 1,
+                'vip': 2,
+                'master': 3
+            };
+
+            const numericPlanId = planIdMap[planId];
+
+            const response = await fetch(`http://localhost:5087/api/payments/checkout/${numericPlanId}`, {
+                method: 'POST',
+                headers: {
+                    'accept': '*/*',
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => null);
+                throw new Error(errorData?.message || 'Erro ao processar o checkout');
+            }
+
+            const data = await response.json();
+            
+            // Se a API retornar uma URL de pagamento, redireciona
+            if (data.checkoutUrl) {
+                window.location.href = data.checkoutUrl;
+            } else if (data.paymentUrl) {
+                window.location.href = data.paymentUrl;
+            } else {
+                alert('Plano assinado com sucesso!');
+                // Redireciona para dashboard
+                window.location.href = '/dashboard';
+            }
+
+        } catch (error) {
+            console.error('Erro no checkout:', error);
+            alert(error.message || 'Erro ao processar o pagamento. Tente novamente.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <>
-            {/* ✅ Navbar no topo */}
             <Navbar />
 
             <div className={styles.container}>
@@ -122,8 +179,15 @@ export default function Planos() {
                                         </li>
                                     ))}
                                 </ul>
-                                <button className={plan.id === 'vip' ? styles.buttonVip : styles.buttonPrimary}>
-                                    {plan.id === 'normal' ? 'COMEÇAR GRÁTIS' : `ASSINAR ${plan.name.toUpperCase()}`}
+                                <button 
+                                    className={plan.id === 'vip' ? styles.buttonVip : styles.buttonPrimary}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleCheckout(plan.id);
+                                    }}
+                                    disabled={loading}
+                                >
+                                    {loading ? 'PROCESSANDO...' : plan.id === 'normal' ? 'COMEÇAR GRÁTIS' : `ASSINAR ${plan.name.toUpperCase()}`}
                                 </button>
                             </div>
                         )
