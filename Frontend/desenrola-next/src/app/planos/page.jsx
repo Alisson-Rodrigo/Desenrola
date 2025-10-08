@@ -172,14 +172,16 @@ export default function Planos() {
                                     ))}
                                 </ul>
                                 <button 
-                                    className={plan.id === 'vip' ? styles.buttonVip : styles.buttonPrimary}
+                                    className={plan.id === 'normal' ? styles.buttonDisabled : plan.id === 'vip' ? styles.buttonVip : styles.buttonPrimary}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleCheckout(plan.id);
+                                        if (plan.id !== 'normal') {
+                                            handleCheckout(plan.id);
+                                        }
                                     }}
                                     disabled={loading || plan.id === 'normal'}
                                 >
-                                    {loading ? 'PROCESSANDO...' : plan.id === 'normal' ? 'PLANO SELECIONADO' : `ASSINAR ${plan.name.toUpperCase()}`}
+                                    {loading ? 'PROCESSANDO...' : plan.id === 'normal' ? 'PLANO GRATUITO' : `ASSINAR ${plan.name.toUpperCase()}`}
                                 </button>
                             </div>
                         )
@@ -211,4 +213,3 @@ export default function Planos() {
         </>
     );
 }
-
