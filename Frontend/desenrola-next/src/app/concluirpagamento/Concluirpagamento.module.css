@@ -16,7 +16,6 @@
   box-sizing: border-box;
 }
 
-
 /* --- Card de Sucesso --- */
 
 .card {
@@ -37,7 +36,6 @@
   /* Sombra sutil de duas camadas para dar uma sensação de profundidade */
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 4px 10px rgba(0, 0, 0, 0.02);
 }
-
 
 /* --- Elementos do Card --- */
 
