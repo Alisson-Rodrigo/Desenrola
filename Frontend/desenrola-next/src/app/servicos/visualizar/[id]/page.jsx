@@ -455,20 +455,39 @@ export default function VisualizarServico({ params }) {
           {/* Infos */}
           <div className={styles.infoSection}>
             <div className={styles.infoGrid}>
+              {/* Preço */}
               <div className={styles.infoCard}>
                 <div className={styles.infoValue}>{servico.preco}</div>
                 <div className={styles.infoLabel}>Preço</div>
               </div>
-        
+
+              {/* Status + Botão */}
               <div className={styles.infoCard}>
-                <div className={`${styles.statusBadge} ${servico.status === 'Disponível' ? styles.statusAvailable : styles.statusUnavailable}`}>
-                  <span className={styles.statusDot}></span>
-                  {servico.status}
+                <div className={styles.statusContainer}>
+                  <div
+                    className={`${styles.statusBadge} ${
+                      servico.status === "Disponível"
+                        ? styles.statusAvailable
+                        : styles.statusUnavailable
+                    }`}
+                  >
+                    <span className={styles.statusDot}></span>
+                    {servico.status}
+                  </div>
+
+                  {/* Botão com texto */}
+                  <button className={styles.favoriteBox}>
+                    ❤️ Adicionar favorito
+                  </button>
                 </div>
+
                 <div className={styles.infoLabel}>Status</div>
               </div>
             </div>
           </div>
+
+
+
 
           {/* Prestador */}
           <div className={styles.prestadorCard}>
