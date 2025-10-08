@@ -29,6 +29,29 @@ function HomePage({ hasToken }) {
   const [featuredServices, setFeaturedServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [showCookieConsent, setShowCookieConsent] = useState(false);
+  const [Cookies, setCookies] = useState(null);
+
+  // Carregar js-cookie dinamicamente
+  useEffect(() => {
+    import('js-cookie').then((module) => {
+      setCookies(module.default);
+      console.log('js-cookie carregado:', module.default); // Debug
+    });
+  }, []);
+
+  // Verificar se usuário já aceitou cookies
+  useEffect(() => {
+    if (!Cookies) return;
+    
+    const cookieConsent = Cookies.get('cookieConsent');
+    console.log('Cookie Consent:', cookieConsent); // Debug
+    
+    if (!cookieConsent) {
+      console.log('Mostrando banner de cookies'); // Debug
+      setShowCookieConsent(true);
+    }
+  }, [Cookies]);
 
   // Categorias em destaque
   const featuredCategories = [
@@ -100,6 +123,44 @@ function HomePage({ hasToken }) {
   const formatPrice = (price) => new Intl.NumberFormat('pt-BR', {
     style: 'currency', currency: 'BRL'
   }).format(price);
+
+  // Aceitar cookies
+  const acceptCookies = () => {
+    if (!Cookies) return;
+    
+    Cookies.set('cookieConsent', 'accepted', {
+      expires: 365, // 1 ano
+      path: '/',
+      sameSite: 'strict'
+    });
+    setShowCookieConsent(false);
+    
+    // Salvar preferências do usuário (exemplo)
+    Cookies.set('userPreferences', JSON.stringify({
+      theme: 'light',
+      language: 'pt-BR',
+      notifications: true
+    }), {
+      expires: 365,
+      path: '/'
+    });
+    
+    console.log('Cookies aceitos!'); // Debug
+  };
+
+  // Rejeitar cookies (apenas essenciais)
+  const rejectCookies = () => {
+    if (!Cookies) return;
+    
+    Cookies.set('cookieConsent', 'rejected', {
+      expires: 365,
+      path: '/',
+      sameSite: 'strict'
+    });
+    setShowCookieConsent(false);
+    
+    console.log('Cookies rejeitados'); // Debug
+  };
 
   // Buscar serviços em destaque (VIP e Master)
   const fetchFeaturedServices = async () => {
@@ -375,6 +436,29 @@ function HomePage({ hasToken }) {
               </button>
               <button onClick={() => setShowOverlay(false)} className={styles.overlayCancelButton}>
                 Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Banner de Cookies */}
+      {showCookieConsent && (
+        <div className={styles.cookieBanner}>
+          <div className={styles.cookieContent}>
+            <div className={styles.cookieText}>
+              <h4>🍪 Nós usamos cookies</h4>
+              <p>
+                Utilizamos cookies para melhorar sua experiência, personalizar conteúdo e analisar nosso tráfego. 
+                Ao clicar em "Aceitar", você concorda com o uso de cookies.
+              </p>
+            </div>
+            <div className={styles.cookieActions}>
+              <button onClick={acceptCookies} className={styles.cookieAcceptButton}>
+                Aceitar Cookies
+              </button>
+              <button onClick={rejectCookies} className={styles.cookieRejectButton}>
+                Apenas Essenciais
               </button>
             </div>
           </div>
