@@ -15,5 +15,7 @@ namespace Desenrola.Application.Contracts.Persistance.Repositories
         Task<int> GetUnreadMessagesCount(Guid conversationId, string userId);
         Task MarkMessagesAsReadByConversation(Guid conversationId, string userId);
         Task MarkMessageAsRead(int messageId);
+        Task<int> GetTotalUnreadMessagesCount(string userId);
+
     }
 }
