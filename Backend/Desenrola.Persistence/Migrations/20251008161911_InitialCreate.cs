@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Desenrola.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class PaymentsFix : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -165,6 +165,40 @@ namespace Desenrola.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Conversations",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                    UserId1 = table.Column<string>(type: "text", nullable: true),
+                    UserId2 = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW() AT TIME ZONE 'UTC'"),
+                    UserId = table.Column<string>(type: "text", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Conversations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Conversations_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Conversations_AspNetUsers_UserId1",
+                        column: x => x.UserId1,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Conversations_AspNetUsers_UserId2",
+                        column: x => x.UserId2,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Payments",
                 columns: table => new
                 {
@@ -223,6 +257,36 @@ namespace Desenrola.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Messages",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "uuid_generate_v4()"),
+                    ConversationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    SenderId = table.Column<string>(type: "text", nullable: true),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "NOW() AT TIME ZONE 'UTC'"),
+                    IsRead = table.Column<bool>(type: "boolean", nullable: false),
+                    ReadAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Messages_AspNetUsers_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Messages_Conversations_ConversationId",
+                        column: x => x.ConversationId,
+                        principalTable: "Conversations",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Evaluations",
                 columns: table => new
                 {
@@ -245,6 +309,33 @@ namespace Desenrola.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Evaluations_Providers_ProviderId",
+                        column: x => x.ProviderId,
+                        principalTable: "Providers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Favorites",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ProviderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ModifiedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Favorites", x => new { x.UserId, x.ProviderId });
+                    table.ForeignKey(
+                        name: "FK_Favorites_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Favorites_Providers_ProviderId",
                         column: x => x.ProviderId,
                         principalTable: "Providers",
                         principalColumn: "Id",
@@ -340,6 +431,21 @@ namespace Desenrola.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Conversations_UserId",
+                table: "Conversations",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Conversations_UserId1",
+                table: "Conversations",
+                column: "UserId1");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Conversations_UserId2",
+                table: "Conversations",
+                column: "UserId2");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Evaluations_ProviderId",
                 table: "Evaluations",
                 column: "ProviderId");
@@ -348,6 +454,21 @@ namespace Desenrola.Persistence.Migrations
                 name: "IX_Evaluations_UserId",
                 table: "Evaluations",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Favorites_ProviderId",
+                table: "Favorites",
+                column: "ProviderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_ConversationId",
+                table: "Messages",
+                column: "ConversationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_SenderId",
+                table: "Messages",
+                column: "SenderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_PaymentIntentId",
@@ -405,6 +526,12 @@ namespace Desenrola.Persistence.Migrations
                 name: "Evaluations");
 
             migrationBuilder.DropTable(
+                name: "Favorites");
+
+            migrationBuilder.DropTable(
+                name: "Messages");
+
+            migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
@@ -415,6 +542,9 @@ namespace Desenrola.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Conversations");
 
             migrationBuilder.DropTable(
                 name: "Providers");

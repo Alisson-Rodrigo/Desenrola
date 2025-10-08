@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Desenrola.Persistence.Migrations
 {
     [DbContext(typeof(DefaultContext))]
-    [Migration("20251008013513_ChatMessage")]
-    partial class ChatMessage
+    [Migration("20251008161911_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -98,6 +98,30 @@ namespace Desenrola.Persistence.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Evaluations");
+                });
+
+            modelBuilder.Entity("Desenrola.Domain.Entities.Favorite", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ProviderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ModifiedOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "ProviderId");
+
+                    b.HasIndex("ProviderId");
+
+                    b.ToTable("Favorites");
                 });
 
             modelBuilder.Entity("Desenrola.Domain.Entities.Message", b =>
@@ -602,6 +626,25 @@ namespace Desenrola.Persistence.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Desenrola.Domain.Entities.Favorite", b =>
+                {
+                    b.HasOne("Desenrola.Domain.Entities.Provider", "Provider")
+                        .WithMany("FavoritedBy")
+                        .HasForeignKey("ProviderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Desenrola.Domain.Entities.User", "User")
+                        .WithMany("Favorites")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Provider");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Desenrola.Domain.Entities.Message", b =>
                 {
                     b.HasOne("Desenrola.Domain.Entities.Conversation", "Conversation")
@@ -723,6 +766,8 @@ namespace Desenrola.Persistence.Migrations
                 {
                     b.Navigation("Evaluations");
 
+                    b.Navigation("FavoritedBy");
+
                     b.Navigation("Schedules");
 
                     b.Navigation("Services");
@@ -733,6 +778,8 @@ namespace Desenrola.Persistence.Migrations
                     b.Navigation("Conversation");
 
                     b.Navigation("Evaluations");
+
+                    b.Navigation("Favorites");
 
                     b.Navigation("Payments");
 

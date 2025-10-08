@@ -12,7 +12,13 @@ export const FavoritesService = {
       method: 'GET',
       headers: authHeaders()
     });
-    if (!res.ok) throw new Error('Erro ao buscar favoritos');
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("❌ Erro ao buscar favoritos:", err);
+      throw new Error('Erro ao buscar favoritos');
+    }
+
     return res.json(); // [{ providerId }]
   },
 
@@ -22,7 +28,12 @@ export const FavoritesService = {
       headers: authHeaders(),
       body: JSON.stringify({ providerId })
     });
-    if (!res.ok) throw new Error('Erro ao adicionar favorito');
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("❌ Erro ao adicionar favorito:", err);
+      throw new Error('Erro ao adicionar favorito');
+    }
   },
 
   async remove(providerId) {
@@ -31,7 +42,12 @@ export const FavoritesService = {
       headers: authHeaders(),
       body: JSON.stringify({ providerId })
     });
-    if (!res.ok) throw new Error('Erro ao remover favorito');
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("❌ Erro ao remover favorito:", err);
+      throw new Error('Erro ao remover favorito');
+    }
   },
 
   async getProvider(providerId) {
@@ -39,7 +55,13 @@ export const FavoritesService = {
       method: 'GET',
       headers: authHeaders()
     });
-    if (!res.ok) throw new Error('Erro ao buscar dados do prestador');
+
+    if (!res.ok) {
+      const err = await res.text();
+      console.error("❌ Erro ao buscar dados do prestador:", err);
+      throw new Error('Erro ao buscar dados do prestador');
+    }
+
     return res.json();
   }
 };

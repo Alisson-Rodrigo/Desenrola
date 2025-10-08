@@ -10,6 +10,9 @@ import { FavoritesService } from "../../../../services/favoritesService";
 
 export default function VisualizarServico({ params }) {
   const { id } = use(params);
+  const providerId = id;
+
+
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [servico, setServico] = useState(null);
@@ -45,6 +48,18 @@ export default function VisualizarServico({ params }) {
     
     return headers;
   };
+
+
+  const handleFavorite = async () => {
+    try {
+      await FavoritesService.add(providerId);
+      setIsFavorited(true);
+      console.log("✔️ Favoritado com sucesso");
+    } catch (err) {
+      console.error("Erro ao favoritar:", err);
+    }
+  };
+
 
   // Buscar avaliações do prestador
   const fetchAvaliacoes = async (providerId) => {
@@ -483,39 +498,46 @@ export default function VisualizarServico({ params }) {
               </div>
 
               {/* Favorito */}
-              <div className={styles.infoCard}>
-                <button
-                  className={`${styles.favoriteBox} ${
-                    isFavorited ? styles.favorited : ""
-                  }`}
-                  onClick={async () => {
-                    try {
-                      if (isFavorited) {
-                        // Remover favorito
-                        await FavoritesService.remove(servico.providerId);
-                        setIsFavorited(false);
-                        console.log("❌ Removido dos favoritos");
-                      } else {
-                        // Adicionar favorito
-                        await FavoritesService.add(servico.providerId);
-                        setIsFavorited(true);
-                        console.log("✅ Adicionado aos favoritos");
-                      }
-                    } catch (err) {
-                      console.error("Erro ao alternar favorito:", err);
-                    }
-                  }}
-                >
-                  <span
-                    className={`${styles.heartIcon} ${
-                      isFavorited ? styles.heartActive : ""
+                <div className={styles.infoCard}>
+                  <button
+                    className={`${styles.favoriteBox} ${
+                      isFavorited ? styles.favorited : ""
                     }`}
+                    disabled={!servico?.providerId} // 🔒 evita clique antes de carregar
+                    onClick={async () => {
+                      if (!servico?.providerId) {
+                        console.warn("⚠️ ProviderId ainda não disponível.");
+                        return;
+                      }
+
+                      try {
+                        if (isFavorited) {
+                          // 🔻 Remover favorito
+                          await FavoritesService.remove(servico.providerId);
+                          setIsFavorited(false);
+                          console.log(`❌ Removido dos favoritos (providerId: ${servico.providerId})`);
+                        } else {
+                          // ❤️ Adicionar favorito
+                          await FavoritesService.add(servico.providerId);
+                          setIsFavorited(true);
+                          console.log(`✅ Adicionado aos favoritos (providerId: ${servico.providerId})`);
+                        }
+                      } catch (err) {
+                        console.error("🚨 Erro ao alternar favorito:", err);
+                      }
+                    }}
                   >
-                    ❤️
-                  </span>
-                  {isFavorited ? "Remover favorito" : "Adicionar favorito"}
-                </button>
-            </div>
+                    <span
+                      className={`${styles.heartIcon} ${
+                        isFavorited ? styles.heartActive : ""
+                      }`}
+                    >
+                      ❤️
+                    </span>
+                    {isFavorited ? "Remover favorito" : "Adicionar favorito"}
+                  </button>
+                </div>
+
             </div>
           </div>
 

@@ -118,7 +118,7 @@ namespace Desenrola.Persistence.Migrations
 
                     b.HasIndex("ProviderId");
 
-                    b.ToTable("Favorite");
+                    b.ToTable("Favorites");
                 });
 
             modelBuilder.Entity("Desenrola.Domain.Entities.Message", b =>
