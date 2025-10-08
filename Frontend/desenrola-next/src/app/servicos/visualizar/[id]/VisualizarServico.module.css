@@ -1435,3 +1435,53 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+/* ============================= */
+/* CARD DO BOTÃO FAVORITO        */
+/* ============================= */
+.favoriteBox {
+  background: #e9fff0;
+  border: 1px solid #7bd897;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a7431;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+/* Efeito hover */
+.favoriteBox:hover {
+  background: #c7ffd7;
+  border-color: #54c270;
+  transform: scale(1.03);
+}
+
+/* Efeito de clique */
+.favoriteBox:active {
+  transform: scale(0.97);
+}
+
+/* Ícone do coração */
+.heartIcon {
+  font-size: 18px;
+  color: #1a7431; /* cor padrão */
+  transition: color 0.3s ease;
+}
+
+/* Coração ativo */
+.heartActive {
+  color: #ff4b5c; /* vermelho ao clicar */
+}
+
+/* Botão ativo (favoritado) */
+.favorited {
+  background: #ffe9eb;
+  border-color: #ff6f7a;
+  color: #c70039;
+}
