@@ -1,19 +1,19 @@
+"use client";
+
 import React from 'react';
-import styles from './Concluirpagamento.module.css'; // Estilos específicos para este componente (CSS Modules)
-import { FiCheck } from 'react-icons/fi'; // Ícone de check da biblioteca Feather Icons
+import styles from './Concluirpagamento.module.css';
+import { FiCheck } from 'react-icons/fi';
+import { useRouter } from 'next/navigation'; // 1. Importe o useRouter
 
 const PaginaFinal = () => {
+  const router = useRouter(); // 2. Instancie o router
 
-  // Função placeholder para a navegação. Em um app real, aqui entraria a lógica do React Router.
   const handleVoltar = () => {
-    console.log("Voltando...");
+    router.push('/'); // 3. Use o router para navegar para a página inicial
   };
 
   return (
-    // Container principal que usa flexbox para centralizar o card na tela inteira.
     <div className={styles.container}>
-      
-      {/* O card de sucesso que agrupa o conteúdo */}
       <div className={styles.card}>
         <div className={styles.iconWrapper}>
           <FiCheck className={styles.icon} />

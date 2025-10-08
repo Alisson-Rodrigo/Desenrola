@@ -26,7 +26,7 @@ namespace Desenrola.Application.Services
             _priceVip = Environment.GetEnvironmentVariable("STRIPE_PRICE_VIP") ?? string.Empty;
 
             // ✅ URLs de sucesso e cancelamento (pode vir do .env)
-            _successUrl = Environment.GetEnvironmentVariable("STRIPE_SUCCESS_URL") ?? "https://app.desenrola.com/success";
+            _successUrl = Environment.GetEnvironmentVariable("STRIPE_SUCCESS_URL") ?? "http://localhost:3000/concluirpagamento";
             _cancelUrl = Environment.GetEnvironmentVariable("STRIPE_CANCEL_URL") ?? "https://app.desenrola.com/cancel";
 
             if (string.IsNullOrEmpty(_priceMaster) || string.IsNullOrEmpty(_priceVip))

@@ -1,4 +1,3 @@
-// page.jsx
 'use client';
 
 import { useState } from 'react';
@@ -69,17 +68,14 @@ export default function Planos() {
     const handleCheckout = async (planId) => {
         setLoading(true);
         try {
-            // Recupera o token do localStorage
             const token = localStorage.getItem('auth_token');
             
             if (!token) {
                 alert('Você precisa estar logado para assinar um plano!');
-                // Redireciona para login
                 window.location.href = '/login';
                 return;
             }
 
-            // Mapeia os IDs dos planos para números
             const planIdMap = {
                 'normal': 1,
                 'vip': 2,
@@ -104,14 +100,12 @@ export default function Planos() {
 
             const data = await response.json();
             
-            // Se a API retornar uma URL de pagamento, redireciona
             if (data.checkoutUrl) {
                 window.location.href = data.checkoutUrl;
             } else if (data.paymentUrl) {
                 window.location.href = data.paymentUrl;
             } else {
                 alert('Plano assinado com sucesso!');
-                // Redireciona para dashboard
                 window.location.href = '/dashboard';
             }
 
@@ -128,7 +122,6 @@ export default function Planos() {
             <Navbar />
 
             <div className={styles.container}>
-                {/* Cabeçalho */}
                 <div className={styles.header}>
                     <h1>Escolha o Plano Ideal para Você</h1>
                     <p>Encontre prestadores de confiança, solicite serviços com facilidade e tenha acesso a recursos exclusivos. Comece grátis e evolua quando precisar!</p>
@@ -149,7 +142,6 @@ export default function Planos() {
                     </div>
                 </div>
 
-                {/* Planos */}
                 <div className={styles.plansGrid}>
                     {Object.values(plansData).map(plan => {
                         const isSelected = selectedPlan === plan.id;
@@ -180,27 +172,27 @@ export default function Planos() {
                                     ))}
                                 </ul>
                                 <button 
-                                    className={plan.id === 'vip' ? styles.buttonVip : styles.buttonPrimary}
+                                    className={plan.id === 'normal' ? styles.buttonDisabled : plan.id === 'vip' ? styles.buttonVip : styles.buttonPrimary}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleCheckout(plan.id);
+                                        if (plan.id !== 'normal') {
+                                            handleCheckout(plan.id);
+                                        }
                                     }}
-                                    disabled={loading}
+                                    disabled={loading || plan.id === 'normal'}
                                 >
-                                    {loading ? 'PROCESSANDO...' : plan.id === 'normal' ? 'COMEÇAR GRÁTIS' : `ASSINAR ${plan.name.toUpperCase()}`}
+                                    {loading ? 'PROCESSANDO...' : plan.id === 'normal' ? 'PLANO GRATUITO' : `ASSINAR ${plan.name.toUpperCase()}`}
                                 </button>
                             </div>
                         )
                     })}
                 </div>
 
-                {/* Garantia */}
                 <div className={styles.guaranteeBox}>
                     <h3>Garantia de 30 Dias</h3>
                     <p>Não ficou satisfeito? Oferecemos reembolso total em até 30 dias. Experimente sem riscos e veja como o Desenrola pode transformar seu negócio!</p>
                 </div>
 
-                {/* FAQ */}
                 <div className={styles.faqSection}>
                     <h2>❓ Perguntas Frequentes</h2>
                     {faqData.map(item => (
