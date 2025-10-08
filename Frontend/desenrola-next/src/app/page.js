@@ -17,8 +17,6 @@ import {
   Star,
   Clock,
   ArrowRight,
-  Crown,
-  Zap,
   Award,
   ChevronRight
 } from 'lucide-react';
@@ -36,7 +34,6 @@ function HomePage({ hasToken }) {
   useEffect(() => {
     import('js-cookie').then((module) => {
       setCookies(module.default);
-      console.log('js-cookie carregado:', module.default); // Debug
     });
   }, []);
 
@@ -45,10 +42,8 @@ function HomePage({ hasToken }) {
     if (!Cookies) return;
     
     const cookieConsent = Cookies.get('cookieConsent');
-    console.log('Cookie Consent:', cookieConsent); // Debug
     
     if (!cookieConsent) {
-      console.log('Mostrando banner de cookies'); // Debug
       setShowCookieConsent(true);
     }
   }, [Cookies]);
@@ -129,13 +124,12 @@ function HomePage({ hasToken }) {
     if (!Cookies) return;
     
     Cookies.set('cookieConsent', 'accepted', {
-      expires: 365, // 1 ano
+      expires: 365,
       path: '/',
       sameSite: 'strict'
     });
     setShowCookieConsent(false);
     
-    // Salvar preferências do usuário (exemplo)
     Cookies.set('userPreferences', JSON.stringify({
       theme: 'light',
       language: 'pt-BR',
@@ -144,11 +138,9 @@ function HomePage({ hasToken }) {
       expires: 365,
       path: '/'
     });
-    
-    console.log('Cookies aceitos!'); // Debug
   };
 
-  // Rejeitar cookies (apenas essenciais)
+  // Rejeitar cookies
   const rejectCookies = () => {
     if (!Cookies) return;
     
@@ -158,15 +150,12 @@ function HomePage({ hasToken }) {
       sameSite: 'strict'
     });
     setShowCookieConsent(false);
-    
-    console.log('Cookies rejeitados'); // Debug
   };
 
-  // Buscar serviços em destaque (VIP e Master)
+  // Buscar serviços em destaque
   const fetchFeaturedServices = async () => {
     setLoading(true);
     try {
-      // TODO: Quando a API suportar filtro por plano, adicionar parâmetros
       const response = await fetch('http://localhost:5087/api/provider/services/paged?PageSize=6&OnlyActive=true', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
@@ -177,7 +166,6 @@ function HomePage({ hasToken }) {
       const data = await response.json();
       
       if (data.items) {
-        // Por enquanto pegamos os 6 primeiros, mas futuramente filtrar por plano VIP/Master
         setFeaturedServices(data.items);
       }
     } catch (error) {
@@ -191,19 +179,6 @@ function HomePage({ hasToken }) {
   useEffect(() => {
     fetchFeaturedServices();
   }, []);
-
-  // Função para retornar badge do plano (preparado para quando implementar)
-  const getPlanBadge = (plan) => {
-    // TODO: Quando a API retornar o plano do prestador
-    switch(plan) {
-      case 'MASTER':
-        return <span className={styles.planBadgeMaster}><Crown size={14} /> Master</span>;
-      case 'VIP':
-        return <span className={styles.planBadgeVip}><Zap size={14} /> VIP</span>;
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className={styles.homePage}>
@@ -288,7 +263,7 @@ function HomePage({ hasToken }) {
         </div>
       </section>
 
-      {/* Serviços em Destaque (VIP e Master) */}
+      {/* Serviços em Destaque */}
       <section className={styles.featuredSection}>
         <div className={styles.container}>
           <div className={styles.sectionHeader}>
@@ -323,9 +298,7 @@ function HomePage({ hasToken }) {
                   className={styles.featuredCard}
                   onClick={() => requireAuth(() => router.push(`/servicos/visualizar/${service.id}`))}
                 >
-                  {/* Badge do Plano - TODO: implementar quando API retornar o plano */}
                   <div className={styles.planBadgeWrapper}>
-                    {/* {getPlanBadge(service.providerPlan)} */}
                     <span className={styles.planBadgeFeatured}>
                       <Star size={14} /> Destaque
                     </span>
@@ -360,7 +333,7 @@ function HomePage({ hasToken }) {
                           className={styles.cardProvider}
                           onClick={(e) => {
                             e.stopPropagation();
-                            requireAuth(() => router.push(`perfil/prestador/${service.providerId}`));
+                            requireAuth(() => router.push(`/perfil/prestador/${service.providerId}`));
                           }}
                         >
                           <User size={14} />

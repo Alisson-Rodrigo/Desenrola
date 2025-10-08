@@ -48,10 +48,14 @@ namespace Desenrola.Application.Services
         /// Mantido para compatibilidade, mas recomenda-se usar a controller
         /// </summary>
         /// <param name="messageData">Dados da mensagem</param>
-        public async Task SendMessageToGroup(ResponseSendMessageCommunication messageData)
-        {
-            await Clients.Group(messageData.ConversationId.ToString()).SendAsync("ReceiveMessage", messageData);
-        }
+public async Task SendMessageToGroup(SendMessageCommunication messageData)
+{
+    Console.WriteLine($"📩 Recebido no Hub: {messageData?.ConversationId} | {messageData?.ReceiverId} | {messageData?.Content}");
+
+    await Clients.Group(messageData.ConversationId.ToString())
+        .SendAsync("ReceiveMessage", messageData);
+}
+
 
         /// <summary>
         /// Notifica que um usuário está digitando

@@ -8,7 +8,6 @@ import styles from './ServicosPage.module.css';
 
 import { 
   Search, 
-  Filter, 
   ChevronLeft, 
   ChevronRight,
   User,
@@ -35,16 +34,12 @@ export default function ServicosPage() {
   const [hasToken, setHasToken] = useState(false);
   
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   
   const [filters, setFilters] = useState({
     onlyActive: true,
-    providerId: '',
-    category: '',
-    minPrice: '',
-    maxPrice: ''
+    category: ''
   });
 
   // Categorias mapeadas
@@ -102,19 +97,18 @@ export default function ServicosPage() {
     }
   };
 
-  const fetchServices = async (page = 1, searchTerm = '', onlyActive = true, providerId = '', category = '') => {
+  const fetchServices = async (page = 1, searchTerm = '', onlyActive = true, category = '') => {
     setLoading(true);
     
     try {
       const params = new URLSearchParams({
         Page: page.toString(),
-        PageSize: pageSize.toString(),
+        PageSize: '20',
         OnlyActive: onlyActive.toString()
       });
 
       if (searchTerm.trim()) params.append('Search', searchTerm.trim());
-      if (providerId.trim()) params.append('ProviderId', providerId.trim());
-      if (category) params.append('Category', category);
+      if (category) params.append('ServiceCategory', category);
 
       const response = await fetch(`http://localhost:5087/api/provider/services/paged?${params}`, {
         method: 'GET',
@@ -147,29 +141,29 @@ export default function ServicosPage() {
   };
 
   useEffect(() => {
-    fetchServices(1, debouncedQuery, filters.onlyActive, filters.providerId, filters.category);
+    fetchServices(1, debouncedQuery, filters.onlyActive, filters.category);
     setCurrentPage(1);
-  }, [debouncedQuery, pageSize, filters.onlyActive, filters.providerId, filters.category]);
+  }, [debouncedQuery, filters.onlyActive, filters.category]);
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      fetchServices(newPage, debouncedQuery, filters.onlyActive, filters.providerId, filters.category);
+      fetchServices(newPage, debouncedQuery, filters.onlyActive, filters.category);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const applyFilters = () => {
     setCurrentPage(1);
-    fetchServices(1, debouncedQuery, filters.onlyActive, filters.providerId, filters.category);
+    fetchServices(1, debouncedQuery, filters.onlyActive, filters.category);
     setShowFilters(false);
   };
 
   const clearFilters = () => {
-    setFilters({ onlyActive: true, providerId: '', category: '', minPrice: '', maxPrice: '' });
+    setFilters({ onlyActive: true, category: '' });
     setQuery('');
     setCurrentPage(1);
-    fetchServices(1, '', true, '', '');
+    fetchServices(1, '', true, '');
   };
 
   const handleInputChange = (e) => setQuery(e.target.value);
@@ -275,18 +269,6 @@ export default function ServicosPage() {
             </div>
 
             <div className={styles.toolbarRight}>
-              {/* Page Size Selector */}
-              <select 
-                value={pageSize} 
-                onChange={(e) => setPageSize(Number(e.target.value))}
-                className={styles.pageSizeSelect}
-              >
-                <option value={12}>12 por página</option>
-                <option value={20}>20 por página</option>
-                <option value={50}>50 por página</option>
-                <option value={100}>100 por página</option>
-              </select>
-
               {/* View Mode Toggle */}
               <div className={styles.viewToggle}>
                 <button onClick={() => setViewMode('grid')} className={`${styles.viewButton} ${viewMode === 'grid' ? styles.viewButtonActive : ''}`}>
@@ -301,7 +283,7 @@ export default function ServicosPage() {
               <button onClick={() => setShowFilters(!showFilters)} className={styles.filterButton}>
                 <SlidersHorizontal size={18} />
                 Filtros
-                {(filters.providerId || !filters.onlyActive || filters.category) && (
+                {(!filters.onlyActive || filters.category) && (
                   <span className={styles.filterBadge}>•</span>
                 )}
               </button>
@@ -312,7 +294,7 @@ export default function ServicosPage() {
           {showFilters && (
             <div className={styles.filtersPanel}>
               <div className={styles.filtersPanelHeader}>
-                <h3>Filtros Avançados</h3>
+                <h3>Filtros</h3>
                 <button onClick={() => setShowFilters(false)} className={styles.closeFiltersButton}>
                   <X size={20} />
                 </button>
@@ -342,17 +324,6 @@ export default function ServicosPage() {
                     />
                     Apenas serviços ativos
                   </label>
-                </div>
-
-                <div className={styles.filterGroup}>
-                  <label>ID do Prestador (opcional)</label>
-                  <input 
-                    type="text"
-                    value={filters.providerId}
-                    onChange={(e) => setFilters({...filters, providerId: e.target.value})}
-                    placeholder="Digite o ID..."
-                    className={styles.filterInput}
-                  />
                 </div>
               </div>
 
