@@ -6,12 +6,26 @@ using Stripe;
 
 namespace Desenrola.Application.Services
 {
+
+    /// <summary>
+    /// Serviço responsável pela integração com o Stripe para processar pagamentos únicos (checkout).
+    /// </summary>
+    /// 
     public class StripeService : IStripeService
     {
         private readonly string _priceMaster;
         private readonly string _priceVip;
         private readonly string _successUrl;
         private readonly string _cancelUrl;
+
+
+        /// <summary>
+        /// Construtor do serviço do Stripe. 
+        /// Inicializa as configurações da API e recupera variáveis de ambiente necessárias para o funcionamento do pagamento.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// Lançada caso a chave da API ou os IDs de preço não estejam configurados nas variáveis de ambiente.
+        /// </exception>
 
         public StripeService()
         {
@@ -32,6 +46,14 @@ namespace Desenrola.Application.Services
             if (string.IsNullOrEmpty(_priceMaster) || string.IsNullOrEmpty(_priceVip))
                 throw new InvalidOperationException("IDs de preço não configurados (STRIPE_PRICE_MASTER/VIP).");
         }
+
+        /// <summary>
+        /// Cria uma sessão de pagamento único (checkout) no Stripe para um usuário específico e tipo de plano.
+        /// </summary>
+        /// <param name="user">Usuário que realizará o pagamento.</param>
+        /// <param name="planType">Tipo de plano a ser adquirido (VIP ou Master).</param>
+        /// <returns>Um objeto <see cref="ResponseStripeDTO"/> contendo a URL do pagamento e os detalhes da sessão.</returns>
+        /// <exception cref="ArgumentException">Lançada caso o tipo de plano seja inválido.</exception>
 
         public async Task<ResponseStripeDTO> CreateOneTimePayment(User user, PlanTypeEnum planType)
         {
