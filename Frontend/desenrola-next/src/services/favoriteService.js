@@ -18,7 +18,8 @@ export const FavoritesService = {
       if (!res.ok) {
         const err = await res.text();
         console.error("❌ Erro ao buscar favoritos:", err);
-        throw new Error('Erro ao buscar favoritos');
+        // Retorna um array vazio em caso de erro para não interromper o fluxo
+        return [];
       }
 
       const data = await res.json();
@@ -28,8 +29,7 @@ export const FavoritesService = {
       if (data && Array.isArray(data.providers)) {
         return data.providers; // [{ id, name, serviceName }]
       } else {
-        // Caso não haja favoritos, retornamos um array vazio
-        console.log("Nenhum provedor favoritado encontrado.");
+        // Caso não haja favoritos, retorna um array vazio
         return []; // Retorna um array vazio se não houver favoritos
       }
     } catch (err) {

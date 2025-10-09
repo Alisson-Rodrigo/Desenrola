@@ -113,14 +113,6 @@ export default function FavoritosPage() {
             <h2>{favoritedProviders.length}</h2>
             <p>Prestadores Favoritos</p>
           </div>
-          <div className={styles.statCard}>
-            <h2>--</h2>
-            <p>Serviços Realizados</p>
-          </div>
-          <div className={styles.statCard}>
-            <h2>--</h2>
-            <p>Avaliação Média</p>
-          </div>
         </div>
 
         {/* Lista */}
