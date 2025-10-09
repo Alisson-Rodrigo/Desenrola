@@ -50,27 +50,33 @@ export default function VisualizarServico({ params }) {
   };
 
 
- const handleFavorite = async () => {
-    try {
-      // Verificar se o prestador já foi favoritado
-      const allFavorites = await FavoritesService.getAll(); // Buscar todos os favoritos
-
-      const isFavorited = allFavorites.some(fav => fav.providerId === providerId);
-
-      if (isFavorited) {
-        console.log("O prestador já foi favoritado");
-        setIsFavorited(true); // Atualiza o estado para refletir que o prestador já foi favoritado
-        return; // Não faz nada se já estiver favoritado
-      }
-
-      // Adicionar o prestador aos favoritos
-      await FavoritesService.add(providerId);
-      setIsFavorited(true); // Atualiza o estado para refletir que o prestador foi favoritado com sucesso
-      console.log("✔️ Favoritado com sucesso");
-    } catch (err) {
-      console.error("Erro ao favoritar:", err);
-    }
+  // Função de verificar se o prestador já foi favoritado
+  const checkIfFavorited = async () => {
+    const allFavorites = await FavoritesService.getAll(); // Buscar todos os favoritos
+    const isFavorited = allFavorites.some(fav => fav.providerId === providerId); // Verifica se o providerId está nos favoritos
+    setIsFavorited(isFavorited); // Atualiza o estado de favoritado
   };
+
+
+// Função de adicionar/remover favorito
+const handleFavorite = async () => {
+  try {
+    if (isFavorited) {
+      // Remover do favorito
+      await FavoritesService.remove(providerId);
+      setIsFavorited(false); // Atualiza o estado para refletir a remoção
+      console.log("✔️ Favorito removido com sucesso");
+    } else {
+      // Adicionar aos favoritos
+      await FavoritesService.add(providerId);
+      setIsFavorited(true); // Atualiza o estado para refletir a adição
+      console.log("✔️ Favoritado com sucesso");
+    }
+  } catch (err) {
+    console.error("Erro ao alternar favorito:", err);
+  }
+};
+
 
 
 
@@ -278,80 +284,75 @@ export default function VisualizarServico({ params }) {
   };
 
   // Buscar dados do serviço pela API
-useEffect(() => {
-  const fetchServico = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  useEffect(() => {
+    const fetchServico = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-      // Fazendo a requisição para buscar os dados do serviço
-      const response = await fetch(
-        `http://localhost:5087/api/provider/services/paged?ServiceId=${id}&Page=1&PageSize=1`,
-        {
-          method: 'GET',
-          headers: getAuthHeaders(),
-        }
-      );
+        const response = await fetch(
+          `http://localhost:5087/api/provider/services/paged?ServiceId=${id}&Page=1&PageSize=1`,
+          {
+            method: 'GET',
+            headers: getAuthHeaders(),
+          }
+        );
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Token de autenticação inválido ou expirado');
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error('Token de autenticação inválido ou expirado');
+          }
+          throw new Error(`Erro na API: ${response.status}`);
         }
-        throw new Error(`Erro na API: ${response.status}`);
+
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+          const servicoData = data.items[0];
+
+          const servicoFormatado = {
+            id: servicoData.id,
+            providerId: servicoData.providerId,
+            titulo: servicoData.title,
+            descricao: servicoData.description,
+            categoria: servicoData.category,
+            endereco: "Endereço não informado",
+            prestador: {
+              nome: servicoData.providerName,
+              iniciais: getInitials(servicoData.providerName),
+              especialidade: `Especialista em ${servicoData.category}`,
+            },
+            status: servicoData.isAvailable ? "Disponível" : "Indisponível",
+            preco: `R$ ${servicoData.price.toFixed(2)}`,
+            dataServico: new Date(servicoData.dateTime).toLocaleDateString('pt-BR'),
+            isActive: servicoData.isActive,
+            images: servicoData.images || [],
+          };
+
+          console.log('Dados do serviço carregados:', servicoFormatado);
+          setServico(servicoFormatado);
+
+          // **Verificação de Favorito: Aqui você faz a verificação de favorito após carregar o serviço**
+          checkIfFavorited(); // Atualiza o estado de isFavorited após carregar o serviço
+
+        } else {
+          setError('Serviço não encontrado');
+        }
+
+      } catch (err) {
+        console.error('Erro ao buscar serviço:', err);
+        setError('Erro ao carregar os dados do serviço');
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const data = await response.json();
-
-      if (data.items && data.items.length > 0) {
-        const servicoData = data.items[0];
-
-        const servicoFormatado = {
-          id: servicoData.id,
-          providerId: servicoData.providerId,
-          titulo: servicoData.title,
-          descricao: servicoData.description,
-          categoria: servicoData.category,
-          endereco: "Endereço não informado",
-          prestador: {
-            nome: servicoData.providerName,
-            iniciais: getInitials(servicoData.providerName),
-            especialidade: `Especialista em ${servicoData.category}`,
-          },
-          status: servicoData.isAvailable ? "Disponível" : "Indisponível",
-          preco: `R$ ${servicoData.price.toFixed(2)}`,
-          dataServico: new Date(servicoData.dateTime).toLocaleDateString('pt-BR'),
-          isActive: servicoData.isActive,
-          images: servicoData.images || [],
-        };
-
-        console.log('Dados do serviço carregados:', servicoFormatado);
-        setServico(servicoFormatado);
-
-        // **Verificação de Favorito: Aqui você faz a verificação de favorito após carregar o serviço**
-        const allFavorites = await FavoritesService.getAll(); // Buscar todos os favoritos
-        const isFavorited = allFavorites.some((fav) => fav.providerId === servicoData.providerId); // Verifica se o prestador já foi favoritado
-        setIsFavorited(isFavorited); // Atualiza o estado de isFavorited
-
-        // Buscar avaliações após carregar o serviço
-        if (servicoData.providerId) {
-          fetchAvaliacoes(servicoData.providerId);
-        }
-      } else {
-        setError('Serviço não encontrado');
-      }
-
-    } catch (err) {
-      console.error('Erro ao buscar serviço:', err);
-      setError('Erro ao carregar os dados do serviço');
-    } finally {
-      setLoading(false);
+    if (id) {
+      fetchServico(); // Inicia a busca do serviço assim que o ID for fornecido
     }
-  };
+  }, [id]);
 
-  if (id) {
-    fetchServico(); // Inicia a busca do serviço assim que o ID for fornecido
-  }
-}, [id]); 
+
 
   const getInitials = (nome) => {
     if (!nome) return "??";
@@ -518,42 +519,43 @@ useEffect(() => {
 
              {/* Favorito */}
               <div className={styles.infoCard}>
-                <button
-                  className={`${styles.favoriteBox} ${isFavorited ? styles.favorited : ""}`}
-                  disabled={!servico?.providerId} // Evita clique antes de carregar
-                  onClick={async () => {
-                    // Verifica se o providerId está disponível
-                    if (!servico?.providerId) {
-                      console.warn("⚠️ ProviderId ainda não disponível.");
-                      return;
-                    }
-
-                    try {
-                      // Alterna entre adicionar e remover favorito
-                      if (isFavorited) {
-                        // 🔻 Remover favorito
-                        await FavoritesService.remove(servico.providerId);
-                        setIsFavorited(false); // Atualiza o estado para refletir a remoção
-                        console.log(`❌ Removido dos favoritos (providerId: ${servico.providerId})`);
-                      } else {
-                        // ❤️ Adicionar favorito
-                        await FavoritesService.add(servico.providerId);
-                        setIsFavorited(true); // Atualiza o estado para refletir a adição
-                        console.log(`✅ Adicionado aos favoritos (providerId: ${servico.providerId})`);
+                  <button
+                    className={`${styles.favoriteBox} ${isFavorited ? styles.favorited : ""}`}
+                    disabled={!servico?.providerId} // Evita clique antes de carregar
+                    onClick={async () => {
+                      // Verifica se o providerId está disponível
+                      if (!servico?.providerId) {
+                        console.warn("⚠️ ProviderId ainda não disponível.");
+                        return;
                       }
-                    } catch (err) {
-                      console.error("🚨 Erro ao alternar favorito:", err);
-                    }
-                  }}
-                >
-                  <span
-                    className={`${styles.heartIcon} ${isFavorited ? styles.heartActive : ""}`}
-                  >
+
+                      try {
+                        // Alterna entre adicionar e remover favorito
+                        if (isFavorited) {
+                          // 🔻 Remover favorito
+                          await FavoritesService.remove(servico.providerId);
+                          setIsFavorited(false); // Atualiza o estado para refletir a remoção
+                          console.log(`❌ Removido dos favoritos (providerId: ${servico.providerId})`);
+                        } else {
+                          // ❤️ Adicionar favorito
+                          await FavoritesService.add(servico.providerId);
+                          setIsFavorited(true); // Atualiza o estado para refletir a adição
+                          console.log(`✅ Adicionado aos favoritos (providerId: ${servico.providerId})`);
+                        }
+                      } catch (err) {
+                        console.error("🚨 Erro ao alternar favorito:", err);
+                      }
+                    }}
+                    >
+                    <span
+                      className={`${styles.heartIcon} ${isFavorited ? styles.heartActive : ""}`}
+                    >
                     ❤️
                   </span>
                   {isFavorited ? "Remover favorito" : "Adicionar favorito"}
                 </button>
               </div>
+
 
 
             </div>
