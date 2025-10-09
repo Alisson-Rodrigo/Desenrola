@@ -21,6 +21,14 @@ namespace Desenrola.Application.Features.Payments.Commands.PostPaymentsCommand
         private readonly IPaymentRepository _paymentRepository;
         private readonly IUnitOfWork _unitOfWork;
 
+        /// <summary>
+        /// Inicializa uma nova instância do <see cref="PlanPaymentCommandHandler"/>.
+        /// </summary>
+        /// <param name="logged">Serviço responsável por obter o usuário atualmente autenticado.</param>
+        /// <param name="stripeService">Serviço que integra com a API do Stripe para criar cobranças.</param>
+        /// <param name="paymentRepository">Repositório responsável pelo gerenciamento dos registros de pagamento.</param>
+        /// <param name="unitOfWork">Gerenciador de transações que assegura a persistência atômica das operações.</param>
+
         public PlanPaymentCommandHandler(
             ILogged logged,
             IStripeService stripeService,
@@ -32,6 +40,16 @@ namespace Desenrola.Application.Features.Payments.Commands.PostPaymentsCommand
             _paymentRepository = paymentRepository;
             _unitOfWork = unitOfWork;
         }
+
+        /// <summary>
+        /// Manipula o comando <see cref="PlanPaymentCommand"/>, processando a compra de um plano.
+        /// </summary>
+        /// <param name="request">Comando contendo o ID do plano desejado pelo usuário.</param>
+        /// <param name="cancellationToken">Token usado para cancelar a operação assíncrona, se necessário.</param>
+        /// <returns>Um objeto <see cref="ResponseStripeDTO"/> com os dados da sessão de pagamento criada no Stripe.</returns>
+        /// <exception cref="BadRequestException">Lançada quando o plano é inválido, há um plano ativo ou pendente.</exception>
+        /// <exception cref="UnauthorizedAccessException">Lançada quando o usuário não está autenticado.</exception>
+        /// <exception cref="ArgumentException">Lançada se o tipo de plano for inválido no cálculo de preço.</exception>
 
         public async Task<ResponseStripeDTO> Handle(PlanPaymentCommand request, CancellationToken cancellationToken)
         {
