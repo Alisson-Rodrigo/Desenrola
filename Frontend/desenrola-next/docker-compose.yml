@@ -14,7 +14,6 @@ services:
       - ./package.json:/app/package.json
       - ./package-lock.json:/app/package-lock.json
       - nextjs-cache:/app/.next
-      - /app/node_modules
     environment:
       - NODE_ENV=development
       - HOST=0.0.0.0
@@ -22,9 +21,9 @@ services:
       - WATCHPACK_POLLING=true
       - WATCHPACK_POLLING_INTERVAL=1000
       - CHOKIDAR_USEPOLLING=true
-      - CHOKIDAR_INTERVAL=1000=-
+      - CHOKIDAR_INTERVAL=1000  # Corrigido o valor da variável
       - FAST_REFRESH=true
-    command: ["npx", "next", "dev", "-H", "0.0.0.0", "-p", "3000"]
+    command: ["npm", "run", "dev"]  # Simplificado para usar o comando do package.json
     init: true
 
 volumes:

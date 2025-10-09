@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import styles from './Favoritos.module.css';
 import { FaHeart } from 'react-icons/fa';
-import { FiMessageSquare, FiUser, FiMapPin, FiHeart } from 'react-icons/fi';
+import { FiUser, FiHeart } from 'react-icons/fi';
 import Navbar from '../../components/Navbar';
 import { FavoritesService } from '../../services/favoriteService';
 
@@ -18,14 +18,13 @@ export default function FavoritosPage() {
       setLoading(true);
       const favoriteIds = await FavoritesService.getAll();
 
-      console.log("favoriteIds:", favoriteIds); // Verifique se os favoritos estão sendo retornados corretamente
+      console.log("favoriteIds:", favoriteIds);
 
       if (!favoriteIds || favoriteIds.length === 0) {
         setFavoritedProviders([]);
         return;
       }
 
-      // Não precisamos de getProvider, já temos os dados de favoritos
       setFavoritedProviders(favoriteIds);
     } catch (err) {
       console.error('Erro ao buscar favoritos:', err);
@@ -45,7 +44,7 @@ export default function FavoritosPage() {
   }, [favoritedProviders]);
 
   const filteredProviders = useMemo(() => {
-    console.log("activeFilter:", activeFilter); // Verifique qual filtro está ativo
+    console.log("activeFilter:", activeFilter);
     if (activeFilter === 'Todos') return favoritedProviders;
     return favoritedProviders.filter(p => p.serviceName?.replace(' de Móveis', '') === activeFilter);
   }, [activeFilter, favoritedProviders]);
@@ -59,6 +58,12 @@ export default function FavoritosPage() {
     } catch (err) {
       console.error('Erro ao remover favorito:', err);
     }
+  };
+
+  // Navegar para o perfil do prestador
+  const handleViewProfile = (providerId, event) => {
+    event.stopPropagation();
+    window.location.href = `/perfil/prestador/${providerId}`;
   };
 
   // Estados de carregamento e vazio
@@ -139,7 +144,6 @@ export default function FavoritosPage() {
               <div
                 key={prestador.id}
                 className={styles.providerCard}
-                onClick={() => setSelectedProvider(prestador.id)}
               >
                 {/* Cabeçalho */}
                 <div className={styles.cardHeader}>
@@ -160,10 +164,10 @@ export default function FavoritosPage() {
 
                 {/* Botões */}
                 <div className={styles.cardButtons}>
-                  <button className={styles.buttonPrimary}>
-                    <FiMessageSquare /> Solicitar Serviço
-                  </button>
-                  <button className={styles.buttonSecondary}>
+                  <button 
+                    className={styles.buttonPrimary}
+                    onClick={(e) => handleViewProfile(prestador.id, e)}
+                  >
                     <FiUser /> Ver Perfil
                   </button>
                 </div>

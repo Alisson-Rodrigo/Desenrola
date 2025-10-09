@@ -1,17 +1,28 @@
 FROM node:20-alpine
 
+# Configuração do fuso horário
 ENV TZ=America/Fortaleza
 
-# Dependências extras para hot reload
-RUN apk add --no-cache libc6-compat bash git curl python3 make g++
+# Dependências extras para hot reload e compilação
+RUN apk add --no-cache \
+    libc6-compat \
+    bash \
+    git \
+    curl \
+    python3 \
+    make \
+    g++ 
 
+# Definir diretório de trabalho
 WORKDIR /app
 
-# Instalar dependências primeiro
+# Copiar os arquivos package.json e package-lock.json primeiro para instalar dependências
 COPY package*.json ./
+
+# Instalar dependências
 RUN npm install
 
-# Copiar código (mas como no compose só bindamos src/public/package*, isso ajuda no build inicial)
+# Copiar o restante do código para o contêiner
 COPY . .
 
 # Criar diretórios necessários e dar permissões
@@ -19,7 +30,10 @@ RUN mkdir -p /app/.next && \
     chmod -R 755 /app && \
     chown -R node:node /app
 
-# Usar usuário node (segurança e compatibilidade)
+# Definir permissões para node_modules
+RUN chown -R node:node /app/node_modules
+
+# Definir o usuário do contêiner para 'node' (para compatibilidade e segurança)
 USER node
 
 # Variáveis de ambiente para desenvolvimento
@@ -30,5 +44,5 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 EXPOSE 3000
 
-# Comando padrão (sobrescrito pelo docker-compose em dev)
+# Comando padrão para rodar o Next.js
 CMD ["npm", "run", "dev"]

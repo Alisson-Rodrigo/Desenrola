@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronDown, Menu, X, User, LogOut, Shield, Plus, Crown, UserCheck, Home, Briefcase, MessageCircle } from "lucide-react";
+import { ChevronDown, Menu, X, User, LogOut, Shield, Plus, Crown, UserCheck, Home, Briefcase, MessageCircle, Heart } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./Navbar.module.css";
 
@@ -30,6 +30,7 @@ export default function Navbar() {
   useEffect(() => {
     router.prefetch("/");
     router.prefetch("/servicos");
+    router.prefetch("/favoritos"); // ADICIONADO
     router.prefetch("/perfil/usuario/meu");
     router.prefetch("/perfil/prestador/meu");
     router.prefetch("/auth/login");
@@ -55,7 +56,6 @@ export default function Navbar() {
           'Authorization': `Bearer ${token}`
         };
 
-        // ALTERAÇÃO 1: URL corrigida
         const response = await fetch('http://localhost:5087/api/Message/unread-count', {
           method: 'GET',
           headers
@@ -63,7 +63,6 @@ export default function Navbar() {
 
         if (response.ok) {
           const data = await response.json();
-          // ALTERAÇÃO 2: Propriedade corrigida de 'count' para 'unreadCount'
           setUnreadCount(data.unreadCount || 0);
         }
       } catch (err) {
@@ -199,6 +198,14 @@ export default function Navbar() {
             <Briefcase size={16} />
             Serviços
           </Link>
+
+          {/* NOVO LINK: Favoritos - só aparece se estiver logado */}
+          {user && (
+            <Link href="/favoritos" className={getLinkClass("/favoritos")}>
+              <Heart size={16} />
+              Favoritos
+            </Link>
+          )}
 
           {/* Link para Chat - só aparece se estiver logado */}
           {user && (
@@ -402,6 +409,14 @@ export default function Navbar() {
           <Briefcase size={18} />
           Serviços
         </Link>
+
+        {/* NOVO LINK MOBILE: Favoritos */}
+        {user && (
+          <Link href="/favoritos" className={getLinkClass("/favoritos")}>
+            <Heart size={18} />
+            Favoritos
+          </Link>
+        )}
 
         {/* Link Mensagens Mobile */}
         {user && (
