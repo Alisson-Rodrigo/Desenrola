@@ -5,13 +5,12 @@ import styles from './Favoritos.module.css';
 import { FaHeart, FaStar } from 'react-icons/fa';
 import { FiMessageSquare, FiUser, FiMapPin, FiHeart } from 'react-icons/fi';
 import Navbar from '../../components/Navbar';
-import { FavoritesService } from '../../services/favoritesService';
+import { FavoritesService } from '../../services/favoriteService';
 
 export default function FavoritosPage() {
   const [activeFilter, setActiveFilter] = useState('Todos');
   const [favoritedProviders, setFavoritedProviders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProvider, setSelectedProvider] = useState(null);
 
   // Buscar todos os prestadores favoritados
   const fetchFavorites = async () => {
@@ -19,17 +18,15 @@ export default function FavoritosPage() {
       setLoading(true);
       const favoriteIds = await FavoritesService.getAll();
 
+      console.log("favoriteIds:", favoriteIds); // Verifique se os favoritos estão sendo retornados corretamente
+
       if (!favoriteIds || favoriteIds.length === 0) {
         setFavoritedProviders([]);
         return;
       }
 
-      // Buscar dados completos de cada prestador favoritado
-      const providers = await Promise.all(
-        favoriteIds.map(({ providerId }) => FavoritesService.getProvider(providerId))
-      );
-
-      setFavoritedProviders(providers);
+      // Não precisamos de getProvider, já temos os dados de favoritos
+      setFavoritedProviders(favoriteIds);
     } catch (err) {
       console.error('Erro ao buscar favoritos:', err);
     } finally {
@@ -43,13 +40,14 @@ export default function FavoritosPage() {
 
   // Filtros de especialidade
   const filterCategories = useMemo(() => {
-    const categories = favoritedProviders.map(p => p.specialty?.replace(' de Móveis', ''));
+    const categories = favoritedProviders.map(p => p.serviceName?.replace(' de Móveis', ''));
     return ['Todos', ...new Set(categories)];
   }, [favoritedProviders]);
 
   const filteredProviders = useMemo(() => {
+    console.log("activeFilter:", activeFilter); // Verifique qual filtro está ativo
     if (activeFilter === 'Todos') return favoritedProviders;
-    return favoritedProviders.filter(p => p.specialty?.replace(' de Móveis', '') === activeFilter);
+    return favoritedProviders.filter(p => p.serviceName?.replace(' de Móveis', '') === activeFilter);
   }, [activeFilter, favoritedProviders]);
 
   // Remover favorito
@@ -163,7 +161,7 @@ export default function FavoritosPage() {
 
                   <div className={styles.cardInfo}>
                     <h3>{prestador.name}</h3>
-                    <p>{prestador.specialty || 'Sem especialidade'}</p>
+                    <p>{prestador.serviceName || 'Sem especialidade'}</p>
                     <span>
                       <FiMapPin /> {prestador.city || 'Cidade desconhecida'},{' '}
                       {prestador.state || 'UF'}
