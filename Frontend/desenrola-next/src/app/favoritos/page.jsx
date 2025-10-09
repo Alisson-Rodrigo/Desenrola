@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import styles from './Favoritos.module.css';
-import { FaHeart, FaStar } from 'react-icons/fa';
+import { FaHeart } from 'react-icons/fa';
 import { FiMessageSquare, FiUser, FiMapPin, FiHeart } from 'react-icons/fi';
 import Navbar from '../../components/Navbar';
 import { FavoritesService } from '../../services/favoriteService';
@@ -152,49 +152,18 @@ export default function FavoritosPage() {
                 {/* Cabeçalho */}
                 <div className={styles.cardHeader}>
                   <div className={styles.cardAvatar}>
-                    <img
-                      src={`https://i.pravatar.cc/150?img=${prestador.id.slice(-2)}`}
-                      alt={prestador.name}
-                    />
                     <div className={styles.onlineIndicator}></div>
                   </div>
 
                   <div className={styles.cardInfo}>
                     <h3>{prestador.name}</h3>
-                    <p>{prestador.serviceName || 'Sem especialidade'}</p>
-                    <span>
-                      <FiMapPin /> {prestador.city || 'Cidade desconhecida'},{' '}
-                      {prestador.state || 'UF'}
-                    </span>
+                    <p>{prestador.serviceName || 'Sem serviço'}</p>
                   </div>
 
                   <FiHeart
                     className={`${styles.cardHeartIcon} ${styles.favoritedHeart}`}
                     onClick={e => handleFavoriteToggle(prestador.id, e)}
                   />
-                </div>
-
-                {/* Avaliação */}
-                <div className={styles.cardRating}>
-                  <FaStar />
-                  <span>
-                    {prestador.rating?.toFixed(1) || '--'} ({prestador.ratingCount || 0}{' '}
-                    avaliações)
-                  </span>
-                </div>
-
-                {/* Especialidades */}
-                <div className={styles.cardSpecialties}>
-                  <h4>Especialidades:</h4>
-                  <div>
-                    {prestador.specialties?.length
-                      ? prestador.specialties.map((esp, idx) => (
-                          <span key={idx} className={styles.tag}>
-                            {esp}
-                          </span>
-                        ))
-                      : 'Não informado'}
-                  </div>
                 </div>
 
                 {/* Botões */}
