@@ -8,8 +8,30 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Desenrola.API.Controllers
 {
+
+    /// <summary>
+    /// Controlador responsável por gerenciar mensagens e conversas entre usuários.
+    /// 
+    /// Este controller fornece endpoints para:
+    /// <list type="bullet">
+    /// <item><description>Enviar mensagens entre usuários autenticados.</description></item>
+    /// <item><description>Listar conversas e histórico de mensagens.</description></item>
+    /// <item><description>Marcar mensagens como lidas e obter contagens de mensagens não lidas.</description></item>
+    /// <item><description>Integração em tempo real com o SignalR para notificações instantâneas.</description></item>
+    /// </list>
+    /// 
     [Route("api/[controller]")]
     [ApiController]
+
+    /// <summary>
+    /// Inicializa uma nova instância da <see cref="MessageController"/>.
+    /// </summary>
+    /// <param name="messageRepository">Repositório de mensagens utilizado para persistência e recuperação de dados.</param>
+    /// <param name="conversationRepository">Repositório responsável pelo gerenciamento de conversas entre usuários.</param>
+    /// <param name="chatHubContext">Contexto do SignalR usado para enviar notificações em tempo real.</param>
+    /// <param name="unitOfWork">Gerenciador de transações para garantir atomicidade nas operações.</param>
+    /// <param name="userRepository">Repositório de usuários para verificação de remetentes e destinatários.</param>
+    /// <param name="loggedUserService">Serviço responsável por obter o usuário atualmente autenticado.</param>
     public class MessageController : ControllerBase
     {
         private readonly IMessagesRepository _messageRepository;
@@ -34,6 +56,19 @@ namespace Desenrola.API.Controllers
             _userRepository = userRepository;
             _loggedUserService = loggedUserService;
         }
+
+        /// <summary>
+        /// Envia uma nova mensagem entre o usuário autenticado e o destinatário especificado.
+        /// 
+        /// Se não existir uma conversa entre os dois usuários, uma nova será criada automaticamente.
+        /// Também envia a mensagem em tempo real via SignalR para o grupo correspondente à conversa.
+        /// </summary>
+        /// <param name="request">Objeto contendo o ID do destinatário e o conteúdo da mensagem.</param>
+        /// <returns>Retorna um objeto <see cref="MessageResponse"/> com os detalhes da mensagem enviada.</returns>
+        /// <response code="200">Mensagem enviada com sucesso.</response>
+        /// <response code="400">Requisição inválida ou usuários inexistentes.</response>
+        /// <response code="401">Usuário não autenticado.</response>
+        /// <response code="500">Erro interno ao processar a mensagem.</response>
 
         [Authorize]
         [HttpPost("send")]
