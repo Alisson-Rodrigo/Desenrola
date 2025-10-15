@@ -56,7 +56,7 @@ export default function Navbar() {
           'Authorization': `Bearer ${token}`
         };
 
-        const response = await fetch('http://localhost:5087/api/Message/unread-count', {
+        const response = await fetch('https://api.desenrola.shop/api/Message/unread-count', {
           method: 'GET',
           headers
         });

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { withAuth } from '../hooks/withAuth';
@@ -18,7 +19,10 @@ import {
   Clock,
   ArrowRight,
   Award,
-  ChevronRight
+  ChevronRight,
+  Briefcase,
+  CheckCircle2,
+  Crown
 } from 'lucide-react';
 
 function HomePage({ hasToken }) {
@@ -29,6 +33,28 @@ function HomePage({ hasToken }) {
   const [showOverlay, setShowOverlay] = useState(false);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
   const [Cookies, setCookies] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+
+  // Verificar role do usuário
+  useEffect(() => {
+    if (!hasToken) {
+      setUserRole(null);
+      return;
+    }
+
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      setUserRole(null);
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode(token);
+      setUserRole(String(decoded.role).toLowerCase());
+    } catch {
+      setUserRole(null);
+    }
+  }, [hasToken]);
 
   // Carregar js-cookie dinamicamente
   useEffect(() => {
@@ -179,6 +205,9 @@ function HomePage({ hasToken }) {
   useEffect(() => {
     fetchFeaturedServices();
   }, []);
+
+  // Determinar se é prestador
+  const isProvider = hasToken && (userRole === "2" || userRole === "provider");
 
   return (
     <div className={styles.homePage}>
@@ -372,6 +401,103 @@ function HomePage({ hasToken }) {
         </div>
       </section>
 
+      {/* Seção Torne-se Prestador ou Planos */}
+      {isProvider ? (
+        // Se for prestador, mostra banner de planos
+        <section className={styles.plansSection}>
+          <div className={styles.container}>
+            <div className={styles.plansCard}>
+              <div className={styles.plansContent}>
+                <div className={styles.plansIcon}>
+                  <Crown size={48} />
+                </div>
+                <h2 className={styles.plansTitle}>Potencialize seu Negócio</h2>
+                <p className={styles.plansDescription}>
+                  Assine um plano e destaque seus serviços para milhares de clientes em Picos-PI
+                </p>
+                
+                <div className={styles.plansBenefits}>
+                  <div className={styles.plansBenefit}>
+                    <Star size={20} className={styles.plansBenefitIcon} />
+                    <span>Serviços em destaque</span>
+                  </div>
+                  <div className={styles.plansBenefit}>
+                    <TrendingUp size={20} className={styles.plansBenefitIcon} />
+                    <span>Maior visibilidade</span>
+                  </div>
+                  <div className={styles.plansBenefit}>
+                    <Award size={20} className={styles.plansBenefitIcon} />
+                    <span>Badge de prestador premium</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => router.push('/planos')}
+                  className={styles.plansButton}
+                >
+                  <Crown size={20} />
+                  Ver Planos Disponíveis
+                  <ArrowRight size={20} />
+                </button>
+
+                <p className={styles.plansFooterText}>
+                  Escolha o plano ideal para o crescimento do seu negócio
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        // Se não for prestador, mostra banner para se tornar prestador
+        <section className={styles.becomeProviderSection}>
+          <div className={styles.container}>
+            <div className={styles.providerCard}>
+              <div className={styles.providerContent}>
+                <div className={styles.providerIcon}>
+                  <Briefcase size={48} />
+                </div>
+                <h2 className={styles.providerTitle}>Seja um Prestador de Serviços</h2>
+                <p className={styles.providerDescription}>
+                  Cadastre seus serviços, alcance mais clientes e faça parte da maior plataforma de serviços de Picos-PI
+                </p>
+                
+                <div className={styles.providerBenefits}>
+                  <div className={styles.providerBenefit}>
+                    <CheckCircle2 size={20} className={styles.benefitIcon} />
+                    <span>Cadastro gratuito e rápido</span>
+                  </div>
+                  <div className={styles.providerBenefit}>
+                    <CheckCircle2 size={20} className={styles.benefitIcon} />
+                    <span>Controle total dos seus serviços</span>
+                  </div>
+                  <div className={styles.providerBenefit}>
+                    <CheckCircle2 size={20} className={styles.benefitIcon} />
+                    <span>Receba avaliações e construa reputação</span>
+                  </div>
+                  <div className={styles.providerBenefit}>
+                    <CheckCircle2 size={20} className={styles.benefitIcon} />
+                    <span>Conecte-se com clientes qualificados</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => router.push('/finalizarcadastro')}
+                  className={styles.providerButton}
+                >
+                  <Briefcase size={20} />
+                  Tornar-me Prestador
+                  <ArrowRight size={20} />
+                </button>
+
+                <p className={styles.providerFooterText}>
+                  Junte-se a centenas de profissionais que já transformaram seus negócios
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* CTA Section */}
       <section className={styles.ctaSection}>
         <div className={styles.container}>
@@ -425,7 +551,6 @@ function HomePage({ hasToken }) {
                 Utilizamos cookies para melhorar sua experiência, personalizar conteúdo e analisar nosso tráfego.
                 Ao clicar em &quot;Aceitar&quot;, você concorda com o uso de cookies.
               </p>
-
             </div>
             <div className={styles.cookieActions}>
               <button onClick={acceptCookies} className={styles.cookieAcceptButton}>
