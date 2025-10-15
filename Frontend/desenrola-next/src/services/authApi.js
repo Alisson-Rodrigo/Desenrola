@@ -4,7 +4,7 @@
  * comunicando-se com a API backend.
  */
 
-export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5087';
+export const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://api.desenrola.shop';
 
 /**
  * Autentica um usuário na API.
