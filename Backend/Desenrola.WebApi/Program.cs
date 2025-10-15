@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.FileProviders;
 
 namespace Desenrola.WebApi;
 
@@ -183,7 +184,15 @@ public class Program {
 
 
         app.UseStaticFiles(); // habilita wwwroot
-
+        var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagens");
+if (Directory.Exists(imagePath))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(imagePath),
+        RequestPath = "/imagens"
+    });
+}
         app.UseCors("AllowSpecificOrigin"); // use a policy nomeada
 
         app.UseHttpsRedirection();
