@@ -89,7 +89,7 @@ const AdminDashboard = () => {
       const token = localStorage.getItem('auth_token');
 
       const response = await fetch(
-        `http://localhost:5087/api/provider/pending?page=${page}&pageSize=${pageSize}`,
+        `https://api.desenrola.shop/api/provider/pending?page=${page}&pageSize=${pageSize}`,
         {
           headers: {
             'Content-Type': 'application/json',

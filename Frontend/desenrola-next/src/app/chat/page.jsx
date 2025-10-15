@@ -16,7 +16,7 @@ const SendIcon = () => (<svg height="24" viewBox="0 0 24 24" width="24" fill="cu
  */
 export default function ChatPage() {
     // Configuração da API
-    const API_BASE_URL = 'http://localhost:5087';
+    const API_BASE_URL = 'https://api.desenrola.shop';
 
     /**
      * Obtém o token de autenticação do localStorage ou sessionStorage.

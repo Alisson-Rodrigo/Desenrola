@@ -1,6 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 
-const API_URL = 'https://api.desenrola.shop';
+const API_URL = 'https://api.desenrola.shop/api';
 /**
  * Envia os dados de cadastro do prestador para a API.
  * Extrai o `UserId` do token JWT e anexa todas as informações necessárias, incluindo

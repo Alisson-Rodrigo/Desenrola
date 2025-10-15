@@ -248,7 +248,7 @@ export default function ProfilePage() {
     try {
       const token = localStorage.getItem("auth_token");
       const headers = { 'Content-Type': 'application/json', ...(token && { 'Authorization': `Bearer ${token}` }) };
-      const response = await fetch(`http://localhost:5087/api/provider/profile/specify?Id=${providerId}`, { method: 'GET', headers });
+      const response = await fetch(`https://api.desenrola.shop/api/provider/profile/specify?Id=${providerId}`, { method: 'GET', headers });
       if (!response.ok) throw new Error(`Erro ${response.status}: Provedor não encontrado`);
       const data = await response.json();
       setProviderData(data);
@@ -268,7 +268,7 @@ export default function ProfilePage() {
     try {
       const token = localStorage.getItem("auth_token");
       const headers = { 'Content-Type': 'application/json', ...(token && { 'Authorization': `Bearer ${token}` }) };
-      const response = await fetch(`http://localhost:5087/api/schedule/provider/${providerId}`, { method: 'GET', headers });
+      const response = await fetch(`https://api.desenrola.shop/api/schedule/provider/${providerId}`, { method: 'GET', headers });
       setScheduleData(response.ok ? await response.json() : []);
     } catch (err) {
       console.error('Erro ao buscar horários de trabalho:', err);
@@ -284,7 +284,7 @@ export default function ProfilePage() {
     try {
       const token = localStorage.getItem("auth_token");
       const headers = { "Content-Type": "application/json", ...(token && { "Authorization": `Bearer ${token}` }) };
-      const response = await fetch(`http://localhost:5087/api/evaluation/provider/${providerId}`, { method: "GET", headers });
+      const response = await fetch(`https://api.desenrola.shop/api/evaluation/provider/${providerId}`, { method: "GET", headers });
       if (response.ok) {
         setReviews(await response.json());
       } else {
@@ -345,7 +345,7 @@ export default function ProfilePage() {
       };
 
       // Envia a mensagem "Oi"
-      const response = await fetch('http://localhost:5087/api/Message/send', {
+      const response = await fetch('https://api.desenrola.shop/api/Message/send', {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({
@@ -393,7 +393,7 @@ export default function ProfilePage() {
       formData.append('Note', rating.toString());
       formData.append('Comment', comment);
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-      const response = await fetch('http://localhost:5087/api/evaluation', { method: 'POST', headers, body: formData });
+      const response = await fetch('https://api.desenrola.shop/api/evaluation', { method: 'POST', headers, body: formData });
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Erro ao enviar avaliação');
