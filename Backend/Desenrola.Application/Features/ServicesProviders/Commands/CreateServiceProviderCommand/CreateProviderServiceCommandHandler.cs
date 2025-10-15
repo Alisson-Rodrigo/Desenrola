@@ -27,7 +27,7 @@ namespace Desenrola.Application.Features.ServicesProviders.Commands.CreateServic
         private readonly ILogged _logged;
         private readonly IWebHostEnvironment _env;
 
-        private readonly string _publicBaseUrl = "http://localhost:5087/imagens/providers/services";
+        private readonly string _publicBaseUrl = "https://desenrola.shop/imagens/providers/services";
 
         public CreateProviderServiceCommandHandler(
             IProviderRepository providerRepository,
