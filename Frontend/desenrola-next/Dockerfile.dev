@@ -1,9 +1,10 @@
+# --- Base image ---
 FROM node:20-alpine
 
-# Configuração do fuso horário
+# Configuração de timezone e dependências adicionais
 ENV TZ=America/Fortaleza
 
-# Dependências extras para hot reload e compilação
+# Instalar pacotes essenciais para compilação e hot reload
 RUN apk add --no-cache \
     libc6-compat \
     bash \
@@ -11,38 +12,36 @@ RUN apk add --no-cache \
     curl \
     python3 \
     make \
-    g++ 
+    g++
 
-# Definir diretório de trabalho
+# Diretório de trabalho
 WORKDIR /app
 
-# Copiar os arquivos package.json e package-lock.json primeiro para instalar dependências
+# Copiar apenas package.json e package-lock.json primeiro (para cache eficiente)
 COPY package*.json ./
 
-# Instalar dependências
-RUN npm install
+# Instalar dependências de produção + desenvolvimento (inclui Jest)
+RUN npm install --include=dev
 
-# Copiar o restante do código para o contêiner
+# Copiar todo o restante do código
 COPY . .
 
-# Criar diretórios necessários e dar permissões
+# Criar diretórios necessários e ajustar permissões
 RUN mkdir -p /app/.next && \
     chmod -R 755 /app && \
     chown -R node:node /app
 
-# Definir permissões para node_modules
-RUN chown -R node:node /app/node_modules
-
-# Definir o usuário do contêiner para 'node' (para compatibilidade e segurança)
+# Rodar como usuário seguro
 USER node
 
-# Variáveis de ambiente para desenvolvimento
+# Variáveis de ambiente padrão
 ENV NODE_ENV=development
 ENV HOST=0.0.0.0
 ENV PORT=3000
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Expor a porta do Next.js
 EXPOSE 3000
 
-# Comando padrão para rodar o Next.js
+# Comando padrão (inicia o servidor de desenvolvimento)
 CMD ["npm", "run", "dev"]
