@@ -110,7 +110,7 @@ export default function CadastrarServico() {
 
       const token = localStorage.getItem("auth_token");
 
-      const response = await fetch("http://localhost:5087/api/provider/services", {
+      const response = await fetch("https://api.desenrola.shop/api/provider/services", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

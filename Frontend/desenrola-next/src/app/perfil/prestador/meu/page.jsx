@@ -492,7 +492,7 @@ export default function ProfilePage() {
       formData.append('StartTime', `${scheduleForm.startTime}:00`);
       formData.append('EndTime', `${scheduleForm.endTime}:00`);
 
-      const response = await fetch("http://localhost:5087/api/schedule", {
+      const response = await fetch("https://api.desenrola.shop/api/schedule", {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
