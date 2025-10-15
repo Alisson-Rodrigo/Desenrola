@@ -21,7 +21,9 @@ namespace Desenrola.Application.Features.Providers.Commands.CreateProvider
         private readonly IWebHostEnvironment _env;
 
         // URL p�blica base (ajuste porta se necess�rio)
-        private readonly string _publicBaseUrl = "https://desenrola.shop/imagens/providers/documents";
+        private readonly string _publicBaseUrl = "https://api.desenrola.shop/imagens/providers/documents";
+
+
 
         /// <summary>
         /// Construtor que inicializa as depend�ncias necess�rias.
