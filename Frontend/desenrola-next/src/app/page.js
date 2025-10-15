@@ -7,8 +7,8 @@ import { withAuth } from '../hooks/withAuth';
 import { useRouter } from 'next/navigation';
 import styles from './HomePage.module.css';
 
-import { 
-  Search, 
+import {
+  Search,
   User,
   MapPin,
   Loader2,
@@ -23,7 +23,7 @@ import {
 
 function HomePage({ hasToken }) {
   const router = useRouter();
-  
+
   const [featuredServices, setFeaturedServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -40,9 +40,9 @@ function HomePage({ hasToken }) {
   // Verificar se usuário já aceitou cookies
   useEffect(() => {
     if (!Cookies) return;
-    
+
     const cookieConsent = Cookies.get('cookieConsent');
-    
+
     if (!cookieConsent) {
       setShowCookieConsent(true);
     }
@@ -62,7 +62,7 @@ function HomePage({ hasToken }) {
 
   const categorias = {
     "Eletrica": "Elétrica",
-    "Hidraulica": "Hidráulica", 
+    "Hidraulica": "Hidráulica",
     "Pintura": "Pintura",
     "Jardinagem": "Jardinagem",
     "Limpeza": "Limpeza",
@@ -122,14 +122,14 @@ function HomePage({ hasToken }) {
   // Aceitar cookies
   const acceptCookies = () => {
     if (!Cookies) return;
-    
+
     Cookies.set('cookieConsent', 'accepted', {
       expires: 365,
       path: '/',
       sameSite: 'strict'
     });
     setShowCookieConsent(false);
-    
+
     Cookies.set('userPreferences', JSON.stringify({
       theme: 'light',
       language: 'pt-BR',
@@ -143,7 +143,7 @@ function HomePage({ hasToken }) {
   // Rejeitar cookies
   const rejectCookies = () => {
     if (!Cookies) return;
-    
+
     Cookies.set('cookieConsent', 'rejected', {
       expires: 365,
       path: '/',
@@ -164,7 +164,7 @@ function HomePage({ hasToken }) {
       if (!response.ok) throw new Error(`Erro ${response.status}`);
 
       const data = await response.json();
-      
+
       if (data.items) {
         setFeaturedServices(data.items);
       }
@@ -189,34 +189,34 @@ function HomePage({ hasToken }) {
         <div className={styles.heroBackground}>
           <div className={styles.heroPattern}></div>
         </div>
-        
+
         <div className={styles.heroContent}>
           <div className={styles.heroTextContent}>
             <div className={styles.heroBadge}>
               <Sparkles size={16} />
               <span>Plataforma Nº 1 em Picos-PI</span>
             </div>
-            
+
             <h1 className={styles.heroTitle}>
               Encontre os <span className={styles.heroHighlight}>melhores profissionais</span> para seus projetos
             </h1>
-            
+
             <p className={styles.heroDescription}>
-              Conectamos você a especialistas qualificados em diversas áreas. 
+              Conectamos você a especialistas qualificados em diversas áreas.
               Qualidade garantida e preços justos.
             </p>
 
             {/* Search CTA */}
             <div className={styles.heroSearchCTA}>
-              <button 
+              <button
                 onClick={() => router.push('/servicos/todos')}
                 className={styles.heroSearchButton}
               >
                 <Search size={20} />
                 Buscar Serviços
               </button>
-              
-              <button 
+
+              <button
                 onClick={() => router.push('/servicos/todos')}
                 className={styles.heroExploreButton}
               >
@@ -276,7 +276,7 @@ function HomePage({ hasToken }) {
                 Profissionais premium verificados e avaliados
               </p>
             </div>
-            <button 
+            <button
               onClick={() => router.push('/servicos/todos')}
               className={styles.seeAllButton}
             >
@@ -293,8 +293,8 @@ function HomePage({ hasToken }) {
           ) : featuredServices.length > 0 ? (
             <div className={styles.featuredGrid}>
               {featuredServices.map((service) => (
-                <article 
-                  key={service.id} 
+                <article
+                  key={service.id}
                   className={styles.featuredCard}
                   onClick={() => requireAuth(() => router.push(`/servicos/visualizar/${service.id}`))}
                 >
@@ -320,16 +320,16 @@ function HomePage({ hasToken }) {
                     </div>
 
                     <h3 className={styles.cardTitle}>{service.title}</h3>
-                    
+
                     <p className={styles.cardDescription}>
-                      {service.description.length > 120 
-                        ? service.description.substring(0, 120) + '...' 
+                      {service.description.length > 120
+                        ? service.description.substring(0, 120) + '...'
                         : service.description}
                     </p>
 
                     <div className={styles.cardMeta}>
                       {service.providerName && (
-                        <button 
+                        <button
                           className={styles.cardProvider}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -348,7 +348,7 @@ function HomePage({ hasToken }) {
 
                     <div className={styles.cardFooter}>
                       <div className={styles.cardPrice}>{formatPrice(service.price)}</div>
-                      <button 
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
                           requireAuth(() => router.push(`/servicos/visualizar/${service.id}`));
@@ -381,7 +381,7 @@ function HomePage({ hasToken }) {
               <p className={styles.ctaDescription}>
                 Explore nossa plataforma e conecte-se com especialistas qualificados
               </p>
-              <button 
+              <button
                 onClick={() => router.push('/servicos/todos')}
                 className={styles.ctaButton}
               >
@@ -422,9 +422,10 @@ function HomePage({ hasToken }) {
             <div className={styles.cookieText}>
               <h4>🍪 Nós usamos cookies</h4>
               <p>
-                Utilizamos cookies para melhorar sua experiência, personalizar conteúdo e analisar nosso tráfego. 
-                Ao clicar em "Aceitar", você concorda com o uso de cookies.
+                Utilizamos cookies para melhorar sua experiência, personalizar conteúdo e analisar nosso tráfego.
+                Ao clicar em &quot;Aceitar&quot;, você concorda com o uso de cookies.
               </p>
+
             </div>
             <div className={styles.cookieActions}>
               <button onClick={acceptCookies} className={styles.cookieAcceptButton}>
