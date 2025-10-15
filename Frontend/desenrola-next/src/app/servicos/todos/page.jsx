@@ -110,7 +110,7 @@ export default function ServicosPage() {
       if (searchTerm.trim()) params.append('Search', searchTerm.trim());
       if (category) params.append('ServiceCategory', category);
 
-      const response = await fetch(`http://localhost:5087/api/provider/services/paged?${params}`, {
+      const response = await fetch(`https://api.desenrola.shop/api/provider/services/paged?${params}`, {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });

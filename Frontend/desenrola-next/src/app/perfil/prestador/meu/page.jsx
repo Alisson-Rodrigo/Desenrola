@@ -153,7 +153,7 @@ export default function ProfilePage() {
           return;
         }
 
-        const response = await fetch("http://localhost:5087/api/provider/profile/myprofile", {
+        const response = await fetch("https://api.desenrola.shop/api/provider/profile/myprofile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -194,7 +194,7 @@ export default function ProfilePage() {
     setLoadingSchedules(true);
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:5087/api/schedule/provider/${profile.id}`, {
+      const response = await fetch(`https://api.desenrola.shop/api/schedule/provider/${profile.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -223,14 +223,14 @@ export default function ProfilePage() {
       const token = localStorage.getItem('auth_token');
       
       // Buscar avaliações
-      const evaluationsResponse = await fetch(`http://localhost:5087/api/evaluation/provider/${profile.id}`, {
+      const evaluationsResponse = await fetch(`https://api.desenrola.shop/api/evaluation/provider/${profile.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
       // Buscar média das avaliações
-      const averageResponse = await fetch(`http://localhost:5087/api/evaluation/provider/${profile.id}/average`, {
+      const averageResponse = await fetch(`https://api.desenrola.shop/api/evaluation/provider/${profile.id}/average`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -279,7 +279,7 @@ export default function ProfilePage() {
 
     try {
       const token = localStorage.getItem('auth_token');
-      const response = await fetch(`http://localhost:5087/api/schedule/${scheduleId}`, {
+      const response = await fetch(`https://api.desenrola.shop/api/schedule/${scheduleId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -361,7 +361,7 @@ export default function ProfilePage() {
         formData.append('Categories', category);
       });
 
-      const response = await fetch("http://localhost:5087/api/provider", {
+      const response = await fetch("https://api.desenrola.shop/api/provider", {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,

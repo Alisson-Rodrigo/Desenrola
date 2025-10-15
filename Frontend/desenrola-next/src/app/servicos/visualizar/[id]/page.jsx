@@ -89,7 +89,7 @@ const handleFavorite = async () => {
       
       // Buscar avaliações
       const responseAvaliacoes = await fetch(
-        `http://localhost:5087/api/evaluation/provider/${providerId}`,
+        `https://api.desenrola.shop/api/evaluation/provider/${providerId}`,
         {
           method: 'GET',
           headers: getAuthHeaders(),
@@ -98,7 +98,7 @@ const handleFavorite = async () => {
       
       // Buscar média das avaliações
       const responseMedia = await fetch(
-        `http://localhost:5087/api/evaluation/provider/${providerId}/average`,
+        `https://api.desenrola.shop/api/evaluation/provider/${providerId}/average`,
         {
           method: 'GET',
           headers: getAuthHeaders(),
@@ -291,7 +291,7 @@ const handleFavorite = async () => {
         setError(null);
 
         const response = await fetch(
-          `http://localhost:5087/api/provider/services/paged?ServiceId=${id}&Page=1&PageSize=1`,
+          `https://api.desenrola.shop/api/provider/services/paged?ServiceId=${id}&Page=1&PageSize=1`,
           {
             method: 'GET',
             headers: getAuthHeaders(),

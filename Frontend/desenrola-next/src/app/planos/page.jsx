@@ -84,7 +84,7 @@ export default function Planos() {
 
             const numericPlanId = planIdMap[planId];
 
-            const response = await fetch(`http://localhost:5087/api/payments/checkout/${numericPlanId}`, {
+            const response = await fetch(`https://api.desenrola.shop/api/payments/checkout/${numericPlanId}`, {
                 method: 'POST',
                 headers: {
                     'accept': '*/*',

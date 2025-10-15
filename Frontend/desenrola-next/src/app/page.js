@@ -156,7 +156,7 @@ function HomePage({ hasToken }) {
   const fetchFeaturedServices = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:5087/api/provider/services/paged?PageSize=6&OnlyActive=true', {
+      const response = await fetch('https://api.desenrola.shop/api/provider/services/paged?PageSize=6&OnlyActive=true', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
