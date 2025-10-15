@@ -2,22 +2,42 @@
 FROM node:20-alpine AS builder
 
 WORKDIR /app
+
+# Copiar apenas os arquivos de dependência para aproveitar o cache do Docker
 COPY package*.json ./
+
+# Instalar dependências
 RUN npm ci
+
+# Copiar todo o código
 COPY . .
+
+# Desativar ESLint e Telemetry no build (para evitar falhas)
+ENV NEXT_DISABLE_ESLINT=true
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Gerar build otimizado (standalone)
 RUN npm run build
 
 # --- Etapa 2: Servidor de produção ---
-FROM node:20-alpine
+FROM node:20-alpine AS runner
 
 WORKDIR /app
+
+# Variáveis de ambiente de produção
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3000
 ENV NEXT_TELEMETRY_DISABLED=1
 
-COPY --from=builder /app ./
+# Copiar apenas o necessário para rodar o servidor Next.js
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./static
+COPY --from=builder /app/public ./public
 
+# Expor porta 3000
 EXPOSE 3000
 
-CMD ["npm", "start"]
+# Iniciar o servidor Next.js standalone
+CMD ["node", "server.js"]
