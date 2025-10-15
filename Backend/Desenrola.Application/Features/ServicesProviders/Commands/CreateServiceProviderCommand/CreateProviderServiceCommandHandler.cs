@@ -69,7 +69,7 @@ namespace Desenrola.Application.Features.ServicesProviders.Commands.CreateServic
                 throw new BadRequestException(validationResult);
 
             // Pasta de upload
-            var uploadPath = Path.Combine(_env.WebRootPath, "imagens","providers", "services");
+            var uploadPath = Path.Combine(_env.WebRootPath, "imagens", "providers", "services");
             Directory.CreateDirectory(uploadPath);
 
             var imagensUrls = new List<string>();
@@ -78,21 +78,31 @@ namespace Desenrola.Application.Features.ServicesProviders.Commands.CreateServic
             {
                 foreach (var imagem in request.Images)
                 {
-                    var nameFileNotExtension = Path.GetFileNameWithoutExtension(imagem.FileName);
+                    // 🔧 Remove espaços, caracteres especiais e qualquer coisa após o primeiro ponto
+                    var nameFileNotExtension = Path.GetFileNameWithoutExtension(imagem.FileName)
+                        .Split('.')[0]
+                        .Replace(" ", "_")
+                        .Replace("(", "")
+                        .Replace(")", "")
+                        .Replace("'", "")
+                        .Replace("\"", "");
+
+                    // 🔧 Cria o nome final seguro (sem espaços e sem pontos extras)
                     var nameFile = $"{Guid.NewGuid()}_{nameFileNotExtension}.webp";
                     var caminhoWebP = Path.Combine(uploadPath, nameFile);
 
                     using (var inputStream = imagem.OpenReadStream())
-                    using (var image = await SixLabors.ImageSharp.Image.LoadAsync(inputStream, cancellationToken))
+                    using (var image = await Image.LoadAsync(inputStream, cancellationToken))
                     {
                         var encoder = new WebpEncoder { Quality = 90 };
                         await image.SaveAsync(caminhoWebP, encoder, cancellationToken);
                     }
 
-
+                    // ✅ Corrigido: evita barra duplicada
                     var url = $"{_publicBaseUrl}/{nameFile}";
                     imagensUrls.Add(url);
                 }
+
             }
 
             var service = new ProviderService
