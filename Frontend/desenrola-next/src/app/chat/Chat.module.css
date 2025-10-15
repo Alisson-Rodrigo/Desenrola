@@ -1,4 +1,4 @@
-/* Chat.module.css (Versão com Scroll Corrigido) */
+/* Chat.module.css (Versão Responsiva com Menu Hamburger) */
 
 .chatContainer {
   --primary-green: #4CAF50;
@@ -18,6 +18,48 @@
   left: 0;
   background-color: var(--app-background);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  padding-top: 70px;
+  box-sizing: border-box;
+}
+
+/* --- BOTÃO HAMBURGER --- */
+.hamburgerButton {
+  display: none; /* Oculto por padrão em desktop */
+  position: fixed;
+  top: 80px;
+  left: 16px;
+  z-index: 1100;
+  background-color: var(--primary-green);
+  border: none;
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.hamburgerButton:hover {
+  transform: scale(1.1);
+}
+
+.hamburgerButton:active {
+  transform: scale(0.95);
+}
+
+/* --- OVERLAY PARA MOBILE --- */
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
 }
 
 /* --- PAINEL ESQUERDO --- */
@@ -29,6 +71,7 @@
   border-right: 1px solid var(--border-color); 
   background-color: var(--panel-background);
   overflow: hidden;
+  transition: transform 0.3s ease;
 }
 
 .contactListHeader { 
@@ -72,6 +115,11 @@
   font-size: 20px; 
   font-weight: bold; 
   cursor: pointer; 
+  transition: transform 0.2s ease;
+}
+
+.plusIcon:hover {
+  transform: scale(1.1);
 }
 
 .searchBar { 
@@ -259,15 +307,119 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
-/* In Chat.module.css */
 
-.chatContainer {
-  display: flex;
-  height: 100vh; /* Make it fill the full viewport height */
-  width: 100%;
-  background-color: #fff;
-  
-  /* ---  ADD THESE LINES --- */
-  padding-top: 70px; /* Or the exact height of your NavBar */
-  box-sizing: border-box; /* This is important! It includes the padding in the height calculation */
+/* ========================================= */
+/* MEDIA QUERIES - RESPONSIVIDADE */
+/* ========================================= */
+
+/* Tablets e telas menores */
+@media (max-width: 768px) {
+  .hamburgerButton {
+    display: flex; /* Mostrar botão hamburger */
+  }
+
+  .overlay {
+    display: block;
+  }
+
+  .contactList {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    bottom: 0;
+    z-index: 999;
+    transform: translateX(-100%); /* Escondido por padrão */
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .contactList.sidebarOpen {
+    transform: translateX(0); /* Mostrar quando ativo */
+  }
+
+  .chatWindow {
+    width: 100%;
+  }
+
+  .chatHeader {
+    padding-left: 70px; /* Espaço para o botão hamburger */
+  }
+}
+
+/* Smartphones */
+@media (max-width: 480px) {
+  .contactList {
+    width: 85%; /* Mais largo em mobile */
+    max-width: 320px;
+  }
+
+  .hamburgerButton {
+    width: 44px;
+    height: 44px;
+    top: 85px;
+  }
+
+  .chatHeader {
+    padding: 8px 12px;
+    padding-left: 65px;
+  }
+
+  .chatHeaderInfo h3 {
+    font-size: 15px;
+  }
+
+  .chatHeaderInfo p {
+    font-size: 12px;
+  }
+
+  .messagesContainer {
+    padding: 12px;
+  }
+
+  .inputArea {
+    padding: 8px 12px;
+    gap: 10px;
+  }
+
+  .textInput {
+    font-size: 14px;
+    height: 38px;
+  }
+
+  .contactListHeaderLeft {
+    font-size: 18px;
+  }
+
+  .contactItem {
+    padding: 8px 12px;
+  }
+
+  .contactItemInfo h3 {
+    font-size: 15px;
+  }
+
+  .contactItemInfo p {
+    font-size: 13px;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* Telas muito pequenas */
+@media (max-width: 360px) {
+  .contactList {
+    width: 90%;
+  }
+
+  .hamburgerButton {
+    width: 40px;
+    height: 40px;
+    left: 12px;
+  }
+
+  .chatHeader {
+    padding-left: 60px;
+  }
 }

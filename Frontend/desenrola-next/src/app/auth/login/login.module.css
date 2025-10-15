@@ -1,4 +1,4 @@
-/* Login.module.css */
+/* Login.module.css - Versão com Responsividade Aprimorada */
 
 .loginContainer {
   display: flex;
@@ -38,7 +38,7 @@
 }
 
 .brandContainer h1 {
-  font-size: 4rem;
+  font-size: clamp(2.5rem, 5vw, 4rem);
   margin: 0 0 10px 0;
   font-weight: 700;
   text-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -46,7 +46,7 @@
 }
 
 .brandContainer p {
-  font-size: 1.25rem;
+  font-size: clamp(1rem, 2vw, 1.25rem);
   margin: 0;
   font-weight: 400;
   opacity: 0.95;
@@ -77,7 +77,7 @@
 
 .loginCard {
   background-color: #FFFFFF;
-  padding: 40px;
+  padding: clamp(24px, 5vw, 40px);
   border-radius: 20px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   width: 100%;
@@ -97,7 +97,7 @@
 }
 
 .loginCard h2 {
-  font-size: 1.75rem;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
   font-weight: 600;
   margin-top: 0;
   margin-bottom: 8px;
@@ -105,17 +105,17 @@
 }
 
 .welcomeEmoji {
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
   margin-left: 8px;
 }
 
 .formGroup {
-  margin-bottom: 20px;
+  margin-bottom: clamp(16px, 3vw, 20px);
 }
 
 .formGroup label {
   display: block;
-  font-size: 0.875rem;
+  font-size: clamp(0.813rem, 1.5vw, 0.875rem);
   font-weight: 500;
   color: #374151;
   margin-bottom: 8px;
@@ -125,14 +125,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .forgotPassword {
-  font-size: 0.875rem;
+  font-size: clamp(0.813rem, 1.5vw, 0.875rem);
   color: #3B82F6;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 
 .forgotPassword:hover {
@@ -142,12 +145,13 @@
 
 .formGroup input {
   width: 100%;
-  padding: 12px;
+  padding: clamp(10px, 2vw, 12px);
   border: 1px solid #D1D5DB;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: clamp(0.938rem, 1.8vw, 1rem);
   transition: all 0.2s ease;
   background-color: #fff;
+  box-sizing: border-box;
 }
 
 .formGroup input:focus {
@@ -163,17 +167,19 @@
 
 .loginButton {
   width: 100%;
-  padding: 15px;
+  padding: clamp(12px, 2.5vw, 15px);
   border: none;
   border-radius: 8px;
   background: linear-gradient(135deg, #20DF7F, #1cbf6e);
   color: white;
-  font-size: 1rem;
+  font-size: clamp(0.938rem, 1.8vw, 1rem);
   font-weight: 600;
   cursor: pointer;
   margin-top: 10px;
   transition: all 0.3s ease;
   box-shadow: 0 4px 15px rgba(32, 223, 127, 0.3);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .loginButton:hover {
@@ -194,8 +200,8 @@
 
 .signupLink {
   text-align: center;
-  margin-top: 25px;
-  font-size: 0.875rem;
+  margin-top: clamp(20px, 4vw, 25px);
+  font-size: clamp(0.813rem, 1.5vw, 0.875rem);
   color: #6B7280;
 }
 
@@ -211,7 +217,22 @@
   text-decoration: underline;
 }
 
-/* --- Responsividade para Telas Menores --- */
+/* --- Tablets (landscape e portrait) --- */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .leftPanel {
+    padding: 30px;
+  }
+  
+  .brandContainer h1 {
+    font-size: 3.5rem;
+  }
+  
+  .loginCard {
+    max-width: 380px;
+  }
+}
+
+/* --- Tablets pequenos e celulares grandes --- */
 @media (max-width: 768px) {
   .loginContainer {
     flex-direction: column;
@@ -225,30 +246,135 @@
     flex: 1;
     min-height: 100vh;
     padding: 16px;
+    justify-content: flex-start;
+    padding-top: max(40px, env(safe-area-inset-top));
   }
 
   .loginCard {
-    box-shadow: none;
-    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
     padding: 32px 24px;
     max-width: 100%;
+    margin-top: 20px;
   }
 
-  .brandContainer h1 {
-    font-size: 3rem;
+  .loginCard h2 {
+    font-size: 1.5rem;
   }
 
-  .brandContainer p {
-    font-size: 1.1rem;
+  .formGroup {
+    margin-bottom: 18px;
+  }
+
+  .loginButton {
+    padding: 14px;
+    font-size: 1rem;
   }
 }
 
+/* --- Celulares pequenos --- */
 @media (max-width: 480px) {
-  .loginCard {
-    padding: 24px 20px;
+  .rightPanel {
+    padding: 12px;
+    padding-top: max(30px, env(safe-area-inset-top));
   }
 
-  .brandContainer h1 {
-    font-size: 2.5rem;
+  .loginCard {
+    padding: 28px 20px;
+    border-radius: 12px;
+  }
+
+  .loginCard h2 {
+    font-size: 1.375rem;
+  }
+
+  .formGroup {
+    margin-bottom: 16px;
+  }
+
+  .formGroup input {
+    padding: 11px;
+    font-size: 16px; /* Previne zoom no iOS */
+  }
+
+  .loginButton {
+    padding: 13px;
+    font-size: 0.938rem;
+  }
+
+  .signupLink {
+    margin-top: 20px;
+    font-size: 0.813rem;
+  }
+}
+
+/* --- Celulares muito pequenos --- */
+@media (max-width: 360px) {
+  .loginCard {
+    padding: 24px 16px;
+  }
+
+  .loginCard h2 {
+    font-size: 1.25rem;
+  }
+
+  .welcomeEmoji {
+    font-size: 1.25rem;
+  }
+}
+
+/* --- Orientação landscape em celulares --- */
+@media (max-height: 600px) and (orientation: landscape) {
+  .rightPanel {
+    padding: 16px;
+    justify-content: center;
+  }
+
+  .loginCard {
+    padding: 24px;
+    margin-top: 0;
+  }
+
+  .loginCard h2 {
+    margin-bottom: 6px;
+  }
+
+  .formGroup {
+    margin-bottom: 14px;
+  }
+
+  .signupLink {
+    margin-top: 16px;
+  }
+}
+
+/* --- Suporte a Safe Area (notch em iPhones) --- */
+@supports (padding: max(0px)) {
+  .rightPanel {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+}
+
+/* --- Prefere movimento reduzido (acessibilidade) --- */
+@media (prefers-reduced-motion: reduce) {
+  .loginContainer,
+  .leftPanel,
+  .brandContainer h1,
+  .brandContainer p,
+  .loginCard,
+  .loginButton,
+  .formGroup input {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .loginButton:hover {
+    transform: none;
+  }
+  
+  .formGroup input:focus {
+    transform: none;
   }
 }
