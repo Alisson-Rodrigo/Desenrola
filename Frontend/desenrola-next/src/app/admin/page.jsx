@@ -192,7 +192,7 @@ const AdminDashboard = () => {
       formData.append("Id", id);
       formData.append("Operation", "true");
 
-      const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
+      const response = await fetch('https://api.desenrola.shop/api/provider/mark-provider', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: formData
