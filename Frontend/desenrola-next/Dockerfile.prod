@@ -35,11 +35,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 # Copiar apenas o necessário para rodar o servidor Next.js
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./static
+COPY --from=builder /app/.next/static ./.next/static
 
-# 🔹 Cria a pasta public e copia somente se existir (sem quebrar o build)
-RUN mkdir -p ./public
-COPY --from=builder /app/public ./public 2>/dev/null || true
+# 🔹 Cria a pasta public e copia apenas se existir (usando shell script)
+RUN mkdir -p ./public && \
+    (cp -r $(ls -A /app/public 2>/dev/null) ./public/ 2>/dev/null || true)
 
 # Expor porta padrão do Next.js
 EXPOSE 3000
