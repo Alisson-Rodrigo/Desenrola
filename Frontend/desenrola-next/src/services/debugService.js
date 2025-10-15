@@ -59,7 +59,7 @@ export const debugUserToken = () => {
 
 // Função para verificar se usuário já é prestador
 export const checkProviderStatus = async () => {
-  const API_URL = 'http://localhost:5087/api';
+  const API_URL = 'https://api.desenrola.shop/api';
   const token = localStorage.getItem('auth_token');
   
   if (!token) {

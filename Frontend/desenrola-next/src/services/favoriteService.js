@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:5087';
+const BASE_URL = 'https://api.desenrola.shop';
 const token = () => localStorage.getItem('auth_token');
 
 const authHeaders = () => ({
