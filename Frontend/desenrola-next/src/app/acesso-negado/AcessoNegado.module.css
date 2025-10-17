@@ -1,0 +1,86 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5; /* Um cinza claro para o fundo */
+  padding: 1rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: #ffffff;
+  padding: 3rem 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-width: 550px;
+  width: 100%;
+}
+
+.icon {
+  width: 70px;
+  height: 70px;
+  color: #ef4444; /* Um vermelho para indicar alerta/erro */
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 2.25rem; /* 36px */
+  font-weight: 700;
+  color: #1f2937; /* Cinza escuro */
+  margin: 0;
+}
+
+.message {
+  margin-top: 0.75rem;
+  font-size: 1.125rem; /* 18px */
+  color: #6b7280; /* Cinza médio */
+  line-height: 1.6;
+  max-width: 450px;
+}
+
+.actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap; /* Para telas menores */
+  justify-content: center;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+
+/* Botão Primário (Azul) */
+.button:first-child {
+  background-color: #3b82f6;
+  color: #ffffff;
+}
+
+.button:first-child:hover {
+  background-color: #2563eb;
+}
+
+/* Botão Secundário (Borda) */
+.buttonSecondary {
+  background-color: #ffffff;
+  color: #4b5563; /* Cinza escuro */
+  border-color: #d1d5db; /* Borda cinza claro */
+}
+
+.buttonSecondary:hover {
+  background-color: #f9fafb; /* Fundo levemente acinzentado */
+  border-color: #9ca3af;
+}
