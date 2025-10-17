@@ -21,20 +21,10 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: null, text: '' });
 
-  /**
-  Atualiza o estado do formulário com os valores digitados pelo usuário.
-  @param {React.ChangeEvent<HTMLInputElement>} e Evento de input
-  */
-
   function handleChange(e) {
     const { id, value } = e.target;
     setForm((prev) => ({ ...prev, [id]: value }));
   }
-  /**
-  Traduz mensagens de erro técnicas da API para mensagens mais amigáveis em português.
-  @param {string} msg Mensagem original retornada pela API
-  @return {string} Mensagem traduzida
-  */
 
   function traduzirMensagem(msg) {
     return msg
@@ -51,19 +41,10 @@ export default function Register() {
         'A senha deve ter pelo menos uma letra maiúscula (A-Z).'
       );
   }
-  /**
-  Faz prefetch da rota de login para melhorar a performance da navegação.
-  */
 
   useEffect(() => {
     router.prefetch('/auth/login');
   }, [router]);
-
-  /**
-  Envia o formulário de cadastro.
-  Valida os dados e chama a API para registrar um novo usuário.
-  @param {React.FormEvent<HTMLFormElement>} e Evento de envio do formulário
-  */
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -99,7 +80,7 @@ export default function Register() {
         phone: form.phone,
         password: form.password,
         passwordConfirmation: form.confirmPassword,
-        role: 1, // 👈 sempre 1 (Customer enum value)
+        role: 1,
       });
       setMessage({ type: 'success', text: 'Conta criada com sucesso!' });
     } catch (err) {
@@ -134,106 +115,165 @@ export default function Register() {
   }
 
   return (
-    <div className={styles.registerContainer}>
-      <div className={styles.leftPanel}>
-        <div className={styles.brandContainer}>
-          <h1>Desenrola</h1>
-          <p>Chegou em Picos? A gente desenrola pra você.</p>
+    <div className={styles.container}>
+      {/* Lado Esquerdo */}
+      <div className={styles.leftSide}>
+        <div className={styles.blobBg}>
+          <div className={`${styles.blob} ${styles.blob1}`}></div>
+          <div className={`${styles.blob} ${styles.blob2}`}></div>
+          <div className={`${styles.blob} ${styles.blob3}`}></div>
+        </div>
+        
+        <div className={styles.brandContent}>
+          <div className={styles.logoWrapper}>
+            <div className={styles.logoCircle}>D</div>
+            <h1 className={styles.brandName}>Desenrola</h1>
+          </div>
+          <p className={styles.brandTagline}>
+            Chegou em Picos?<br />
+            A gente desenrola pra você.
+          </p>
+        </div>
+
+        <div className={styles.decorativeDots}>
+          <div className={styles.dot}></div>
+          <div className={styles.dot}></div>
+          <div className={styles.dot}></div>
         </div>
       </div>
 
-      <div className={styles.rightPanel}>
-        <div className={styles.registerCard}>
-          <h2>Criar conta</h2>
+      {/* Lado Direito */}
+      <div className={styles.rightSide}>
+        <div className={styles.formContainer}>
+          <div className={styles.formHeader}>
+            <h2 className={styles.formTitle}>Criar conta</h2>
+            <p className={styles.formSubtitle}>Preencha seus dados para começar</p>
+          </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className={styles.formGroup}>
-              <label htmlFor="userName">Usuário</label>
-              <input
-                type="text"
-                id="userName"
-                placeholder="Nome de usuário"
-                value={form.userName}
-                onChange={handleChange}
-              />
+          <form onSubmit={handleSubmit} noValidate>
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel} htmlFor="userName">
+                Usuário
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="text"
+                  id="userName"
+                  className={styles.formInput}
+                  placeholder="Nome de usuário"
+                  value={form.userName}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+              </div>
             </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="fullName">Nome completo</label>
-              <input
-                type="text"
-                id="fullName"
-                placeholder="Seu nome completo"
-                value={form.fullName}
-                onChange={handleChange}
-              />
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel} htmlFor="fullName">
+                Nome completo
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="text"
+                  id="fullName"
+                  className={styles.formInput}
+                  placeholder="Seu nome completo"
+                  value={form.fullName}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+              </div>
             </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="email">E-mail</label>
-              <input
-                type="email"
-                id="email"
-                placeholder="seuemail@exemplo.com"
-                value={form.email}
-                onChange={handleChange}
-              />
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel} htmlFor="email">
+                E-mail
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="email"
+                  id="email"
+                  className={styles.formInput}
+                  placeholder="seuemail@exemplo.com"
+                  value={form.email}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+              </div>
             </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="phone">Telefone</label>
-              <input
-                type="tel"
-                id="phone"
-                placeholder="(00) 00000-0000"
-                value={form.phone}
-                onChange={handleChange}
-              />
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel} htmlFor="phone">
+                Telefone (opcional)
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="tel"
+                  id="phone"
+                  className={styles.formInput}
+                  placeholder="(00) 00000-0000"
+                  value={form.phone}
+                  onChange={handleChange}
+                  disabled={loading}
+                />
+              </div>
             </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="password">Senha</label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Crie uma senha forte"
-                value={form.password}
-                onChange={handleChange}
-              />
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel} htmlFor="password">
+                Senha
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="password"
+                  id="password"
+                  className={styles.formInput}
+                  placeholder="Crie uma senha forte"
+                  value={form.password}
+                  onChange={handleChange}
+                  disabled={loading}
+                  autoComplete="new-password"
+                />
+              </div>
             </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="confirmPassword">Confirmar senha</label>
-              <input
-                type="password"
-                id="confirmPassword"
-                placeholder="Confirme sua senha"
-                value={form.confirmPassword}
-                onChange={handleChange}
-              />
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel} htmlFor="confirmPassword">
+                Confirmar senha
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  className={styles.formInput}
+                  placeholder="Confirme sua senha"
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  disabled={loading}
+                  autoComplete="new-password"
+                />
+              </div>
             </div>
 
-            <button type="submit" className={styles.registerButton} disabled={loading}>
+            <button type="submit" className={styles.submitBtn} disabled={loading}>
               {loading ? 'Enviando...' : 'Cadastrar'}
             </button>
+
+            {message.type && (
+              <div className={styles[message.type === 'error' ? 'errorMessage' : 'successMessage']}>
+                {message.text.split('\n').map((line, i) => (
+                  <p key={i}>{line}</p>
+                ))}
+              </div>
+            )}
           </form>
 
-          {message.text && (
-            <div
-              className={
-                message.type === 'error'
-                  ? styles.errorText
-                  : styles.successText
-              }
-            >
-              {message.text.split('\n').map((line, i) => (
-                <p key={i}>{line}</p>
-              ))}
-            </div>
-          )}
+          <div className={styles.divider}>
+            <span>ou</span>
+          </div>
 
-          <p className={styles.loginLink}>
-            Já tem uma conta? <Link href="/auth/login">Entrar</Link>
+          <p className={styles.loginText}>
+            Já tem uma conta? <Link href="/auth/login" className={styles.loginLink}>Entrar</Link>
           </p>
         </div>
       </div>
