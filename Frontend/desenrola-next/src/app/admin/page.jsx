@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 import styles from './AdminDashboard.module.css'; // CSS Module
-
+import withAdminAuth from '../../hooks/withAdminAuth';
 /**
  * Componente principal do painel de administração.
  * 
@@ -633,4 +633,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default withAdminAuth(AdminDashboard);
