@@ -1,31 +1,47 @@
+# --- Base image ---
 FROM node:20-alpine
 
-# Configuração de timezone
+# Configuração de timezone e dependências adicionais
 ENV TZ=America/Fortaleza
 
-# Instalar dependências do sistema
-RUN apk add --no-cache libc6-compat
+# Instalar pacotes essenciais para compilação e hot reload
+RUN apk add --no-cache \
+    libc6-compat \
+    bash \
+    git \
+    curl \
+    python3 \
+    make \
+    g++
 
+# Diretório de trabalho
 WORKDIR /app
 
-# Copiar package files
+# Copiar apenas package.json e package-lock.json primeiro (para cache eficiente)
 COPY package*.json ./
 
-# Instalar todas as dependências (incluindo dev)
-RUN npm install
+# Instalar dependências de produção + desenvolvimento (inclui Jest)
+RUN npm install --include=dev
 
-# Copiar código
+# Copiar todo o restante do código
 COPY . .
 
-# Criar diretórios e ajustar permissões
+# Criar diretórios necessários e ajustar permissões
 RUN mkdir -p /app/.next && \
-    chmod -R 755 /app
+    chmod -R 755 /app && \
+    chown -R node:node /app
 
-# Variáveis de ambiente
+# Rodar como usuário seguro
+USER node
+
+# Variáveis de ambiente padrão
 ENV NODE_ENV=development
+ENV HOST=0.0.0.0
+ENV PORT=3000
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV CHOKIDAR_USEPOLLING=true
 
+# Expor a porta do Next.js
 EXPOSE 3000
 
+# Comando padrão (inicia o servidor de desenvolvimento)
 CMD ["npm", "run", "dev"]
