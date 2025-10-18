@@ -19,11 +19,52 @@ const nextConfig = {
     return config;
   },
 
-  // Outras configurações recomendadas
+  // Configurações de otimização
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
   outputFileTracingRoot: process.cwd(),
+
+  // Otimizações de imagem (adicione se usar next/image)
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60,
+    // Se usar imagens externas, adicione aqui:
+    // remotePatterns: [
+    //   {
+    //     protocol: 'https',
+    //     hostname: 'exemplo.com',
+    //   },
+    // ],
+  },
+
+  // Headers de segurança
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-DNS-Prefetch-Control',
+            value: 'on'
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+        ],
+      },
+    ];
+  },
+
+  // Experimental (Next.js 15+)
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'date-fns'], // ajuste conforme suas libs
+  },
 };
 
 export default nextConfig;
