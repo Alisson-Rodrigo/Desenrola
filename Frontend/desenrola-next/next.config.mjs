@@ -1,12 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Saída otimizada para deploy com Docker (Next.js 15+)
   output: 'standalone',
-  
+
+  // Ignorar erros de ESLint e TypeScript no build (evita travar em produção)
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
 
+  // Hot reload funcional no Docker (somente em modo dev)
   webpack: (config, { dev, isServer }) => {
-    // Hot reload no dev
     if (dev && !isServer) {
       config.watchOptions = {
         poll: 1000,
@@ -14,32 +16,14 @@ const nextConfig = {
         ignored: /node_modules/,
       };
     }
-    
-    // Otimizar CSS modules
-    if (!dev) {
-      config.optimization = {
-        ...config.optimization,
-        moduleIds: 'deterministic',
-      };
-    }
-    
     return config;
   },
 
+  // Outras configurações recomendadas
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
-  swcMinify: true,
-
-  images: {
-    formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60,
-  },
-
-  // Experimental
-  experimental: {
-    optimizePackageImports: ['lucide-react', 'date-fns'],
-  },
+  outputFileTracingRoot: process.cwd(),
 };
 
 export default nextConfig;

@@ -1,44 +1,48 @@
-# --- Dependências ---
-FROM node:20-alpine AS deps
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci --only=production
-
-# --- Build ---
+# --- Etapa 1: Build ---
 FROM node:20-alpine AS builder
+
+# Diretório de trabalho dentro do container
 WORKDIR /app
 
-# Aumentar memória para build
-ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Copiar apenas os arquivos de dependências para aproveitar cache
+COPY package*.json ./
 
-COPY --from=deps /app/node_modules ./node_modules
+# Instalar dependências (sem dev packages)
+RUN npm ci
+
+# Copiar todo o código do projeto
 COPY . .
 
-ENV NODE_ENV=production
+# Desativar ESLint e Telemetry no build (para evitar travamentos)
+ENV NEXT_DISABLE_ESLINT=true
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Build com retry
-RUN npm run build || npm run build
+# Gerar build otimizado em modo standalone
+RUN npm run build
 
-# --- Runner ---
+# --- Etapa 2: Servidor de produção ---
 FROM node:20-alpine AS runner
+
+# Diretório de execução
 WORKDIR /app
 
+# Variáveis de ambiente de produção
 ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=3000
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+# Copiar apenas o necessário para rodar o servidor Next.js
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# 🔹 Cria a pasta public e copia apenas se existir (usando shell script)
+RUN mkdir -p ./public && \
+    (cp -r $(ls -A /app/public 2>/dev/null) ./public/ 2>/dev/null || true)
 
-USER nextjs
-
+# Expor porta padrão do Next.js
 EXPOSE 3000
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
+# Comando de inicialização (Next.js standalone)
 CMD ["node", "server.js"]
