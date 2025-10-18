@@ -1,48 +1,54 @@
-# --- Etapa 1: Build ---
+# ============================
+# 🔹 Etapa 1 — Build da aplicação
+# ============================
 FROM node:20-alpine AS builder
 
-# Diretório de trabalho dentro do container
+# Definir timezone e diretório de trabalho
+ENV TZ=America/Fortaleza
 WORKDIR /app
 
-# Copiar apenas os arquivos de dependências para aproveitar cache
+# Instalar dependências básicas do sistema
+RUN apk add --no-cache libc6-compat git
+
+# Copiar apenas arquivos de dependência (cache otimizado)
 COPY package*.json ./
 
-# Instalar dependências (sem dev packages)
+# Instalar dependências com npm ci (limpo e reproduzível)
 RUN npm ci
 
-# Copiar todo o código do projeto
+# Copiar o restante do código da aplicação
 COPY . .
 
-# Desativar ESLint e Telemetry no build (para evitar travamentos)
-ENV NEXT_DISABLE_ESLINT=true
-ENV NEXT_TELEMETRY_DISABLED=1
-
-# Gerar build otimizado em modo standalone
+# Gerar o build otimizado do Next.js
 RUN npm run build
 
-# --- Etapa 2: Servidor de produção ---
+# ============================
+# 🔹 Etapa 2 — Imagem leve de produção
+# ============================
 FROM node:20-alpine AS runner
 
-# Diretório de execução
+# Definir diretório de trabalho
 WORKDIR /app
 
-# Variáveis de ambiente de produção
+# Variáveis de ambiente
 ENV NODE_ENV=production
-ENV HOST=0.0.0.0
-ENV PORT=3000
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOST=0.0.0.0
 
-# Copiar apenas o necessário para rodar o servidor Next.js
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Copiar apenas os arquivos necessários do builder
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/next.config.js ./next.config.js
 
-# 🔹 Cria a pasta public e copia apenas se existir (usando shell script)
-RUN mkdir -p ./public && \
-    (cp -r $(ls -A /app/public 2>/dev/null) ./public/ 2>/dev/null || true)
+# Criar usuário seguro (não-root)
+RUN addgroup -S nextjs && adduser -S nextjs -G nextjs
+USER nextjs
 
-# Expor porta padrão do Next.js
+# Expor porta do app
 EXPOSE 3000
 
-# Comando de inicialização (Next.js standalone)
-CMD ["node", "server.js"]
+# Comando para iniciar o servidor de produção
+CMD ["npm", "run", "start"]
