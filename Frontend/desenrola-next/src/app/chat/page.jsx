@@ -12,7 +12,7 @@ const SendIcon = () => (<svg height="24" viewBox="0 0 24 24" width="24" fill="cu
 
 /**
  * Página principal do chat.
- * Gerencia conversas, mensagens, integração com SignalR e UI responsiva.
+ * Gerencia conversas, mensagens, integração com SignalR e UI.
  */
 export default function ChatPage() {
     // Configuração da API
@@ -39,7 +39,7 @@ export default function ChatPage() {
 
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
-            return payload.nameid;
+            return payload.nameid; // ID do usuário no token
         } catch (error) {
             console.error('Erro ao decodificar token:', error);
             return null;
@@ -56,8 +56,7 @@ export default function ChatPage() {
     const [authToken, setAuthToken] = useState(null);
     const [currentUserId, setCurrentUserId] = useState(null);
     const [isPolling, setIsPolling] = useState(true);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Estado do menu mobile
-    
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const connectionRef = useRef(null);
     const messagesEndRef = useRef(null);
     const pollingIntervalRef = useRef(null);
@@ -66,11 +65,15 @@ export default function ChatPage() {
 
     // Carregar token ao montar o componente
     useEffect(() => {
+        /**
+         * Hook para carregar token e userId ao montar o componente.
+         */
         const token = getAuthToken();
         const userId = getUserIdFromToken();
 
         if (!token) {
             console.error('Token não encontrado. Usuário não autenticado.');
+            // Redirecionar para login se necessário
             window.location.href = '/auth/login';
             return;
         }
@@ -87,11 +90,17 @@ export default function ChatPage() {
     };
 
     useEffect(() => {
+        /**
+         * Hook para scroll automático ao atualizar mensagens.
+         */
         scrollToBottom();
     }, [messages]);
 
     // Inicializar SignalR
     useEffect(() => {
+        /**
+         * Hook para inicializar conexão SignalR e registrar eventos.
+         */
         if (!authToken) return;
 
         const connection = new signalR.HubConnectionBuilder()
@@ -104,10 +113,16 @@ export default function ChatPage() {
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
+        // Tentar múltiplos nomes de eventos possíveis
         const handleNewMessage = (message) => {
             console.log('🔔 Nova mensagem recebida via SignalR:', message);
+            console.log('📌 Conversa ativa atual:', activeChat?.conversationId);
+            console.log('📌 Conversa da mensagem:', message.conversationId);
 
+            // Adicionar a nova mensagem diretamente
             setMessages(prevMessages => {
+                console.log('📝 Mensagens anteriores:', prevMessages.length);
+                // Evitar duplicatas
                 const exists = prevMessages.some(m => m.id === message.id);
                 if (exists) {
                     console.log('⚠️ Mensagem já existe, ignorando');
@@ -118,29 +133,51 @@ export default function ChatPage() {
                 return newMessages;
             });
 
+            // Atualizar lista de conversas
+            console.log('🔄 Atualizando lista de conversas');
             setTimeout(() => fetchConversations(), 500);
         };
 
-        // Registrar eventos
-        connection.on('ReceiveMessage', handleNewMessage);
-        connection.on('NewMessage', handleNewMessage);
-        connection.on('MessageReceived', handleNewMessage);
-        connection.on('OnMessageReceived', handleNewMessage);
+        // Registrar todos os eventos possíveis
+        connection.on('ReceiveMessage', (message) => {
+            console.log('🔔 ReceiveMessage:', message);
+            handleNewMessage(message);
+        });
+        connection.on('NewMessage', (message) => {
+            console.log('🔔 NewMessage:', message);
+            handleNewMessage(message);
+        });
+        connection.on('MessageReceived', (message) => {
+            console.log('🔔 MessageReceived:', message);
+            handleNewMessage(message);
+        });
+        connection.on('OnMessageReceived', (message) => {
+            console.log('🔔 OnMessageReceived:', message);
+            handleNewMessage(message);
+        });
 
-        connection.onreconnecting(() => console.log('🔄 SignalR reconectando...'));
+        connection.onreconnecting(() => {
+            console.log('🔄 SignalR reconectando...');
+        });
+
         connection.onreconnected(() => {
             console.log('✅ SignalR reconectado!');
             fetchConversations();
         });
-        connection.onclose((error) => console.log('❌ SignalR desconectado', error));
+
+        connection.onclose((error) => {
+            console.log('❌ SignalR desconectado', error);
+        });
 
         connection.start()
             .then(() => {
                 console.log('✅ SignalR conectado com sucesso!');
+                console.log('🔌 Connection ID:', connection.connectionId);
                 connectionRef.current = connection;
             })
             .catch(err => {
                 console.error('❌ Erro ao conectar SignalR:', err);
+                // Tentar reconectar após 5 segundos
                 setTimeout(() => {
                     console.log('🔄 Tentando reconectar...');
                     connection.start().catch(e => console.error('❌ Falha na reconexão:', e));
@@ -155,6 +192,7 @@ export default function ChatPage() {
 
     /**
      * Marca todas as mensagens de uma conversa como lidas.
+     * @param {string} conversationId - ID da conversa.
      */
     const markAsRead = async (conversationId) => {
         const token = getAuthToken();
@@ -202,6 +240,8 @@ export default function ChatPage() {
 
     /**
      * Busca o histórico de mensagens de uma conversa.
+     * @param {string} conversationId - ID da conversa.
+     * @param {boolean} silent - Se true, não loga no console.
      */
     const fetchMessages = async (conversationId, silent = false) => {
         const token = getAuthToken();
@@ -239,7 +279,7 @@ export default function ChatPage() {
 
         setSendingMessage(true);
         const messageContent = messageInput;
-        setMessageInput('');
+        setMessageInput(''); // Limpar input imediatamente
 
         console.log('📤 Enviando mensagem:', messageContent);
 
@@ -261,14 +301,18 @@ export default function ChatPage() {
                 const sentMessage = await response.json();
                 console.log('✅ Mensagem enviada com sucesso:', sentMessage);
 
+                // Adicionar mensagem imediatamente (UI otimista)
                 setMessages(prev => {
                     const exists = prev.some(m => m.id === sentMessage.id);
                     if (!exists) {
+                        console.log('➕ Adicionando mensagem enviada à lista');
                         return [...prev, sentMessage];
                     }
+                    console.log('⚠️ Mensagem já existe na lista');
                     return prev;
                 });
 
+                // Atualizar lista de conversas
                 fetchConversations();
             } else {
                 console.error('❌ Erro ao enviar mensagem - Status:', response.status);
@@ -284,51 +328,65 @@ export default function ChatPage() {
 
     /**
      * Seleciona uma conversa e carrega suas mensagens.
-     * FECHA O MENU AUTOMATICAMENTE EM MOBILE.
+     * @param {object} conversation - Objeto da conversa.
      */
     const selectConversation = async (conversation) => {
         setActiveChat(conversation);
         await fetchMessages(conversation.conversationId);
 
-        // 🔥 FECHA O MENU EM MOBILE AUTOMATICAMENTE
+        // Fechar sidebar em mobile ao selecionar conversa
         setIsSidebarOpen(false);
 
+        // Marcar mensagens como lidas
         if (conversation.unreadMessagesCount > 0) {
             await markAsRead(conversation.conversationId);
+            // Atualizar lista de conversas para refletir contagem zerada
             fetchConversations();
         }
     };
 
     // Carregar conversas ao montar
     useEffect(() => {
+        /**
+         * Hook para buscar conversas ao montar componente.
+         */
         if (authToken) {
             fetchConversations();
         }
     }, [authToken]);
 
-    // Polling para atualizar lista de conversas
+    // Polling para atualizar lista de conversas em tempo real
     useEffect(() => {
+        /**
+         * Hook para polling da lista de conversas.
+         */
         if (!authToken) return;
 
         console.log('🔄 Iniciando polling para lista de conversas');
 
+        // Atualizar lista de conversas a cada 3 segundos
         conversationsPollingRef.current = setInterval(() => {
             fetchConversations();
         }, 3000);
 
         return () => {
             if (conversationsPollingRef.current) {
+                console.log('🛑 Parando polling de conversas');
                 clearInterval(conversationsPollingRef.current);
             }
         };
     }, [authToken]);
 
-    // Polling para atualizar mensagens
+    // Polling para atualizar mensagens em tempo real (fallback se SignalR falhar)
     useEffect(() => {
+        /**
+         * Hook para polling das mensagens da conversa ativa.
+         */
         if (!activeChat || !isPolling) return;
 
         console.log('🔄 Iniciando polling para conversa:', activeChat.conversationId);
 
+        // Verificar novas mensagens a cada 2 segundos
         pollingIntervalRef.current = setInterval(async () => {
             const token = getAuthToken();
             if (!token) return;
@@ -344,7 +402,9 @@ export default function ChatPage() {
                 if (response.ok) {
                     const data = await response.json();
 
+                    // Sempre atualizar para pegar mudanças no status isRead
                     setMessages(prevMessages => {
+                        // Verificar se houve mudanças (novas mensagens ou status de leitura)
                         const hasChanges = data.length !== prevMessages.length ||
                             data.some((newMsg, idx) => {
                                 const oldMsg = prevMessages[idx];
@@ -355,6 +415,7 @@ export default function ChatPage() {
                             console.log('🆕 Atualizações detectadas via polling!');
                             lastMessageCountRef.current = data.length;
 
+                            // Marcar como lida se houver mensagens não lidas
                             const hasUnread = data.some(msg => !msg.isRead && msg.senderId !== currentUserId);
                             if (hasUnread) {
                                 markAsRead(activeChat.conversationId);
@@ -369,10 +430,11 @@ export default function ChatPage() {
             } catch (error) {
                 console.error('Erro no polling:', error);
             }
-        }, 2000);
+        }, 2000); // Verifica a cada 2 segundos
 
         return () => {
             if (pollingIntervalRef.current) {
+                console.log('🛑 Parando polling de mensagens');
                 clearInterval(pollingIntervalRef.current);
             }
         };
@@ -380,6 +442,8 @@ export default function ChatPage() {
 
     /**
      * Formata a data/hora da mensagem para exibição.
+     * @param {string} dateString - Data em formato ISO.
+     * @returns {string} Data formatada.
      */
     const formatTime = (dateString) => {
         const date = new Date(dateString);
@@ -395,21 +459,23 @@ export default function ChatPage() {
 
     return (
         <>
-            <Navbar />
+            <div>
+                <Navbar />
+            </div>
             <div className={styles.chatContainer}>
 
-                {/* 🔥 BOTÃO HAMBURGER - MOBILE */}
+                {/* BOTÃO HAMBURGER - MOBILE */}
                 <button
                     className={styles.hamburgerButton}
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    aria-label="Menu de conversas"
+                    aria-label="Menu"
                 >
                     <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
                         <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
                     </svg>
                 </button>
 
-                {/* 🔥 OVERLAY - FECHA MENU AO CLICAR FORA */}
+                {/* OVERLAY - MOBILE */}
                 {isSidebarOpen && (
                     <div
                         className={styles.overlay}
@@ -417,7 +483,7 @@ export default function ChatPage() {
                     />
                 )}
 
-                {/* 🔥 PAINEL DA ESQUERDA - COM CLASSE CONDICIONAL */}
+                {/* PAINEL DA ESQUERDA */}
                 <div className={`${styles.contactList} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
                     <div className={styles.contactListHeader}>
                         <div className={styles.contactListHeaderLeft}>
@@ -427,53 +493,43 @@ export default function ChatPage() {
                         </div>
                     </div>
 
-                    <div className={styles.searchBar}>
-                        <input
-                            type="text"
-                            placeholder="Buscar conversa..."
-                            className={styles.searchInput}
-                        />
-                    </div>
-
                     {loading ? (
                         <div style={{ padding: '20px', textAlign: 'center' }}>Carregando...</div>
                     ) : (
-                        <div style={{ overflowY: 'auto', flex: 1 }}>
-                            {conversations.map(conv => (
-                                <div
-                                    key={conv.conversationId}
-                                    className={`${styles.contactItem} ${activeChat?.conversationId === conv.conversationId ? styles.active : ''}`}
-                                    onClick={() => selectConversation(conv)}
-                                >
-                                    <UserAvatarIcon />
-                                    <div className={styles.contactItemInfo}>
-                                        <h3>{conv.otherUserName}</h3>
-                                        <p>{conv.lastMessage}</p>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                                        <span className={styles.contactItemTime}>
-                                            {formatTime(conv.lastMessageDate)}
-                                        </span>
-                                        {conv.unreadMessagesCount > 0 && (
-                                            <span style={{
-                                                backgroundColor: '#0084ff',
-                                                color: 'white',
-                                                borderRadius: '50%',
-                                                width: '20px',
-                                                height: '20px',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                fontSize: '12px',
-                                                fontWeight: 'bold'
-                                            }}>
-                                                {conv.unreadMessagesCount}
-                                            </span>
-                                        )}
-                                    </div>
+                        conversations.map(conv => (
+                            <div
+                                key={conv.conversationId}
+                                className={`${styles.contactItem} ${activeChat?.conversationId === conv.conversationId ? styles.active : ''}`}
+                                onClick={() => selectConversation(conv)}
+                            >
+                                <UserAvatarIcon />
+                                <div className={styles.contactItemInfo}>
+                                    <h3>{conv.otherUserName}</h3>
+                                    <p>{conv.lastMessage}</p>
                                 </div>
-                            ))}
-                        </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                                    <span className={styles.contactItemTime}>
+                                        {formatTime(conv.lastMessageDate)}
+                                    </span>
+                                    {conv.unreadMessagesCount > 0 && (
+                                        <span style={{
+                                            backgroundColor: '#0084ff',
+                                            color: 'white',
+                                            borderRadius: '50%',
+                                            width: '20px',
+                                            height: '20px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '12px',
+                                            fontWeight: 'bold'
+                                        }}>
+                                            {conv.unreadMessagesCount}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        ))
                     )}
                 </div>
 
@@ -535,11 +591,13 @@ export default function ChatPage() {
                                                             marginLeft: '2px'
                                                         }}>
                                                             {msg.isRead ? (
+                                                                // Dois checks azuis (lida)
                                                                 <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
                                                                     <path d="M11.0716 0.928955L4.41421 7.58635L1.92893 5.10107L0.514709 6.51528L4.41421 10.4148L12.4858 2.34317L11.0716 0.928955Z" fill="#4FC3F7" />
                                                                     <path d="M15.4858 0.928955L8.82843 7.58635L7.41421 6.17214L6 7.58635L8.82843 10.4148L17 2.24264L15.4858 0.928955Z" fill="#4FC3F7" />
                                                                 </svg>
                                                             ) : (
+                                                                // Dois checks cinza (enviada, não lida)
                                                                 <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
                                                                     <path d="M11.0716 0.928955L4.41421 7.58635L1.92893 5.10107L0.514709 6.51528L4.41421 10.4148L12.4858 2.34317L11.0716 0.928955Z" fill="#757575" />
                                                                     <path d="M15.4858 0.928955L8.82843 7.58635L7.41421 6.17214L6 7.58635L8.82843 10.4148L17 2.24264L15.4858 0.928955Z" fill="#757575" />
@@ -581,9 +639,7 @@ export default function ChatPage() {
                             justifyContent: 'center',
                             height: '100%',
                             color: '#65676b',
-                            fontSize: '18px',
-                            padding: '20px',
-                            textAlign: 'center'
+                            fontSize: '18px'
                         }}>
                             Selecione uma conversa para começar
                         </div>
