@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile.prod
     container_name: desenrola_next
     ports:
-      - "5000:3000"
+      - "3001:3000"
     environment:
       - NODE_ENV=production
       - HOST=0.0.0.0
