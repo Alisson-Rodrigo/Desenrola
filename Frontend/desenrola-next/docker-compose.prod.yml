@@ -1,19 +1,14 @@
+version: "3.8"
 
 services:
-  desenrola_next:
+  web:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     container_name: desenrola_next
-    restart: always
     ports:
-      - "80:80"
+      - "5000:3000"
     environment:
       - NODE_ENV=production
       - NEXT_TELEMETRY_DISABLED=1
-    networks:
-      - desenrola_net
-
-networks:
-  desenrola_net:
-    driver: bridge
+    restart: always
