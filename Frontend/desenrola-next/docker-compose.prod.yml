@@ -1,15 +1,19 @@
 
 services:
-  web:
+  desenrola_next:
     build:
       context: .
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
     container_name: desenrola_next
+    restart: always
     ports:
-      - "5000:3000"
+      - "80:80"
     environment:
       - NODE_ENV=production
-      - HOST=0.0.0.0
-      - PORT=3000
       - NEXT_TELEMETRY_DISABLED=1
-    restart: always
+    networks:
+      - desenrola_net
+
+networks:
+  desenrola_net:
+    driver: bridge
