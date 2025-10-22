@@ -1080,8 +1080,8 @@
 
 .providerBenefits {
   display: flex;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 40px;
   text-align: left;
 }
