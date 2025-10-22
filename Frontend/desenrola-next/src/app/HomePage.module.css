@@ -1072,16 +1072,16 @@
   font-size: 1.126rem;
   color: #4a5568;
   margin-bottom: 40px;
-  max-width: 600px;
+  max-width: 640px;
   margin-left: auto;
   margin-right: auto;
   line-height: 1.6;
 }
 
 .providerBenefits {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
   margin-bottom: 40px;
   text-align: left;
 }
