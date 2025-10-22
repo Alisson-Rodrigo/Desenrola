@@ -79,7 +79,7 @@ function HomePage({ hasToken }) {
   const featuredCategories = [
     { id: "Eletrica", name: "Elétrica", icon: "/icons/eletrica.svg" },
     { id: "Hidraulica", name: "Hidráulica", icon: "/icons/ferramenta.svg" },
-    { id: "Pintura", name: "Pintura", icon: "🎨" },
+    { id: "Pintura", name: "Pintura", icon: "/icons/pintura.svg" },
     { id: "Reformas", name: "Reformas", icon: "🏗️" },
     { id: "TI", name: "TI", icon: "💻" },
     { id: "Beleza", name: "Beleza", icon: "✨" },
