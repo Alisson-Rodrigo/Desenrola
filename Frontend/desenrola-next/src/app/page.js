@@ -84,7 +84,7 @@ function HomePage({ hasToken }) {
     { id: "TI", name: "TI", icon: "/icons/computer.svg" },
     { id: "Beleza", name: "Beleza", icon: "/icons/beleza.svg" },
     { id: "Limpeza", name: "Limpeza", icon: "/icons/limpeza.svg" },
-    { id: "Jardinagem", name: "Jardinagem", icon: "🌱" }
+    { id: "Jardinagem", name: "Jardinagem", icon: "/icons/jardinagem.svg" }
   ];
 
   const categorias = {
