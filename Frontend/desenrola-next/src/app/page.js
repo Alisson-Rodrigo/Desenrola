@@ -7,6 +7,7 @@ import Footer from '../components/Footer';
 import { withAuth } from '../hooks/withAuth';
 import { useRouter } from 'next/navigation';
 import styles from './HomePage.module.css';
+import Image from "next/image";
 
 import {
   Search,
@@ -76,7 +77,7 @@ function HomePage({ hasToken }) {
 
   // Categorias em destaque
   const featuredCategories = [
-    { id: "Eletrica", name: "Elétrica", icon: "⚡" },
+    { id: "Eletrica", name: "Elétrica", icon: "/icons/eletrica.svg" },
     { id: "Hidraulica", name: "Hidráulica", icon: "🔧" },
     { id: "Pintura", name: "Pintura", icon: "🎨" },
     { id: "Reformas", name: "Reformas", icon: "🏗️" },
@@ -284,10 +285,17 @@ function HomePage({ hasToken }) {
                 onClick={() => router.push(`/servicos/todos?categoria=${category.id}`)}
                 className={styles.categoryCard}
               >
-                <span className={styles.categoryIcon}>{category.icon}</span>
+                <Image
+                  src={category.icon}
+                  alt={category.name}
+                  width={60}
+                  height={60}
+                  className={styles.categoryIcon}
+                />
                 <span className={styles.categoryName}>{category.name}</span>
               </button>
             ))}
+
           </div>
         </div>
       </section>
