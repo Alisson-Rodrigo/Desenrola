@@ -1089,6 +1089,7 @@
 .providerBenefit {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   padding: 16px;
   background: #F0FDFA;
