@@ -78,7 +78,7 @@ function HomePage({ hasToken }) {
   // Categorias em destaque
   const featuredCategories = [
     { id: "Eletrica", name: "Elétrica", icon: "/icons/eletrica.svg" },
-    { id: "Hidraulica", name: "Hidráulica", icon: "🔧" },
+    { id: "Hidraulica", name: "Hidráulica", icon: "/icons/ferramenta.svg" },
     { id: "Pintura", name: "Pintura", icon: "🎨" },
     { id: "Reformas", name: "Reformas", icon: "🏗️" },
     { id: "TI", name: "TI", icon: "💻" },
