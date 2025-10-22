@@ -80,7 +80,7 @@ function HomePage({ hasToken }) {
     { id: "Eletrica", name: "Elétrica", icon: "/icons/eletrica.svg" },
     { id: "Hidraulica", name: "Hidráulica", icon: "/icons/ferramenta.svg" },
     { id: "Pintura", name: "Pintura", icon: "/icons/pintura.svg" },
-    { id: "Reformas", name: "Reformas", icon: "🏗️" },
+    { id: "Reformas", name: "Reformas", icon: "/icons/reforma.svg" },
     { id: "TI", name: "TI", icon: "💻" },
     { id: "Beleza", name: "Beleza", icon: "✨" },
     { id: "Limpeza", name: "Limpeza", icon: "🧹" },
