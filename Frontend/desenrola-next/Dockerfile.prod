@@ -36,10 +36,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-
-# 🔹 Cria a pasta public e copia apenas se existir (usando shell script)
-RUN mkdir -p ./public && \
-    (cp -r $(ls -A /app/public 2>/dev/null) ./public/ 2>/dev/null || true)
+# ✅ Copia a pasta public (com imagens, ícones etc.)
+COPY --from=builder /app/public ./public
 
 # Expor porta padrão do Next.js
 EXPOSE 3000
