@@ -288,13 +288,14 @@ function HomePage({ hasToken }) {
                 <Image
                   src={category.icon}
                   alt={category.name}
-                  width={60}
-                  height={60}
-                  className={styles.categoryIcon}
+                  width={80}     // aumenta o tamanho do ícone
+                  height={80}
+                  className="mb-3 object-contain drop-shadow-sm bg-transparent"
                 />
                 <span className={styles.categoryName}>{category.name}</span>
               </button>
             ))}
+
 
           </div>
         </div>
