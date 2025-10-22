@@ -485,7 +485,7 @@ function HomePage({ hasToken }) {
                   className={styles.providerButton}
                 >
                   <Briefcase size={20} />
-                  Tornar-me Prestador
+                  Torne-se um Prestador
                   <ArrowRight size={20} />
                 </button>
 
