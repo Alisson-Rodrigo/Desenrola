@@ -501,3 +501,36 @@
     font-size: 15px;
   }
 }
+
+/* Wrapper principal do logo */
+.logo {
+  text-decoration: none;
+}
+
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* aumenta o espaço entre imagem e texto */
+}
+
+/* Imagem do logo */
+.logoImage {
+  border-radius: 12px;
+  object-fit: contain;
+  width: 80px !important;   /* aumentei de 48px → 64px */
+  height: 80px !important;
+}
+
+/* Texto do logo */
+.logoText {
+  font-weight: 800;          /* mais espesso */
+  font-size: 1.8rem;         /* antes 1.25rem → agora 1.8rem (~28px) */
+  color: var(--text-color, #1e1e1e);
+  letter-spacing: 0.5px;     /* espaçamento leve nas letras */
+}
+
+/* Opcional: efeito hover */
+.logo:hover .logoText {
+   color: #059669;   
+  transition: color 0.2s ease;
+}

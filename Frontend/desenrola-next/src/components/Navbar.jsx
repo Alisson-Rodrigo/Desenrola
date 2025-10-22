@@ -188,7 +188,7 @@ export default function Navbar() {
         <Link href="/" className={styles.logo}>
           <div className={styles.logoWrapper}>
             <Image
-              src="/logo.png"
+              src="/logo.svg"
               alt="Logo Desenrola"
               width={48}         // ligeiramente maior
               height={48}
