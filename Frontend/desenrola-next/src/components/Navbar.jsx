@@ -5,6 +5,9 @@ import { useRouter, usePathname } from "next/navigation";
 import { ChevronDown, Menu, X, User, LogOut, Shield, Plus, Crown, UserCheck, Home, Briefcase, MessageCircle, Heart } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./Navbar.module.css";
+import Image from "next/image";
+
+
 
 export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -183,9 +186,19 @@ export default function Navbar() {
       <div className={styles.container}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
-          <div className={styles.logoIcon}>D</div>
-          Desenrola
+          <div className={styles.logoWrapper}>
+            <Image
+              src="/logo.png"
+              alt="Logo Desenrola"
+              width={48}         // ligeiramente maior
+              height={48}
+              priority
+              className={styles.logoImage}
+            />
+            <span className={styles.logoText}>Desenrola</span>
+          </div>
         </Link>
+
 
         {/* Links Desktop */}
         <div className={styles.nav}>
