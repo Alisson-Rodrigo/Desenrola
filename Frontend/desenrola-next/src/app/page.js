@@ -83,7 +83,7 @@ function HomePage({ hasToken }) {
     { id: "Reformas", name: "Reformas", icon: "/icons/reforma.svg" },
     { id: "TI", name: "TI", icon: "/icons/computer.svg" },
     { id: "Beleza", name: "Beleza", icon: "/icons/beleza.svg" },
-    { id: "Limpeza", name: "Limpeza", icon: "🧹" },
+    { id: "Limpeza", name: "Limpeza", icon: "/icons/limpeza.svg" },
     { id: "Jardinagem", name: "Jardinagem", icon: "🌱" }
   ];
 
