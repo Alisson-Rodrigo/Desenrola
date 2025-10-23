@@ -132,7 +132,7 @@ export default function VisualizarServico({ params }) {
   const fetchAgenda = async (providerId) => {
     try {
       setLoadingAgenda(true);
-      const response = await fetch(`http://localhost:5087/api/schedule/provider/${providerId}`, { method: 'GET', headers: getAuthHeaders() });
+      const response = await fetch(`https://api.desenrola.shop/api/schedule/provider/${providerId}`, { method: 'GET', headers: getAuthHeaders() });
 
       if (!response.ok) {
         setAgenda([]);
