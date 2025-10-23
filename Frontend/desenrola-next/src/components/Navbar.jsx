@@ -2,14 +2,18 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronDown, Menu, X, User, LogOut, Shield, Plus } from "lucide-react";
+import { ChevronDown, Menu, X, User, LogOut, Shield, Plus, Crown, UserCheck, Home, Briefcase, MessageCircle, Heart } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 import styles from "./Navbar.module.css";
+import Image from "next/image";
+
+
 
 export default function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
@@ -29,13 +33,54 @@ export default function Navbar() {
   useEffect(() => {
     router.prefetch("/");
     router.prefetch("/servicos");
-    router.prefetch("/clientes");
+    router.prefetch("/favoritos"); // ADICIONADO
     router.prefetch("/perfil/usuario/meu");
     router.prefetch("/perfil/prestador/meu");
     router.prefetch("/auth/login");
     router.prefetch("/admin");
     router.prefetch("/perfil/prestador/servicos/cadastrar");
+    router.prefetch("/chat");
   }, [router]);
+
+  // Buscar quantidade de mensagens não lidas
+  useEffect(() => {
+    async function fetchUnreadMessages() {
+      if (!user) {
+        setUnreadCount(0);
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem("auth_token");
+        if (!token) return;
+
+        const headers = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        };
+
+        const response = await fetch('https://api.desenrola.shop/api/Message/unread-count', {
+          method: 'GET',
+          headers
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUnreadCount(data.unreadCount || 0);
+        }
+      } catch (err) {
+        console.error('Erro ao buscar mensagens não lidas:', err);
+      }
+    }
+
+    // Busca imediatamente
+    fetchUnreadMessages();
+
+    // Atualiza a cada 30 segundos
+    const interval = setInterval(fetchUnreadMessages, 30000);
+
+    return () => clearInterval(interval);
+  }, [user]);
 
   // Normaliza role para string em minúsculo
   function normalizeRole(role) {
@@ -43,11 +88,39 @@ export default function Navbar() {
     return String(role).toLowerCase();
   }
 
+  // Função para obter o tipo de usuário em português
+  function getUserType() {
+    if (!user) return null;
+    
+    if (user.role === "0" || user.role === "admin") return "Administrador";
+    if (user.role === "2" || user.role === "provider") return "Prestador";
+    return "Cliente";
+  }
+
+  // Função para obter a cor do badge
+  function getUserBadgeColor() {
+    if (!user) return "";
+    
+    if (user.role === "0" || user.role === "admin") return styles.adminBadge;
+    if (user.role === "2" || user.role === "provider") return styles.providerBadge;
+    return styles.userBadge;
+  }
+
+  // Função para obter o ícone do usuário
+  function getUserIcon() {
+    if (!user) return <User size={16} />;
+    
+    if (user.role === "0" || user.role === "admin") return <Shield size={16} />;
+    if (user.role === "2" || user.role === "provider") return <Crown size={16} />;
+    return <UserCheck size={16} />;
+  }
+
   // Função para logout
   const handleLogout = () => {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("auth_user");
     setUser(null);
+    setUnreadCount(0);
     router.push("/auth/login");
     window.dispatchEvent(new Event("storage"));
   };
@@ -69,7 +142,7 @@ export default function Navbar() {
       try {
         const decoded = jwtDecode(token);
 
-        // ✅ Verificação de expiração
+        // Verificação de expiração
         if (decoded.exp && decoded.exp * 1000 < Date.now()) {
           console.warn("Token expirado, removendo...");
           handleLogout();
@@ -100,7 +173,7 @@ export default function Navbar() {
   const toggleDropdown = () => setIsDropdownOpen(!isDropdownOpen);
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-  // helper para marcar ativo
+  // Helper para marcar ativo
   const getLinkClass = (href) =>
     `${styles.navLink} ${pathname === href ? styles.active : ""}`;
 
@@ -113,21 +186,66 @@ export default function Navbar() {
       <div className={styles.container}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>
-          <div className={styles.logoIcon}>D</div>
-          Desenrola
+          <div className={styles.logoWrapper}>
+            <Image
+              src="/logo.svg"
+              alt="Logo Desenrola"
+              width={48}         // ligeiramente maior
+              height={48}
+              priority
+              className={styles.logoImage}
+            />
+            <span className={styles.logoText}>Desenrola</span>
+          </div>
         </Link>
+
 
         {/* Links Desktop */}
         <div className={styles.nav}>
           <Link href="/" className={getLinkClass("/")}>
-            Página Inicial
+            <Home size={16} />
+            Início
           </Link>
-          <Link href="/servicos" className={getLinkClass("/servicos")}>
+          
+          <Link href="/servicos/todos" className={getLinkClass("/servicos/todos")}>
+            <Briefcase size={16} />
             Serviços
           </Link>
-          <Link href="/clientes" className={getLinkClass("/clientes")}>
-            Clientes
-          </Link>
+
+          {/* NOVO LINK: Favoritos - só aparece se estiver logado */}
+          {user && (
+            <Link href="/favoritos" className={getLinkClass("/favoritos")}>
+              <Heart size={16} />
+              Favoritos
+            </Link>
+          )}
+
+          {/* Link para Chat - só aparece se estiver logado */}
+          {user && (
+            <Link href="/chat" className={getLinkClass("/chat")}>
+              <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                <MessageCircle size={16} />
+                {unreadCount > 0 && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '-8px',
+                    right: '-8px',
+                    backgroundColor: '#ef4444',
+                    color: 'white',
+                    borderRadius: '10px',
+                    padding: '2px 6px',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    minWidth: '18px',
+                    textAlign: 'center'
+                  }}>
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </div>
+              Mensagens
+            </Link>
+          )}
 
           {/* Botão Cadastrar Serviço - só aparece para Provider */}
           {isProvider && (
@@ -135,6 +253,7 @@ export default function Navbar() {
               href="/perfil/prestador/servicos/cadastrar"
               className={getLinkClass("/perfil/prestador/servicos/cadastrar")}
             >
+              <Plus size={16} />
               Cadastrar Serviço
             </Link>
           )}
@@ -142,6 +261,7 @@ export default function Navbar() {
           {/* Botão Admin */}
           {isAdmin && (
             <Link href="/admin" className={getLinkClass("/admin")}>
+              <Shield size={16} />
               Admin
             </Link>
           )}
@@ -155,12 +275,20 @@ export default function Navbar() {
               onClick={toggleDropdown}
               ref={dropdownRef}
             >
-              <div className={styles.avatar}>
-                {user?.name ? user.name.substring(0, 2).toUpperCase() : "??"}
+              <div className={styles.userInfo}>
+                <div className={styles.avatar}>
+                  {user?.name ? user.name.substring(0, 2).toUpperCase() : "??"}
+                </div>
+                <div className={styles.userDetails}>
+                  <span className={styles.userName}>
+                    {user?.name || "Usuário"}
+                  </span>
+                  <span className={`${styles.userBadge} ${getUserBadgeColor()}`}>
+                    {getUserIcon()}
+                    {getUserType()}
+                  </span>
+                </div>
               </div>
-              <span className={styles.userName}>
-                {user?.name || "Usuário"}
-              </span>
               <ChevronDown className={styles.dropdownIcon} />
 
               <div
@@ -171,6 +299,10 @@ export default function Navbar() {
                 <div className={styles.dropdownHeader}>
                   <h3>{user?.name || "Usuário"}</h3>
                   <p>{user?.email || "email@dominio.com"}</p>
+                  <span className={`${styles.dropdownBadge} ${getUserBadgeColor()}`}>
+                    {getUserIcon()}
+                    {getUserType()}
+                  </span>
                 </div>
 
                 {/* Link Perfil condicional */}
@@ -179,7 +311,7 @@ export default function Navbar() {
                     href="/perfil/prestador/meu"
                     className={styles.dropdownItem}
                   >
-                    <User size={16} /> Meu Perfil (Prestador)
+                    <User size={16} /> Meu Perfil
                   </Link>
                 ) : (
                   <Link
@@ -189,6 +321,30 @@ export default function Navbar() {
                     <User size={16} /> Meu Perfil
                   </Link>
                 )}
+
+                {/* Link Mensagens */}
+                <Link
+                  href="/chat"
+                  className={styles.dropdownItem}
+                >
+                  <MessageCircle size={16} /> 
+                  Mensagens
+                  {unreadCount > 0 && (
+                    <span style={{
+                      marginLeft: 'auto',
+                      backgroundColor: '#ef4444',
+                      color: 'white',
+                      borderRadius: '10px',
+                      padding: '2px 8px',
+                      fontSize: '12px',
+                      fontWeight: 'bold',
+                      minWidth: '20px',
+                      textAlign: 'center'
+                    }}>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </Link>
 
                 {/* Link Cadastrar Serviço */}
                 {isProvider && (
@@ -241,31 +397,84 @@ export default function Navbar() {
           isMobileMenuOpen ? styles.open : ""
         }`}
       >
+        {/* Informações do usuário no mobile */}
+        {user && (
+          <div className={styles.mobileUserInfo}>
+            <div className={styles.mobileAvatar}>
+              {user?.name ? user.name.substring(0, 2).toUpperCase() : "??"}
+            </div>
+            <div>
+              <div className={styles.mobileUserName}>{user?.name || "Usuário"}</div>
+              <div className={`${styles.mobileUserBadge} ${getUserBadgeColor()}`}>
+                {getUserIcon()}
+                {getUserType()}
+              </div>
+            </div>
+          </div>
+        )}
+
         <Link href="/" className={getLinkClass("/")}>
-          Dashboard
+          <Home size={18} />
+          Início
         </Link>
-        <Link href="/servicos" className={getLinkClass("/servicos")}>
+        
+        <Link href="/servicos/todos" className={getLinkClass("/servicos/todos")}>
+          <Briefcase size={18} />
           Serviços
         </Link>
-        <Link href="/clientes" className={getLinkClass("/clientes")}>
-          Clientes
-        </Link>
+
+        {/* NOVO LINK MOBILE: Favoritos */}
+        {user && (
+          <Link href="/favoritos" className={getLinkClass("/favoritos")}>
+            <Heart size={18} />
+            Favoritos
+          </Link>
+        )}
+
+        {/* Link Mensagens Mobile */}
+        {user && (
+          <Link href="/chat" className={getLinkClass("/chat")}>
+            <MessageCircle size={18} />
+            Mensagens
+            {unreadCount > 0 && (
+              <span style={{
+                marginLeft: 'auto',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                borderRadius: '10px',
+                padding: '2px 8px',
+                fontSize: '12px',
+                fontWeight: 'bold',
+                minWidth: '20px',
+                textAlign: 'center'
+              }}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </Link>
+        )}
 
         {/* Link Perfil condicional no Mobile */}
-        {isProvider ? (
-          <Link
-            href="/perfil/prestador/meu"
-            className={getLinkClass("/perfil/prestador/meu")}
-          >
-            Meu Perfil (Prestador)
-          </Link>
-        ) : (
-          <Link
-            href="/perfil/usuario/meu"
-            className={getLinkClass("/perfil/usuario/meu")}
-          >
-            Meu Perfil
-          </Link>
+        {user && (
+          <>
+            {isProvider ? (
+              <Link
+                href="/perfil/prestador/meu"
+                className={getLinkClass("/perfil/prestador/meu")}
+              >
+                <User size={18} />
+                Meu Perfil
+              </Link>
+            ) : (
+              <Link
+                href="/perfil/usuario/meu"
+                className={getLinkClass("/perfil/usuario/meu")}
+              >
+                <User size={18} />
+                Meu Perfil
+              </Link>
+            )}
+          </>
         )}
 
         {/* Link Cadastrar Serviço */}
@@ -274,6 +483,7 @@ export default function Navbar() {
             href="/perfil/prestador/servicos/cadastrar"
             className={getLinkClass("/perfil/prestador/servicos/cadastrar")}
           >
+            <Plus size={18} />
             Cadastrar Serviço
           </Link>
         )}
@@ -281,11 +491,20 @@ export default function Navbar() {
         {/* Link Admin */}
         {isAdmin && (
           <Link href="/admin" className={getLinkClass("/admin")}>
+            <Shield size={18} />
             Admin
           </Link>
         )}
 
-        {!user && (
+        {user ? (
+          <button
+            className={styles.mobileLogoutButton}
+            onClick={handleLogout}
+          >
+            <LogOut size={18} />
+            Sair
+          </button>
+        ) : (
           <button
             className={styles.mobileNavLogin}
             onClick={() => router.push("/auth/login")}

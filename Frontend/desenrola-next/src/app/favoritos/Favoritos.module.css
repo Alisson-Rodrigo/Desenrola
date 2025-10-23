@@ -1,5 +1,6 @@
 /* src/app/favoritos/Favoritos.module.css */
-:root {
+
+.pageWrapper {
   --primary-green: #4CAF50;
   --light-green-bg: #F1F8E9;
   --dark-text: #333;
@@ -8,90 +9,17 @@
   --white: #fff;
   --star-yellow: #FFC107;
   --shadow: 0 4px 15px rgba(0,0,0,0.05);
-}
 
-.pageWrapper {
   background-color: var(--light-green-bg);
   min-height: 100vh;
-  font-family: sans-serif;
-}
-
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 2rem;
-  background-color: var(--white);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.navLogo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--primary-green);
-}
-
-.navLinks {
-  display: flex;
-  gap: 2rem;
-}
-
-.navLinks a {
-  text-decoration: none;
-  color: var(--dark-text);
-  font-weight: 500;
-  padding-bottom: 5px;
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.navLinks a:hover, .navLinks .activeLink {
-  color: var(--primary-green);
-  border-bottom-color: var(--primary-green);
-}
-
-.navUser {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.userAvatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: var(--primary-green);
-  color: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-.userInfo {
-  display: flex;
-  flex-direction: column;
-}
-
-.userName {
-  font-weight: 500;
-  color: var(--dark-text);
-}
-
-.userPlan {
-  font-size: 0.8rem;
-  background-color: var(--star-yellow);
-  color: var(--dark-text);
-  padding: 2px 6px;
-  border-radius: 4px;
-  text-align: center;
+  font-family: 'Inter', sans-serif;
 }
 
 .mainContent {
   padding: 2rem;
 }
 
+/* ============ CABEÇALHO ============ */
 .favoritesHeader {
   background-color: var(--white);
   padding: 2rem;
@@ -120,6 +48,7 @@
   margin: 0 auto;
 }
 
+/* ============ ESTATÍSTICAS ============ */
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -147,6 +76,7 @@
   font-weight: 500;
 }
 
+/* ============ FILTROS E LISTA ============ */
 .providersSection {
   max-width: 1200px;
   margin: 0 auto;
@@ -157,6 +87,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .providersHeader h2 {
@@ -166,6 +98,7 @@
 
 .filterButtons {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   background-color: var(--white);
   padding: 5px;
@@ -183,11 +116,13 @@
   transition: all 0.3s ease;
 }
 
-.filterButton.activeFilter, .filterButton:hover {
+.filterButton.activeFilter,
+.filterButton:hover {
   background-color: var(--primary-green);
   color: var(--white);
 }
 
+/* ============ CARDS DE PRESTADORES ============ */
 .providersGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -198,19 +133,20 @@
   background-color: var(--white);
   border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-  border: 1px solid #f0f0f0;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  border: 2px solid transparent;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
 .providerCard:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.1);
 }
 
+/* Cabeçalho do card */
 .cardHeader {
   display: flex;
   align-items: center;
@@ -221,12 +157,15 @@
   position: relative;
   flex-shrink: 0;
 }
+
 .cardAvatar img {
   width: 60px;
   height: 60px;
   border-radius: 50%;
   border: 2px solid var(--primary-green);
+  object-fit: cover;
 }
+
 .onlineIndicator {
   position: absolute;
   bottom: 2px;
@@ -241,34 +180,53 @@
 .cardInfo {
   flex-grow: 1;
 }
+
 .cardInfo h3 {
   margin: 0;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: var(--dark-text);
   font-weight: 600;
 }
-.cardInfo p, .cardInfo span {
+
+.cardInfo p,
+.cardInfo span {
   color: var(--light-text);
   font-size: 0.9rem;
-  margin: 2px 0 0 0;
+  margin: 2px 0;
   display: flex;
   align-items: center;
   gap: 4px;
 }
-.cardInfo span svg {
-  font-size: 0.8rem;
-}
 
+/* Ícone de coração */
 .cardHeartIcon {
-  color: var(--primary-green);
+  color: var(--light-text);
   font-size: 1.5rem;
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
 }
 
+.cardHeartIcon:hover {
+  transform: scale(1.2);
+}
+
+.favoritedHeart {
+  color: #ef5350;
+  fill: #ef5350;
+  animation: pop 0.3s ease-in-out;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+/* Avaliação */
 .cardRating {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   color: var(--dark-text);
   font-size: 0.9rem;
 }
@@ -277,28 +235,7 @@
   color: var(--star-yellow);
 }
 
-.cardStats {
-  display: flex;
-  justify-content: space-around;
-  text-align: center;
-  border-top: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  padding: 1rem 0;
-}
-.cardStats div span {
-  display: block;
-  font-weight: 700;
-  font-size: 1.4rem;
-  color: var(--dark-text);
-}
-.cardStats div p {
-  margin: 0;
-  font-size: 0.7rem;
-  color: var(--light-text);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
+/* Especialidades */
 .cardSpecialties h4 {
   margin: 0 0 0.8rem 0;
   font-size: 0.9rem;
@@ -321,6 +258,7 @@
   border: 1px solid #C8E6C9;
 }
 
+/* Botões inferiores */
 .cardButtons {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -328,7 +266,8 @@
   margin-top: auto;
 }
 
-.buttonPrimary, .buttonSecondary {
+.buttonPrimary,
+.buttonSecondary {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -347,6 +286,7 @@
   color: var(--white);
   border-color: var(--primary-green);
 }
+
 .buttonPrimary:hover {
   background-color: #388E3C;
   border-color: #388E3C;
@@ -357,15 +297,101 @@
   color: var(--primary-green);
   border-color: var(--primary-green);
 }
+
 .buttonSecondary:hover {
   background-color: var(--light-green-bg);
 }
 
-@media (max-width: 768px) {
-  .navLinks {
-    display: none;
+/* ============ LOADING E ESTADOS ============ */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 60vh;
+  color: var(--dark-text);
+}
+
+.loadingSpinner {
+  border: 4px solid var(--border-color);
+  border-top: 4px solid var(--primary-green);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
+}
+
+/* Estado vazio */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height: 60vh;
+  color: var(--dark-text);
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  color: var(--primary-green);
+  margin-bottom: 1rem;
+}
+
+/* ============ RESPONSIVIDADE ============ */
+@media (max-width: 768px) {
   .statsGrid {
     grid-template-columns: 1fr;
   }
+
+  .providersHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .filterButtons {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .favoritesHeader {
+    padding: 1.5rem;
+  }
+}
+
+
+.statsGrid {
+  display: flex;
+  justify-content: center; /* Alinha os itens horizontalmente */
+  align-items: center;     /* Alinha os itens verticalmente */
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 0 auto 2rem auto;
+  flex-wrap: wrap;         /* Permite que os itens se movam para a linha de baixo se não houver espaço suficiente */
+}
+
+.statCard {
+  background-color: var(--primary-green);
+  color: var(--white);
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+.statCard h2 {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.statCard p {
+  margin: 0;
+  font-weight: 500;
 }

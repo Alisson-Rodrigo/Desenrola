@@ -23,7 +23,17 @@ import {
 } from 'lucide-react';
 
 import styles from './AdminDashboard.module.css'; // CSS Module
-
+import withAdminAuth from '../../hooks/withAdminAuth';
+/**
+ * Componente principal do painel de administração.
+ * 
+ * Permite:
+ * - Validar documentos de prestadores de serviço.
+ * - Aprovar ou rejeitar prestadores pendentes.
+ * - Exibir informações e documentos enviados.
+ * - Paginar resultados.
+ * - Alternar entre diferentes seções do dashboard.
+ */
 const AdminDashboard = () => {
   const [selectedTab, setSelectedTab] = useState('pendentes');
   const [selectedDocument, setSelectedDocument] = useState(null);
@@ -40,6 +50,9 @@ const AdminDashboard = () => {
     totalPages: 0
   });
 
+  /**
+   * Itens do menu lateral com ícones e rótulos.
+   */
   const menuItems = [
     { key: 'validacao', label: 'Validação de Prestadores', icon: FileCheck },
     { key: 'prestadores', label: 'Gerenciar Prestadores', icon: Users },
@@ -48,20 +61,26 @@ const AdminDashboard = () => {
     { key: 'configuracoes', label: 'Configurações', icon: Settings },
   ];
 
-  // Função para processar URLs das imagens
+  /**
+   * Ajusta a URL da imagem vinda do backend para exibição correta.
+   * @param {string} imageUrl - URL original da imagem
+   * @returns {string|null} - URL processada ou null se inválida
+   */
   const processImageUrl = (imageUrl) => {
     if (!imageUrl) return null;
     
-    // Se a URL já está completa (contém http), ajuste a porta para 5087
     if (imageUrl.startsWith('http')) {
-      // Substitui localhost:7014 por localhost:5087
       return imageUrl.replace('localhost:7014', 'localhost:5087');
     }
     
-    // Caso contrário, construa a URL completa com a porta 5087
     return `http://localhost:5087${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
   };
 
+  /**
+   * Busca prestadores pendentes no backend com paginação.
+   * @param {number} page - Página atual
+   * @param {number} pageSize - Tamanho da página
+   */
   const fetchPendingProviders = async (page = 1, pageSize = 10) => {
     setLoading(true);
     setError(null);
@@ -70,7 +89,7 @@ const AdminDashboard = () => {
       const token = localStorage.getItem('auth_token');
 
       const response = await fetch(
-        `http://localhost:5087/api/provider/pending?page=${page}&pageSize=${pageSize}`,
+        `https://api.desenrola.shop/api/provider/pending?page=${page}&pageSize=${pageSize}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -86,10 +105,9 @@ const AdminDashboard = () => {
       const data = await response.json();
       
       const mappedProviders = data.items.map(item => {
-        // Processa as URLs das imagens
         const processedImageDocuments = (item.imageDocuments || [])
           .map(url => processImageUrl(url))
-          .filter(url => url !== null); // Remove URLs inválidas
+          .filter(url => url !== null);
 
         return {
           id: item.id,
@@ -123,11 +141,21 @@ const AdminDashboard = () => {
     }
   };
 
+  /**
+   * Formata um CPF em padrão ###.###.###-##
+   * @param {string} cpf
+   * @returns {string}
+   */
   const formatCPF = (cpf) => {
     if (!cpf) return '';
     return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   };
 
+  /**
+   * Formata um telefone em padrão (##) #####-####
+   * @param {string} phone
+   * @returns {string}
+   */
   const formatPhone = (phone) => {
     if (!phone) return '';
     return phone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
@@ -139,6 +167,10 @@ const AdminDashboard = () => {
     }
   }, [selectedTab]);
 
+  /**
+   * Manipula a troca de página na paginação.
+   * @param {number} newPage - Nova página selecionada
+   */
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       setPagination(prev => ({ ...prev, page: newPage }));
@@ -146,14 +178,10 @@ const AdminDashboard = () => {
     }
   };
 
-  const filteredPrestadores = prestadores.filter(p => {
-    if (selectedTab === 'todos') return true;
-    if (selectedTab === 'pendentes') return p.status === 'pendente';
-    if (selectedTab === 'aceitos') return p.status === 'aceito';
-    if (selectedTab === 'rejeitados') return p.status === 'rejeitado';
-    return true;
-  });
-
+  /**
+   * Aprova prestador via API e atualiza estado.
+   * @param {string} id - ID do prestador
+   */
   const handleApprove = async (id) => {
     try {
       setLoading(true);
@@ -162,13 +190,11 @@ const AdminDashboard = () => {
 
       const formData = new FormData();
       formData.append("Id", id);
-      formData.append("Operation", "true"); // Aprovação = true
+      formData.append("Operation", "true");
 
-      const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
+      const response = await fetch('https://api.desenrola.shop/api/provider/mark-provider', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData
       });
 
@@ -194,6 +220,10 @@ const AdminDashboard = () => {
     }
   };
 
+  /**
+   * Rejeita prestador via API e atualiza estado.
+   * @param {string} id - ID do prestador
+   */
   const handleReject = async (id) => {
     try {
       setLoading(true);
@@ -202,13 +232,11 @@ const AdminDashboard = () => {
 
       const formData = new FormData();
       formData.append("Id", id);
-      formData.append("Operation", "false"); // Rejeição = false
+      formData.append("Operation", "false");
 
-      const response = await fetch('http://localhost:5087/api/provider/mark-provider', {
+      const response = await fetch('https://api.desenrola.shop/api/provider/mark-provider', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: formData
       });
 
@@ -234,20 +262,31 @@ const AdminDashboard = () => {
     }
   };
 
+  /**
+   * Abre modal de documentos de um prestador.
+   * @param {string[]} photos - URLs das fotos enviadas
+   * @param {string} prestadorName - Nome do prestador
+   */
   const openDocumentModal = (photos, prestadorName) => {
     setSelectedDocument({ photos, prestadorName });
   };
 
+  /**
+   * Fecha modal de documentos.
+   */
   const closeDocumentModal = () => {
     setSelectedDocument(null);
   };
 
-  // Componente para exibir imagem com tratamento de erro
+  /**
+   * Componente para exibir uma imagem de documento com tratamento de erro e loading.
+   * @param {{ src: string, alt: string, index: number }} props
+   */
   const DocumentImage = ({ src, alt, index }) => {
     const [imageError, setImageError] = useState(false);
     const [imageLoading, setImageLoading] = useState(true);
 
-    const handleImageError = (e) => {
+    const handleImageError = () => {
       console.error(`Erro ao carregar imagem ${index + 1}:`, src);
       setImageError(true);
       setImageLoading(false);
@@ -287,6 +326,9 @@ const AdminDashboard = () => {
     );
   };
 
+  /**
+   * Componente de paginação (informações + botões de navegação).
+   */
   const PaginationComponent = () => {
     if (pagination.totalPages <= 1) return null;
 
@@ -335,6 +377,10 @@ const AdminDashboard = () => {
     );
   };
 
+  /**
+   * Conteúdo da seção de Validação de Prestadores.
+   * Exibe lista de prestadores pendentes e ações.
+   */
   const ValidacaoContent = () => (
     <div className={styles['space-y-6']}>
       <div className={styles['page-header']}>
@@ -365,7 +411,15 @@ const AdminDashboard = () => {
       ) : (
         <>
           <div className={styles['prestadores-list']}>
-            {filteredPrestadores.map((prestador) => (
+            {prestadores
+              .filter(p => {
+                if (selectedTab === 'todos') return true;
+                if (selectedTab === 'pendentes') return p.status === 'pendente';
+                if (selectedTab === 'aceitos') return p.status === 'aceito';
+                if (selectedTab === 'rejeitados') return p.status === 'rejeitado';
+                return true;
+              })
+              .map((prestador) => (
               <div key={prestador.id} className={styles['prestador-card']}>
                 <div className={styles['prestador-grid']}>
                   <div className={styles['prestador-info']}>
@@ -449,7 +503,7 @@ const AdminDashboard = () => {
         </>
       )}
 
-      {!loading && filteredPrestadores.length === 0 && !error && (
+      {!loading && prestadores.length === 0 && !error && (
         <div className={styles['empty-state']}>
           <User className={styles['empty-icon']} />
           <h3 className={styles['empty-title']}>Nenhum prestador encontrado</h3>
@@ -461,6 +515,10 @@ const AdminDashboard = () => {
     </div>
   );
 
+  /**
+   * Placeholder genérico para seções ainda não implementadas.
+   * @param {{ title: string }} props
+   */
   const PlaceholderContent = ({ title }) => (
     <div className={styles['placeholder-content']}>
       <div className={styles['placeholder-icon']}>
@@ -471,6 +529,10 @@ const AdminDashboard = () => {
     </div>
   );
 
+  /**
+   * Renderiza conteúdo baseado na seção ativa.
+   * @returns {JSX.Element}
+   */
   const renderContent = () => {
     switch (activeSection) {
       case 'validacao': return <ValidacaoContent />;
@@ -484,6 +546,7 @@ const AdminDashboard = () => {
 
   return (
     <div className={styles['admin-dashboard']}>
+      {/* Sidebar */}
       <div className={`${styles.sidebar} ${sidebarOpen ? styles.open : styles.closed}`}>
         <div className={styles['sidebar-header']}>
           {sidebarOpen && (
@@ -523,10 +586,12 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Main Content */}
       <div className={styles['main-content']}>
         <div className={styles['content-wrapper']}>{renderContent()}</div>
       </div>
 
+      {/* Modal de Documentos */}
       {selectedDocument && (
         <div className={styles['modal-overlay']}>
           <div className={styles['modal-content']}>
@@ -568,4 +633,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default withAdminAuth(AdminDashboard);

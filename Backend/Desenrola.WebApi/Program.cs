@@ -11,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.FileProviders;
 
 namespace Desenrola.WebApi;
 
@@ -87,7 +88,7 @@ public class Program {
             string.IsNullOrWhiteSpace(jwtIssuer) ||
             string.IsNullOrWhiteSpace(jwtAudience))
         {
-            throw new Exception("ConfiguraÁ„o Jwt inv·lida. Verifique appsettings (Jwt:Secret/Issuer/Audience).");
+            throw new Exception("ConfiguraÔøΩÔøΩo Jwt invÔøΩlida. Verifique appsettings (Jwt:Secret/Issuer/Audience).");
         }
 
         var key = Encoding.UTF8.GetBytes(jwtSecret);
@@ -138,19 +139,21 @@ public class Program {
             );
         });
 
-        //Adicionando Cors para integraÁıes
-        builder.Services.AddCors(options =>
-        {
-            options.AddPolicy("AllowSpecificOrigin", policy =>
-            {
-                policy.WithOrigins("http://localhost:3000")
-                      .AllowAnyMethod()
-                      .AllowAnyHeader()
-                      .AllowCredentials();
-
-            });
-        });
-
+        //Adicionando Cors para integraÔøΩÔøΩes
+     builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:3000",        // ambiente local
+                "https://desenrola.shop",       // dom√≠nio de produ√ß√£o (frontend)
+                "https://www.desenrola.shop"    // vers√£o com www (caso use)
+            )
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
         static async Task SeedRolesAsync(IServiceProvider serviceProvider)
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -181,7 +184,15 @@ public class Program {
 
 
         app.UseStaticFiles(); // habilita wwwroot
-
+        var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagens");
+if (Directory.Exists(imagePath))
+{
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = new PhysicalFileProvider(imagePath),
+        RequestPath = "/imagens"
+    });
+}
         app.UseCors("AllowSpecificOrigin"); // use a policy nomeada
 
         app.UseHttpsRedirection();

@@ -6,7 +6,6 @@ import Link from 'next/link';
 import styles from './login.module.css';
 import { login } from '../../../services/authApi';
 
-// Constantes para as roles (mantém consistência com o backend)
 const USER_ROLES = {
   ADMIN: 0,
   CUSTOMER: 1,
@@ -24,13 +23,12 @@ export default function LoginPage() {
     setForm((prev) => ({ ...prev, [id]: value }));
   }
 
-  // Prefetch para rotas mais usadas
   useEffect(() => {
     router.prefetch('/auth/register');
     router.prefetch('/auth/recoverpass');
     router.prefetch('/');
     router.prefetch('/admin');
-    router.prefetch('/provider'); // Se tiver rota para provider
+    router.prefetch('/provider');
   }, [router]);
 
   async function handleSubmit(e) {
@@ -49,22 +47,18 @@ export default function LoginPage() {
         password: form.password,
       });
 
-      // Armazena token (ideal: httpOnly cookie via backend)
       localStorage.setItem('auth_token', token);
       if (user) localStorage.setItem('auth_user', JSON.stringify(user));
 
       setMessage({ type: 'success', text: 'Login realizado com sucesso!' });
 
-      // --- CÓDIGO MELHORADO ---
-      // Redireciona baseado na role do usuário
       if (user && user.role === USER_ROLES.ADMIN) {
-        router.push('/admin'); // Administrador vai para painel admin
+        router.push('/admin');
       } else if (user && user.role === USER_ROLES.PROVIDER) {
-        router.push('/provider'); // Provider vai para painel do prestador (se existir)
+        router.push('/provider');
       } else {
-        router.push('/'); // Customer e outros vão para página principal
+        router.push('/');
       }
-      // --- FIM DA MODIFICAÇÃO ---
 
     } catch (err) {
       let errorText = 'Erro ao autenticar.';
@@ -77,15 +71,12 @@ export default function LoginPage() {
         errorText = err.message;
       }
 
-      // Se vier JSON {"message":"..."} → extrai só o texto
       try {
         const parsed = JSON.parse(errorText);
         if (parsed?.message) {
           errorText = parsed.message;
         }
-      } catch (_) {
-        // não era JSON válido
-      }
+      } catch (_) {}
 
       setMessage({ type: 'error', text: errorText });
     } finally {
@@ -94,75 +85,101 @@ export default function LoginPage() {
   }
 
   return (
-    <div className={styles.loginContainer}>
-      {/* Painel Esquerdo */}
-      <div className={styles.leftPanel}>
-        <div className={styles.brandContainer}>
-          <h1>Desenrola</h1>
-          <p>Chegou em Picos? A gente desenrola pra você.</p>
+    <div className={styles.container}>
+      {/* Lado Esquerdo */}
+      <div className={styles.leftSide}>
+        <div className={styles.blobBg}>
+          <div className={`${styles.blob} ${styles.blob1}`}></div>
+          <div className={`${styles.blob} ${styles.blob2}`}></div>
+          <div className={`${styles.blob} ${styles.blob3}`}></div>
+        </div>
+        
+        <div className={styles.brandContent}>
+          <div className={styles.logoWrapper}>
+            <div className={styles.logoCircle}>D</div>
+            <h1 className={styles.brandName}>Desenrola</h1>
+          </div>
+          <p className={styles.brandTagline}>
+            Chegou em Picos?<br />
+            A gente desenrola pra você.
+          </p>
+        </div>
+
+        <div className={styles.decorativeDots}>
+          <div className={styles.dot}></div>
+          <div className={styles.dot}></div>
+          <div className={styles.dot}></div>
         </div>
       </div>
 
-      {/* Painel Direito (Formulário) */}
-      <div className={styles.rightPanel}>
-        <div className={styles.loginCard}>
-          <h2>
-            Entrar <span className={styles.welcomeEmoji}>👋</span>
-          </h2>
+      {/* Lado Direito */}
+      <div className={styles.rightSide}>
+        <div className={styles.formContainer}>
+          <div className={styles.formHeader}>
+            <h2 className={styles.formTitle}>Bem-vindo de volta</h2>
+            <p className={styles.formSubtitle}>Entre na sua conta para continuar</p>
+          </div>
 
           <form onSubmit={handleSubmit} noValidate>
-            <div className={styles.formGroup}>
-              <label htmlFor="username">Username</label>
-              <input
-                id="username"
-                type="text"
-                placeholder="seu.username"
-                value={form.username}
-                onChange={handleChange}
-                disabled={loading}
-                autoComplete="username"
-              />
+            <div className={styles.inputGroup}>
+              <label className={styles.inputLabel} htmlFor="username">
+                Username
+              </label>
+              <div className={styles.inputWrapper}>
+                <input
+                  type="text"
+                  id="username"
+                  className={styles.formInput}
+                  placeholder="seu.username"
+                  value={form.username}
+                  onChange={handleChange}
+                  disabled={loading}
+                  autoComplete="username"
+                />
+              </div>
             </div>
 
-            <div className={styles.formGroup}>
-              <div className={styles.labelWrapper}>
-                <label htmlFor="password">Senha</label>
-                <Link className={styles.forgotPassword} href="/auth/recoverpass">
+            <div className={styles.inputGroup}>
+              <div className={styles.passwordGroup}>
+                <label className={styles.inputLabel} htmlFor="password">
+                  Senha
+                </label>
+                <Link href="/auth/recoverpass" className={styles.forgotLink}>
                   Esqueci a senha
                 </Link>
               </div>
-              <input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={form.password}
-                onChange={handleChange}
-                disabled={loading}
-                autoComplete="current-password"
-              />
+              <div className={styles.inputWrapper}>
+                <input
+                  type="password"
+                  id="password"
+                  className={styles.formInput}
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={handleChange}
+                  disabled={loading}
+                  autoComplete="current-password"
+                />
+              </div>
             </div>
 
-            <button className={styles.loginButton} disabled={loading}>
+            <button type="submit" className={styles.submitBtn} disabled={loading}>
               {loading ? 'Entrando...' : 'Entrar'}
             </button>
 
             {message.type && (
-              <p
-                style={{
-                  marginTop: 12,
-                  fontSize: '.95rem',
-                  color: message.type === 'error' ? '#b91c1c' : '#065f46',
-                  whiteSpace: 'pre-line', // permite múltiplas linhas
-                }}
-              >
+              <p className={styles[message.type === 'error' ? 'errorMessage' : 'successMessage']}>
                 {message.text}
               </p>
             )}
           </form>
 
-          <div className={styles.signupLink}>
-            Novo por aqui? <Link href="/auth/register">Criar conta</Link>
+          <div className={styles.divider}>
+            <span>ou</span>
           </div>
+
+          <p className={styles.signupText}>
+            Novo por aqui? <Link href="/auth/register" className={styles.signupLink}>Criar conta</Link>
+          </p>
         </div>
       </div>
     </div>

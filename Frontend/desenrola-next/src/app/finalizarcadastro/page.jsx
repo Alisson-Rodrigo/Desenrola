@@ -5,6 +5,12 @@ import Navbar from '../../components/Navbar';
 import { submitProviderRegistration } from '../../services/providerService';
 import { debugUserToken, checkProviderStatus } from '../../services/debugService';
 
+/**
+ * Página de finalização de cadastro de prestador.
+ * Permite ao usuário preencher e enviar dados e documentos para cadastro como prestador de serviços.
+ * Inclui validação de formulário, upload de arquivos e exibição de mensagens de sucesso/erro.
+ * @component
+ */
 export default function FinalizeCadastroPage() {
   const [formData, setFormData] = useState({
     CPF: '',
@@ -22,6 +28,11 @@ export default function FinalizeCadastroPage() {
   const [error, setError] = useState(null);
   const [debugInfo, setDebugInfo] = useState(null);
 
+  /**
+   * Manipula mudanças nos campos de input do formulário.
+   * Atualiza o estado formData conforme o usuário digita ou seleciona opções.
+   * @param {React.ChangeEvent<HTMLInputElement|HTMLSelectElement>} e
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -30,6 +41,11 @@ export default function FinalizeCadastroPage() {
     }));
   };
 
+  /**
+   * Manipula a seleção de arquivos para upload de documentos.
+   * Atualiza o estado formData.DocumentPhotos com os arquivos selecionados.
+   * @param {React.ChangeEvent<HTMLInputElement>} e
+   */
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
     console.log('Arquivos selecionados:', files);
@@ -39,6 +55,11 @@ export default function FinalizeCadastroPage() {
     }));
   };
 
+  /**
+   * Valida os campos do formulário antes do envio.
+   * Retorna um array de mensagens de erro, se houver campos inválidos.
+   * @returns {string[]} Lista de erros de validação
+   */
   const validateForm = () => {
     const errors = [];
     
@@ -61,6 +82,11 @@ export default function FinalizeCadastroPage() {
     return errors;
   };
 
+  /**
+   * Manipula o envio do formulário.
+   * Realiza validação, envia dados para a API e trata respostas de sucesso ou erro.
+   * @param {React.FormEvent<HTMLFormElement>} e
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -106,6 +132,9 @@ export default function FinalizeCadastroPage() {
     }
   };
 
+  /**
+   * Volta para a página anterior no histórico do navegador.
+   */
   const handleBack = () => window.history.back();
 
   const serviceCategories = [

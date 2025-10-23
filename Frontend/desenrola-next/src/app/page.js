@@ -1,59 +1,95 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { withAuth } from '../hooks/withAuth';
 import { useRouter } from 'next/navigation';
-import { useDebounce } from '../hooks/useDebounce';
 import styles from './HomePage.module.css';
+import Image from "next/image";
 
-import { 
-  Search, 
-  Filter, 
-  ChevronLeft, 
-  ChevronRight,
+import {
+  Search,
   User,
   MapPin,
   Loader2,
-  X,
   Sparkles,
   TrendingUp,
   Star,
   Clock,
   ArrowRight,
-  Grid3x3,
-  List
+  Award,
+  ChevronRight,
+  Briefcase,
+  CheckCircle2,
+  Crown
 } from 'lucide-react';
 
 function HomePage({ hasToken }) {
   const router = useRouter();
-  
-  // Estados da busca e filtros
-  const [query, setQuery] = useState('');
-  const debouncedQuery = useDebounce(query, 500); // pesquisa em tempo real
-  const [services, setServices] = useState([]);
+
+  const [featuredServices, setFeaturedServices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [viewMode, setViewMode] = useState('grid');
-  
-  // Paginação
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(12);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  
-  // Filtros
-  const [filters, setFilters] = useState({
-    search: '',
-    onlyActive: true,
-    providerId: ''
-  });
+  const [showCookieConsent, setShowCookieConsent] = useState(false);
+  const [Cookies, setCookies] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 
-  // Categorias mapeadas para string (como retorna a API)
+  // Verificar role do usuário
+  useEffect(() => {
+    if (!hasToken) {
+      setUserRole(null);
+      return;
+    }
+
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      setUserRole(null);
+      return;
+    }
+
+    try {
+      const decoded = jwtDecode(token);
+      setUserRole(String(decoded.role).toLowerCase());
+    } catch {
+      setUserRole(null);
+    }
+  }, [hasToken]);
+
+  // Carregar js-cookie dinamicamente
+  useEffect(() => {
+    import('js-cookie').then((module) => {
+      setCookies(module.default);
+    });
+  }, []);
+
+  // Verificar se usuário já aceitou cookies
+  useEffect(() => {
+    if (!Cookies) return;
+
+    const cookieConsent = Cookies.get('cookieConsent');
+
+    if (!cookieConsent) {
+      setShowCookieConsent(true);
+    }
+  }, [Cookies]);
+
+  // Categorias em destaque
+  const featuredCategories = [
+    { id: "Eletrica", name: "Elétrica", icon: "/icons/eletrica.svg" },
+    { id: "Hidraulica", name: "Hidráulica", icon: "/icons/ferramenta.svg" },
+    { id: "Pintura", name: "Pintura", icon: "/icons/pintura.svg" },
+    { id: "Reformas", name: "Reformas", icon: "/icons/reforma.svg" },
+    { id: "TI", name: "TI", icon: "/icons/computer.svg" },
+    { id: "Beleza", name: "Beleza", icon: "/icons/beleza.svg" },
+    { id: "Limpeza", name: "Limpeza", icon: "/icons/limpeza.svg" },
+    { id: "Jardinagem", name: "Jardinagem", icon: "/icons/jardinagem.svg" }
+  ];
+
   const categorias = {
     "Eletrica": "Elétrica",
-    "Hidraulica": "Hidráulica", 
+    "Hidraulica": "Hidráulica",
     "Pintura": "Pintura",
     "Jardinagem": "Jardinagem",
     "Limpeza": "Limpeza",
@@ -84,145 +120,96 @@ function HomePage({ hasToken }) {
     "Gastronomia": "Culinária e Gastronomia"
   };
 
-  // Categorias em destaque
-  const featuredCategories = [
-    { id: "Eletrica", name: "Elétrica", icon: "⚡" },
-    { id: "Hidraulica", name: "Hidráulica", icon: "🔧" },
-    { id: "Pintura", name: "Pintura", icon: "🎨" },
-    { id: "Reformas", name: "Reformas", icon: "🏗️" },
-    { id: "TI", name: "TI", icon: "💻" },
-    { id: "Beleza", name: "Beleza", icon: "✨" }
-  ];
+  const requireAuth = (callback) => {
+    if (!hasToken) {
+      setShowOverlay(true);
+      return false;
+    }
+    callback();
+    return true;
+  };
 
-  // Buscar serviços
-  const fetchServices = async (page = 1, searchTerm = '', onlyActive = true, providerId = '') => {
-    setLoading(true);
-    
+  const formatDate = (dateString) => {
     try {
-      const params = new URLSearchParams({
-        Page: page.toString(),
-        PageSize: pageSize.toString(),
-        OnlyActive: onlyActive.toString()
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Data inválida';
+      return date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
       });
-
-      if (searchTerm.trim()) params.append('Search', searchTerm.trim());
-      if (providerId.trim()) params.append('ProviderId', providerId.trim());
-
-      const response = await fetch(`http://localhost:5087/api/provider/services/paged?${params}`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      if (!response.ok) throw new Error(`Erro ${response.status}: ${response.statusText}`);
-
-      const data = await response.json();
-      
-      if (data.items) {
-        setServices(data.items);
-        setTotalPages(data.totalPages || 1);
-        setTotalItems(data.totalItems || 0); // Corrigido: usar totalItems da resposta da API
-      } else if (Array.isArray(data)) {
-        setServices(data);
-        setTotalPages(1);
-        setTotalItems(data.length);
-      } else {
-        setServices([]);
-        setTotalPages(1);
-        setTotalItems(0);
-      }
     } catch (error) {
-      console.error('Erro ao buscar serviços:', error);
-      setServices([]);
-    } finally {
-      setLoading(false);
+      return 'Data inválida';
     }
   };
-
-  // Pesquisa em tempo real
-  useEffect(() => {
-    fetchServices(1, debouncedQuery, filters.onlyActive, filters.providerId);
-    setCurrentPage(1);
-  }, [debouncedQuery, pageSize, filters.onlyActive, filters.providerId]);
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      fetchServices(newPage, debouncedQuery, filters.onlyActive, filters.providerId);
-    }
-  };
-
-  const applyFilters = () => {
-    setCurrentPage(1);
-    fetchServices(1, debouncedQuery, filters.onlyActive, filters.providerId);
-    setShowFilters(false);
-  };
-
-  const clearFilters = () => {
-    setFilters({ search: '', onlyActive: true, providerId: '' });
-    setQuery('');
-    setCurrentPage(1);
-    fetchServices(1, '', true, '');
-  };
-
-  const handleInputChange = (e) => setQuery(e.target.value);
 
   const formatPrice = (price) => new Intl.NumberFormat('pt-BR', {
     style: 'currency', currency: 'BRL'
   }).format(price);
 
-  const handleCategoryFilter = (categoryId) => {
-    setQuery(categorias[categoryId]);
-    setCurrentPage(1);
-    fetchServices(1, categorias[categoryId], filters.onlyActive, filters.providerId);
+  // Aceitar cookies
+  const acceptCookies = () => {
+    if (!Cookies) return;
+
+    Cookies.set('cookieConsent', 'accepted', {
+      expires: 365,
+      path: '/',
+      sameSite: 'strict'
+    });
+    setShowCookieConsent(false);
+
+    Cookies.set('userPreferences', JSON.stringify({
+      theme: 'light',
+      language: 'pt-BR',
+      notifications: true
+    }), {
+      expires: 365,
+      path: '/'
+    });
   };
 
-  // Paginação
-  const renderPagination = () => {
-    if (totalPages <= 1) return null;
+  // Rejeitar cookies
+  const rejectCookies = () => {
+    if (!Cookies) return;
 
-    const pages = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+    Cookies.set('cookieConsent', 'rejected', {
+      expires: 365,
+      path: '/',
+      sameSite: 'strict'
+    });
+    setShowCookieConsent(false);
+  };
 
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  // Buscar serviços em destaque
+  const fetchFeaturedServices = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('https://api.desenrola.shop/api/provider/services/paged?PageSize=6&OnlyActive=true', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) throw new Error(`Erro ${response.status}`);
+
+      const data = await response.json();
+
+      if (data.items) {
+        setFeaturedServices(data.items);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar serviços em destaque:', error);
+      setFeaturedServices([]);
+    } finally {
+      setLoading(false);
     }
-
-    for (let i = startPage; i <= endPage; i++) pages.push(i);
-
-    return (
-      <div className={styles.pagination}>
-        <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1 || loading} className={styles.paginationButton}>
-          <ChevronLeft size={16} />
-        </button>
-
-        {startPage > 1 && (
-          <>
-            <button onClick={() => handlePageChange(1)} className={styles.paginationPageButton}>1</button>
-            {startPage > 2 && <span className={styles.paginationEllipsis}>...</span>}
-          </>
-        )}
-
-        {pages.map((page) => (
-          <button key={page} onClick={() => handlePageChange(page)} className={`${styles.paginationPageButton} ${currentPage === page ? styles.paginationPageButtonActive : ''}`}>
-            {page}
-          </button>
-        ))}
-
-        {endPage < totalPages && (
-          <>
-            {endPage < totalPages - 1 && <span className={styles.paginationEllipsis}>...</span>}
-            <button onClick={() => handlePageChange(totalPages)} className={styles.paginationPageButton}>{totalPages}</button>
-          </>
-        )}
-
-        <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages || loading} className={styles.paginationButton}>
-          <ChevronRight size={16} />
-        </button>
-      </div>
-    );
   };
+
+  useEffect(() => {
+    fetchFeaturedServices();
+  }, []);
+
+  // Determinar se é prestador
+  const isProvider = hasToken && (userRole === "2" || userRole === "provider");
 
   return (
     <div className={styles.homePage}>
@@ -233,41 +220,47 @@ function HomePage({ hasToken }) {
         <div className={styles.heroBackground}>
           <div className={styles.heroPattern}></div>
         </div>
-        
+
         <div className={styles.heroContent}>
           <div className={styles.heroTextContent}>
             <div className={styles.heroBadge}>
               <Sparkles size={16} />
               <span>Plataforma Nº 1 em Picos-PI</span>
             </div>
-            
+
             <h1 className={styles.heroTitle}>
               Encontre os <span className={styles.heroHighlight}>melhores profissionais</span> para seus projetos
             </h1>
-            
+
             <p className={styles.heroDescription}>
-              Conectamos você a especialistas qualificados em diversas áreas. 
+              Conectamos você a especialistas qualificados em diversas áreas.
               Qualidade garantida e preços justos.
             </p>
 
-            {/* Barra de busca em tempo real */}
-            <div className={styles.heroSearchWrapper}>
-              <Search className={styles.heroSearchIcon} size={20} />
-              <input
-                type="text"
-                placeholder="O que você precisa? Ex: eletricista, pintor..."
-                value={query}
-                onChange={handleInputChange}
-                className={styles.heroSearchInput}
-              />
-              {loading && <Loader2 size={20} className={styles.spin} />}
+            {/* Search CTA */}
+            <div className={styles.heroSearchCTA}>
+              <button
+                onClick={() => router.push('/servicos/todos')}
+                className={styles.heroSearchButton}
+              >
+                <Search size={20} />
+                Buscar Serviços
+              </button>
+
+              <button
+                onClick={() => router.push('/servicos/todos')}
+                className={styles.heroExploreButton}
+              >
+                Explorar Categorias
+                <ChevronRight size={20} />
+              </button>
             </div>
 
             {/* Quick Stats */}
             <div className={styles.heroStats}>
               <div className={styles.heroStat}>
                 <TrendingUp size={20} />
-                <span><strong>{totalItems}+</strong> Serviços</span>
+                <span><strong>1000+</strong> Serviços</span>
               </div>
               <div className={styles.heroStat}>
                 <User size={20} />
@@ -290,10 +283,16 @@ function HomePage({ hasToken }) {
             {featuredCategories.map(category => (
               <button
                 key={category.id}
-                onClick={() => handleCategoryFilter(category.id)}
+                onClick={() => router.push(`/servicos/todos?categoria=${category.id}`)}
                 className={styles.categoryCard}
               >
-                <span className={styles.categoryIcon}>{category.icon}</span>
+                <Image
+                  src={category.icon}
+                  alt={category.name}
+                  width={80}
+                  height={80}
+                  className="mb-3 object-contain drop-shadow-sm bg-transparent"
+                />
                 <span className={styles.categoryName}>{category.name}</span>
               </button>
             ))}
@@ -301,130 +300,239 @@ function HomePage({ hasToken }) {
         </div>
       </section>
 
-      {/* Main Content */}
-      <section className={styles.mainContent}>
+      {/* Serviços em Destaque */}
+      <section className={styles.featuredSection}>
         <div className={styles.container}>
-          {/* Toolbar */}
-          <div className={styles.toolbar}>
-            <div className={styles.toolbarLeft}>
+          <div className={styles.sectionHeader}>
+            <div>
               <h2 className={styles.sectionTitle}>
-                {query ? `Resultados para "${query}"` : 'Todos os Serviços'}
+                <Award className={styles.sectionIcon} />
+                Serviços em Destaque
               </h2>
-              {!loading && (
-                <span className={styles.resultsCount}>
-                  {totalItems} serviços encontrados
-                </span>
-              )}
+              <p className={styles.sectionSubtitle}>
+                Profissionais premium verificados e avaliados
+              </p>
             </div>
-
-            <div className={styles.toolbarRight}>
-              {/* View Mode Toggle */}
-              <div className={styles.viewToggle}>
-                <button onClick={() => setViewMode('grid')} className={`${styles.viewButton} ${viewMode === 'grid' ? styles.viewButtonActive : ''}`}>
-                  <Grid3x3 size={18} />
-                </button>
-                <button onClick={() => setViewMode('list')} className={`${styles.viewButton} ${viewMode === 'list' ? styles.viewButtonActive : ''}`}>
-                  <List size={18} />
-                </button>
-              </div>
-
-              {/* Filters Button */}
-              <button onClick={() => setShowFilters(!showFilters)} className={styles.filterButton}>
-                <Filter size={18} />
-                Filtros
-                {(filters.providerId || !filters.onlyActive) && (
-                  <span className={styles.filterBadge}>•</span>
-                )}
-              </button>
-            </div>
+            <button
+              onClick={() => router.push('/servicos/todos')}
+              className={styles.seeAllButton}
+            >
+              Ver Todos
+              <ArrowRight size={18} />
+            </button>
           </div>
 
-          {/* Services Grid/List */}
           {loading ? (
             <div className={styles.loadingState}>
-              <div className={styles.loadingCircle}>
-                <Loader2 size={40} className={styles.loadingSpinner} />
-              </div>
-              <p>Carregando serviços incríveis...</p>
+              <Loader2 size={40} className={styles.loadingSpinner} />
+              <p>Carregando serviços em destaque...</p>
             </div>
-          ) : services.length > 0 ? (
-            <>
-              <div className={viewMode === 'grid' ? styles.servicesGrid : styles.servicesList}>
-                {services.map((service) => (
-                  <article key={service.id} className={viewMode === 'grid' ? styles.serviceCard : styles.serviceListItem}>
-                    <div className={styles.cardContent}>
-                      <div className={styles.cardHeader}>
-                        <div className={styles.cardCategory}>
-                          <MapPin size={14} />
-                          {categorias[service.category] || service.category}
-                        </div>
-                        <div className={styles.cardStatus}>
-                          {service.isActive ? (
-                            <span className={styles.statusActive}>Disponível</span>
-                          ) : (
-                            <span className={styles.statusInactive}>Indisponível</span>
-                          )}
-                        </div>
+          ) : featuredServices.length > 0 ? (
+            <div className={styles.featuredGrid}>
+              {featuredServices.map((service) => (
+                <article
+                  key={service.id}
+                  className={styles.featuredCard}
+                  onClick={() => requireAuth(() => router.push(`/servicos/visualizar/${service.id}`))}
+                >
+                  <div className={styles.planBadgeWrapper}>
+                    <span className={styles.planBadgeFeatured}>
+                      <Star size={14} /> Destaque
+                    </span>
+                  </div>
+
+                  <div className={styles.cardContent}>
+                    <div className={styles.cardHeader}>
+                      <div className={styles.cardCategory}>
+                        <MapPin size={14} />
+                        {categorias[service.category] || service.category}
                       </div>
-
-                      <h3 className={styles.cardTitle}>{service.title}</h3>
-                      
-                      <p className={styles.cardDescription}>
-                        {service.description.length > 150 
-                          ? service.description.substring(0, 150) + '...' 
-                          : service.description}
-                      </p>
-
-                      <div className={styles.cardMeta}>
-                        {service.providerName && (
-                          <button 
-                            className={styles.cardProvider}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`perfil/prestador/${service.providerId}`);
-                            }}
-                          >
-                            <User size={14} />
-                            {service.providerName}
-                          </button>
+                      <div className={styles.cardStatus}>
+                        {service.isActive ? (
+                          <span className={styles.statusActive}>Disponível</span>
+                        ) : (
+                          <span className={styles.statusInactive}>Indisponível</span>
                         )}
-                        <div className={styles.cardDate}>
-                          <Clock size={14} />
-                          {new Date(service.createdAt).toLocaleDateString('pt-BR')}
-                        </div>
-                      </div>
-
-                      <div className={styles.cardFooter}>
-                        <div className={styles.cardPrice}>{formatPrice(service.price)}</div>
-                        <button 
-                          onClick={() => {
-                            if (!hasToken) {
-                              setShowOverlay(true);
-                            } else {
-                              router.push(`/servicos/${service.id}`);
-                            }
-                          }}
-                          className={styles.cardButton}
-                        >
-                          Ver Detalhes
-                          <ArrowRight size={16} />
-                        </button>
                       </div>
                     </div>
-                  </article>
-                ))}
-              </div>
 
-              {renderPagination()}
-            </>
+                    <h3 className={styles.cardTitle}>{service.title}</h3>
+
+                    <p className={styles.cardDescription}>
+                      {service.description.length > 120
+                        ? service.description.substring(0, 120) + '...'
+                        : service.description}
+                    </p>
+
+                    <div className={styles.cardMeta}>
+                      {service.providerName && (
+                        <button
+                          className={styles.cardProvider}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            requireAuth(() => router.push(`/perfil/prestador/${service.providerId}`));
+                          }}
+                        >
+                          <User size={14} />
+                          {service.providerName}
+                        </button>
+                      )}
+                      <div className={styles.cardDate}>
+                        <Clock size={14} />
+                        {formatDate(service.dateTime)}
+                      </div>
+                    </div>
+
+                    <div className={styles.cardFooter}>
+                      <div className={styles.cardPrice}>{formatPrice(service.price)}</div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          requireAuth(() => router.push(`/servicos/visualizar/${service.id}`));
+                        }}
+                        className={styles.cardButton}
+                      >
+                        Ver Detalhes
+                        <ArrowRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
           ) : (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyStateIcon}><Search size={64} /></div>
-              <h3>Nenhum serviço encontrado</h3>
-              <p>Tente ajustar os filtros ou buscar por outros termos.</p>
-              <button onClick={clearFilters} className={styles.emptyStateButton}>Limpar filtros e tentar novamente</button>
+            <div className={styles.emptyStateFeatured}>
+              <Award size={48} />
+              <p>Serviços em destaque estarão disponíveis em breve</p>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Seção Torne-se Prestador ou Planos */}
+      {isProvider ? (
+        // Se for prestador, mostra banner de planos
+        <section className={styles.plansSection}>
+          <div className={styles.container}>
+            <div className={styles.plansCard}>
+              <div className={styles.plansContent}>
+                <div className={styles.plansIcon}>
+                  <Crown size={48} />
+                </div>
+                <h2 className={styles.plansTitle}>Potencialize seu Negócio</h2>
+                <p className={styles.plansDescription}>
+                  Assine um plano e destaque seus serviços para milhares de clientes em Picos-PI
+                </p>
+                
+                <div className={styles.plansBenefits}>
+                  <div className={styles.plansBenefit}>
+                    <Star size={20} className={styles.plansBenefitIcon} />
+                    <span>Serviços em destaque</span>
+                  </div>
+                  <div className={styles.plansBenefit}>
+                    <TrendingUp size={20} className={styles.plansBenefitIcon} />
+                    <span>Maior visibilidade</span>
+                  </div>
+                  <div className={styles.plansBenefit}>
+                    <Award size={20} className={styles.plansBenefitIcon} />
+                    <span>Badge de prestador premium</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => router.push('/planos')}
+                  className={styles.plansButton}
+                >
+                  <Crown size={20} />
+                  Ver Planos Disponíveis
+                  <ArrowRight size={20} />
+                </button>
+
+                <p className={styles.plansFooterText}>
+                  Escolha o plano ideal para o crescimento do seu negócio
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : (
+        // Se não for prestador, mostra banner para se tornar prestador
+        <section className={styles.becomeProviderSection}>
+          <div className={styles.container}>
+            <div className={styles.providerCard}>
+              <div className={styles.providerContent}>
+                <div className={styles.providerIcon}>
+                  <Briefcase size={48} />
+                </div>
+                <h2 className={styles.providerTitle}>Seja um Prestador de Serviços</h2>
+                <p className={styles.providerDescription}>
+                  Cadastre seus serviços, alcance mais clientes e faça parte da maior plataforma de serviços de Picos-PI
+                </p>
+                
+                <div className={styles.providerBenefits}>
+                  <div className={styles.providerBenefit}>
+                    <CheckCircle2 size={20} className={styles.benefitIcon} />
+                    <span>Cadastro gratuito e rápido</span>
+                  </div>
+                  <div className={styles.providerBenefit}>
+                    <CheckCircle2 size={20} className={styles.benefitIcon} />
+                    <span>Controle total dos seus serviços</span>
+                  </div>
+                  <div className={styles.providerBenefit}>
+                    <CheckCircle2 size={20} className={styles.benefitIcon} />
+                    <span>Receba avaliações e construa reputação</span>
+                  </div>
+                  <div className={styles.providerBenefit}>
+                    <CheckCircle2 size={20} className={styles.benefitIcon} />
+                    <span>Conecte-se com clientes qualificados</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (!hasToken) {
+                      setShowOverlay(true);
+                      return;
+                    }
+                    router.push('/finalizarcadastro');
+                  }}
+                  className={styles.providerButton}
+                >
+                  <Briefcase size={20} />
+                  Torne-se um Prestador
+                  <ArrowRight size={20} />
+                </button>
+
+                <p className={styles.providerFooterText}>
+                  Junte-se a centenas de profissionais que já transformaram seus negócios
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* CTA Section */}
+      <section className={styles.ctaSection}>
+        <div className={styles.container}>
+          <div className={styles.ctaCard}>
+            <div className={styles.ctaContent}>
+              <h2 className={styles.ctaTitle}>Pronto para encontrar o profissional ideal?</h2>
+              <p className={styles.ctaDescription}>
+                Explore nossa plataforma e conecte-se com especialistas qualificados
+              </p>
+              <button
+                onClick={() => router.push('/servicos/todos')}
+                className={styles.ctaButton}
+              >
+                Explorar Todos os Serviços
+                <ArrowRight size={20} />
+              </button>
+            </div>
+            <div className={styles.ctaIllustration}>
+              <Sparkles size={80} />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -434,7 +542,7 @@ function HomePage({ hasToken }) {
           <div className={styles.overlayContent}>
             <div className={styles.overlayIcon}><User size={48} /></div>
             <h3>Acesso Necessário</h3>
-            <p>Faça login para explorar os detalhes dos serviços e conectar-se com profissionais qualificados.</p>
+            <p>Faça login para visualizar os detalhes completos dos serviços e conectar-se com profissionais qualificados.</p>
             <div className={styles.overlayActions}>
               <button onClick={() => router.push('/auth/login')} className={styles.overlayLoginButton}>
                 Fazer Login
@@ -446,6 +554,31 @@ function HomePage({ hasToken }) {
           </div>
         </div>
       )}
+
+      {/* Banner de Cookies */}
+      {showCookieConsent && (
+        <div className={styles.cookieBanner}>
+          <div className={styles.cookieContent}>
+            <div className={styles.cookieText}>
+              <h4>🍪 Nós usamos cookies</h4>
+              <p>
+                Utilizamos cookies para melhorar sua experiência, personalizar conteúdo e analisar nosso tráfego.
+                Ao clicar em &quot;Aceitar&quot;, você concorda com o uso de cookies.
+              </p>
+            </div>
+            <div className={styles.cookieActions}>
+              <button onClick={acceptCookies} className={styles.cookieAcceptButton}>
+                Aceitar Cookies
+              </button>
+              <button onClick={rejectCookies} className={styles.cookieRejectButton}>
+                Apenas Essenciais
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Footer />
     </div>
   );
 }

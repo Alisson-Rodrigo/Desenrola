@@ -50,6 +50,11 @@ export default function CadastrarServico() {
     { id: 28, nome: "Pet Care", icon: "🐕" },
     { id: 29, nome: "Culinária e Gastronomia", icon: "👨‍🍳" }
   ];
+  /**
+  Lida com as mudanças nos campos do formulário, incluindo o upload e preview da imagem.
+  Valida o tipo da imagem ao selecionar um arquivo.
+  @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>} e Evento de input
+  */
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -74,6 +79,11 @@ export default function CadastrarServico() {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
   };
+  /**
+  Envia os dados do formulário para a API para cadastrar um novo serviço.
+  Cria um FormData, adiciona o token JWT e trata erros de resposta.
+  @param {React.FormEvent<HTMLFormElement>} e Evento de envio do formulário
+  */
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -100,7 +110,7 @@ export default function CadastrarServico() {
 
       const token = localStorage.getItem("auth_token");
 
-      const response = await fetch("http://localhost:5087/api/provider/services", {
+      const response = await fetch("https://api.desenrola.shop/api/provider/services", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -133,6 +143,11 @@ export default function CadastrarServico() {
       setIsLoading(false);
     }
   };
+  /**
+  Retorna a classe CSS de aviso com base no conteúdo da mensagem.
+  Usado para definir estilo de sucesso, erro ou neutro.
+  @return {string} Classe CSS correspondente
+  */
 
   const getMensagemClass = () => {
     if (mensagem.includes("sucesso")) return styles.avisoSuccess;

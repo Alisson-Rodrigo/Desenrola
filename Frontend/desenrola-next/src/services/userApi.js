@@ -1,5 +1,5 @@
 // src/services/userApi.js
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:5087/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://api.desenrola.shop/api';
 
 /**
  * Registra um novo usuário na API.
