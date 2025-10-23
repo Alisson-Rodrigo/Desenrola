@@ -1,6 +1,14 @@
 import { jwtDecode } from "jwt-decode";
 
 // Função para debugar o token e verificar dados do usuário
+
+
+/**
+ * Decodifica o token JWT do localStorage e tenta extrair os possíveis campos de ID do usuário.
+ * Útil para depuração e verificação de dados presentes no token.
+ * @returns {object|null} Objeto com token completo, userId utilizado e possíveis IDs, ou null se falhar.
+ */
+
 export const debugUserToken = () => {
   const token = localStorage.getItem('auth_token');
   
@@ -41,9 +49,17 @@ export const debugUserToken = () => {
   }
 };
 
+
+
+/**
+ * Verifica se o usuário autenticado já possui status de prestador via requisição à API.
+ * @returns {object|null} Resultado da API com o status do prestador, ou null se não for prestador ou ocorrer erro.
+ * @throws {Error} Se o token não estiver presente no localStorage.
+ */
+
 // Função para verificar se usuário já é prestador
 export const checkProviderStatus = async () => {
-  const API_URL = 'http://localhost:5087/api';
+  const API_URL = 'https://api.desenrola.shop/api';
   const token = localStorage.getItem('auth_token');
   
   if (!token) {

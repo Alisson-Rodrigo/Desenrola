@@ -6,18 +6,15 @@ using Stripe;
 
 namespace Desenrola.Application.Services
 {
-
     /// <summary>
     /// Serviço responsável pela integração com o Stripe para processar pagamentos únicos (checkout).
     /// </summary>
-    /// 
     public class StripeService : IStripeService
     {
         private readonly string _priceMaster;
         private readonly string _priceVip;
         private readonly string _successUrl;
         private readonly string _cancelUrl;
-
 
         /// <summary>
         /// Construtor do serviço do Stripe. 
@@ -26,7 +23,6 @@ namespace Desenrola.Application.Services
         /// <exception cref="InvalidOperationException">
         /// Lançada caso a chave da API ou os IDs de preço não estejam configurados nas variáveis de ambiente.
         /// </exception>
-
         public StripeService()
         {
             // ✅ Configuração da API Key do Stripe via variável de ambiente
@@ -39,9 +35,12 @@ namespace Desenrola.Application.Services
             _priceMaster = Environment.GetEnvironmentVariable("STRIPE_PRICE_MASTER") ?? string.Empty;
             _priceVip = Environment.GetEnvironmentVariable("STRIPE_PRICE_VIP") ?? string.Empty;
 
-            // ✅ URLs de sucesso e cancelamento (pode vir do .env)
-            _successUrl = Environment.GetEnvironmentVariable("STRIPE_SUCCESS_URL") ?? "https://desenrola.shop/concluirpagamento";
-            _cancelUrl = Environment.GetEnvironmentVariable("STRIPE_CANCEL_URL") ?? "https://app.desenrola.com/cancel";
+            // ✅ URLs de sucesso e cancelamento
+            _successUrl = Environment.GetEnvironmentVariable("STRIPE_SUCCESS_URL") 
+                          ?? "https://desenrola.shop/concluirpagamento";
+
+            _cancelUrl = Environment.GetEnvironmentVariable("STRIPE_CANCEL_URL") 
+                         ?? "https://desenrola.shop/cancel";
 
             if (string.IsNullOrEmpty(_priceMaster) || string.IsNullOrEmpty(_priceVip))
                 throw new InvalidOperationException("IDs de preço não configurados (STRIPE_PRICE_MASTER/VIP).");
@@ -54,7 +53,6 @@ namespace Desenrola.Application.Services
         /// <param name="planType">Tipo de plano a ser adquirido (VIP ou Master).</param>
         /// <returns>Um objeto <see cref="ResponseStripeDTO"/> contendo a URL do pagamento e os detalhes da sessão.</returns>
         /// <exception cref="ArgumentException">Lançada caso o tipo de plano seja inválido.</exception>
-
         public async Task<ResponseStripeDTO> CreateOneTimePayment(User user, PlanTypeEnum planType)
         {
             var sessionOptions = new SessionCreateOptions
@@ -91,6 +89,9 @@ namespace Desenrola.Application.Services
             };
         }
 
+        /// <summary>
+        /// Obtém o ID de preço correto com base no tipo de plano informado.
+        /// </summary>
         private string GetPriceId(PlanTypeEnum planType)
         {
             return planType switch

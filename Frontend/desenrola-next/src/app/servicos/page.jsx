@@ -47,11 +47,6 @@ export default function ServicosPage() {
             <h2>✅ Visualizar Serviços</h2>
             <p>Acompanhe os serviços já concluídos e seus detalhes.</p>
           </Link>
-
-          <Link href="/servicos/avaliar" className={styles.menuCard}>
-            <h2>⭐ Avaliar Serviços</h2>
-            <p>Dê seu feedback e ajude a melhorar a experiência.</p>
-          </Link>
         </nav>
       </main>
     </div>
