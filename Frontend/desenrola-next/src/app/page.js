@@ -123,9 +123,10 @@ function HomePage({ hasToken }) {
   const requireAuth = (callback) => {
     if (!hasToken) {
       setShowOverlay(true);
-      return;
+      return false;
     }
     callback();
+    return true;
   };
 
   const formatDate = (dateString) => {
@@ -288,15 +289,13 @@ function HomePage({ hasToken }) {
                 <Image
                   src={category.icon}
                   alt={category.name}
-                  width={80}     // aumenta o tamanho do ícone
+                  width={80}
                   height={80}
                   className="mb-3 object-contain drop-shadow-sm bg-transparent"
                 />
                 <span className={styles.categoryName}>{category.name}</span>
               </button>
             ))}
-
-
           </div>
         </div>
       </section>
@@ -490,7 +489,13 @@ function HomePage({ hasToken }) {
                 </div>
 
                 <button
-                  onClick={() => router.push('/finalizarcadastro')}
+                  onClick={() => {
+                    if (!hasToken) {
+                      setShowOverlay(true);
+                      return;
+                    }
+                    router.push('/finalizarcadastro');
+                  }}
                   className={styles.providerButton}
                 >
                   <Briefcase size={20} />
