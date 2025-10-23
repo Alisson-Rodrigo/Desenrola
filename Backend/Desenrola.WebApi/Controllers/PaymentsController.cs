@@ -60,10 +60,14 @@ namespace Desenrola.WebApi.Controllers
 
             try
             {
+                // ⚙️ Adicionamos o parâmetro throwOnApiVersionMismatch: false
                 var stripeEvent = EventUtility.ConstructEvent(
                     json,
                     Request.Headers["Stripe-Signature"],
-                    _webhookSecret);
+                    _webhookSecret,
+                    tolerance: 300, // segundos de tolerância padrão
+                    throwOnApiVersionMismatch: false // impede falha em diferenças de versão
+                );
 
                 _logger.LogInformation($"Evento Stripe processado: {stripeEvent.Type}");
 
@@ -137,5 +141,7 @@ namespace Desenrola.WebApi.Controllers
                 return StatusCode(500);
             }
         }
+
     }
+
 }
