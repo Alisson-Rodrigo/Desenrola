@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  height: 80px;
   position: relative;
 }
 
@@ -42,6 +42,37 @@
   color: white;
   font-weight: bold;
   flex-shrink: 0;
+}
+
+/* Wrapper principal do logo */
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Imagem do logo */
+.logoImage {
+  border-radius: 12px;
+  object-fit: contain;
+  width: 80px !important;
+  height: 80px !important;
+  transition: all 0.3s ease;
+}
+
+/* Texto do logo */
+.logoText {
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: var(--text-color, #1e1e1e);
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+/* Efeito hover */
+.logo:hover .logoText {
+  color: #059669;
+  transition: color 0.2s ease;
 }
 
 /* Navigation Links */
@@ -322,7 +353,7 @@
   background: white;
   border-top: 1px solid #e5e7eb;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  max-height: calc(100vh - 64px);
+  max-height: calc(100vh - 80px);
   overflow-y: auto;
   z-index: 999;
 }
@@ -429,8 +460,74 @@
   background-color: #059669;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+/* ============================================
+   RESPONSIVIDADE COMPLETA
+   ============================================ */
+
+/* Desktop grande - 1200px+ */
+@media (min-width: 1200px) {
+  .container {
+    padding: 0 24px;
+  }
+}
+
+/* Desktop médio - 1024px até 1199px */
+@media (max-width: 1199px) {
+  .container {
+    max-width: 1024px;
+  }
+  
+  .logoImage {
+    width: 70px !important;
+    height: 70px !important;
+  }
+  
+  .logoText {
+    font-size: 1.6rem;
+  }
+  
+  .nav {
+    gap: 6px;
+  }
+  
+  .navLink {
+    padding: 8px 14px;
+    font-size: 14px;
+  }
+}
+
+/* Tablets landscape - 900px até 1023px */
+@media (max-width: 1023px) {
+  .container {
+    height: 72px;
+  }
+  
+  .logoImage {
+    width: 64px !important;
+    height: 64px !important;
+  }
+  
+  .logoText {
+    font-size: 1.5rem;
+  }
+  
+  .nav {
+    gap: 4px;
+  }
+  
+  .navLink {
+    padding: 8px 12px;
+    font-size: 14px;
+    gap: 4px;
+  }
+  
+  .userSection {
+    gap: 12px;
+  }
+}
+
+/* Tablets portrait - 768px até 899px */
+@media (max-width: 899px) {
   .nav {
     display: none;
   }
@@ -440,11 +537,58 @@
   }
   
   .container {
-    padding: 0 16px;
+    padding: 0 20px;
+    height: 70px;
   }
   
-  .userSection {
-    gap: 12px;
+  .logoImage {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  
+  .logoText {
+    font-size: 1.4rem;
+  }
+  
+  .logoWrapper {
+    gap: 0.6rem;
+  }
+  
+  .userInfo {
+    display: flex;
+  }
+  
+  .userProfile {
+    padding: 8px 14px;
+  }
+  
+  .dropdown {
+    min-width: 220px;
+  }
+  
+  .mobileMenu {
+    max-height: calc(100vh - 70px);
+  }
+}
+
+/* Mobile grande - 640px até 767px */
+@media (max-width: 767px) {
+  .container {
+    padding: 0 16px;
+    height: 64px;
+  }
+  
+  .logoImage {
+    width: 56px !important;
+    height: 56px !important;
+  }
+  
+  .logoText {
+    font-size: 1.3rem;
+  }
+  
+  .logoWrapper {
+    gap: 0.5rem;
   }
   
   .userInfo {
@@ -456,81 +600,311 @@
     gap: 0;
   }
   
+  .avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
+  }
+  
   .dropdown {
     right: 0;
     min-width: 200px;
   }
+  
+  .mobileMenu {
+    max-height: calc(100vh - 64px);
+  }
 }
 
-@media (max-width: 480px) {
-  .logo {
-    font-size: 20px;
-  }
-  
-  .logoIcon {
-    width: 28px;
-    height: 28px;
-  }
-  
+/* Mobile médio - 480px até 639px */
+@media (max-width: 639px) {
   .container {
-    height: 56px;
-    padding: 0 12px;
+    height: 60px;
+    padding: 0 14px;
+  }
+  
+  .logoImage {
+    width: 52px !important;
+    height: 52px !important;
+    border-radius: 10px;
+  }
+  
+  .logoText {
+    font-size: 1.2rem;
+  }
+  
+  .logoWrapper {
+    gap: 0.45rem;
+  }
+  
+  .loginButton {
+    padding: 8px 16px;
+    font-size: 13px;
   }
   
   .avatar {
     width: 32px;
     height: 32px;
-    font-size: 13px;
+    font-size: 12px;
+  }
+  
+  .mobileMenuButton {
+    padding: 6px;
   }
   
   .dropdown {
     min-width: 180px;
   }
-
+  
   .mobileUserInfo {
-    padding: 12px 16px;
+    padding: 14px 16px;
   }
+  
+  .mobileAvatar {
+    width: 44px;
+    height: 44px;
+    font-size: 15px;
+  }
+  
+  .mobileUserName {
+    font-size: 15px;
+  }
+  
+  .mobileNavLink,
+  .mobileMenu a {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  
+  .mobileLogoutButton,
+  .mobileNavLogin {
+    margin: 12px 16px;
+    padding: 11px 18px;
+    font-size: 14px;
+    width: calc(100% - 32px);
+  }
+  
+  .mobileMenu {
+    max-height: calc(100vh - 60px);
+  }
+}
 
+/* Mobile pequeno - 375px até 479px */
+@media (max-width: 479px) {
+  .container {
+    height: 56px;
+    padding: 0 12px;
+  }
+  
+  .logoImage {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 8px;
+  }
+  
+  .logoText {
+    font-size: 1.1rem;
+  }
+  
+  .logoWrapper {
+    gap: 0.4rem;
+  }
+  
+  .loginButton {
+    padding: 7px 14px;
+    font-size: 13px;
+  }
+  
+  .avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+  
+  .mobileMenuButton {
+    padding: 5px;
+  }
+  
+  .userSection {
+    gap: 8px;
+  }
+  
+  .dropdown {
+    min-width: 160px;
+    top: calc(100% + 8px);
+  }
+  
+  .dropdownHeader {
+    padding: 12px;
+  }
+  
+  .dropdownHeader h3 {
+    font-size: 14px;
+  }
+  
+  .dropdownHeader p {
+    font-size: 12px;
+  }
+  
+  .dropdownItem {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .mobileUserInfo {
+    padding: 12px 14px;
+  }
+  
   .mobileAvatar {
     width: 40px;
     height: 40px;
     font-size: 14px;
   }
-
+  
   .mobileUserName {
-    font-size: 15px;
+    font-size: 14px;
+  }
+  
+  .mobileNavLink,
+  .mobileMenu a {
+    padding: 11px 14px;
+    font-size: 14px;
+    gap: 10px;
+  }
+  
+  .mobileLogoutButton,
+  .mobileNavLogin {
+    margin: 12px 14px;
+    padding: 10px 16px;
+    font-size: 14px;
+    width: calc(100% - 28px);
+  }
+  
+  .mobileMenu {
+    max-height: calc(100vh - 56px);
   }
 }
 
-/* Wrapper principal do logo */
-.logo {
-  text-decoration: none;
+/* Mobile extra pequeno - 320px até 374px */
+@media (max-width: 374px) {
+  .container {
+    height: 52px;
+    padding: 0 10px;
+  }
+  
+  .logoImage {
+    width: 42px !important;
+    height: 42px !important;
+    border-radius: 7px;
+  }
+  
+  .logoText {
+    font-size: 1rem;
+  }
+  
+  .logoWrapper {
+    gap: 0.35rem;
+  }
+  
+  .loginButton {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .userProfile {
+    padding: 4px;
+  }
+  
+  .avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+  
+  .mobileMenuButton {
+    padding: 4px;
+  }
+  
+  .userSection {
+    gap: 6px;
+  }
+  
+  .dropdown {
+    min-width: 150px;
+  }
+  
+  .mobileUserInfo {
+    padding: 10px 12px;
+  }
+  
+  .mobileAvatar {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+  
+  .mobileUserName {
+    font-size: 13px;
+  }
+  
+  .mobileUserBadge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+  
+  .mobileNavLink,
+  .mobileMenu a {
+    padding: 10px 12px;
+    font-size: 13px;
+    gap: 8px;
+  }
+  
+  .mobileLogoutButton,
+  .mobileNavLogin {
+    margin: 10px 12px;
+    padding: 9px 14px;
+    font-size: 13px;
+    width: calc(100% - 24px);
+  }
+  
+  .mobileMenu {
+    max-height: calc(100vh - 52px);
+  }
 }
 
-.logoWrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem; /* aumenta o espaço entre imagem e texto */
-}
-
-/* Imagem do logo */
-.logoImage {
-  border-radius: 12px;
-  object-fit: contain;
-  width: 80px !important;   /* aumentei de 48px → 64px */
-  height: 80px !important;
-}
-
-/* Texto do logo */
-.logoText {
-  font-weight: 800;          /* mais espesso */
-  font-size: 1.8rem;         /* antes 1.25rem → agora 1.8rem (~28px) */
-  color: var(--text-color, #1e1e1e);
-  letter-spacing: 0.5px;     /* espaçamento leve nas letras */
-}
-
-/* Opcional: efeito hover */
-.logo:hover .logoText {
-   color: #059669;   
-  transition: color 0.2s ease;
+/* Micro dispositivos - até 319px */
+@media (max-width: 319px) {
+  .container {
+    height: 48px;
+    padding: 0 8px;
+  }
+  
+  .logoImage {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 6px;
+  }
+  
+  .logoText {
+    font-size: 0.9rem;
+  }
+  
+  .logoWrapper {
+    gap: 0.3rem;
+  }
+  
+  .loginButton {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+  
+  .avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 10px;
+  }
+  
+  .mobileMenu {
+    max-height: calc(100vh - 48px);
+  }
 }
