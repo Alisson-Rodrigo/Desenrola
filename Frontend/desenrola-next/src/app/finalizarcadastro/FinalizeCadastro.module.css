@@ -1,6 +1,6 @@
 /* Base reset e variáveis de cor */
-:root {
-  --color-bg-page: #f0f8f0; /* Verde bem claro (original) */
+.container {
+  --color-bg-page: #f0f8f0;
   --color-bg-card: #ffffff;
   --color-border: #e5e7eb;
   --color-text-primary: #1f2937;
@@ -18,12 +18,8 @@
   --color-error-bg-light: #fef2f2;
   --color-error-border: #fecaca;
   --color-error-text: #991b1b;
-}
 
-/* Fundo da página inteira */
-.container {
   min-height: 100vh;
-
   position: relative;
 }
 
@@ -32,18 +28,18 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  min-height: calc(100vh - 64px); /* Altura total menos altura do navbar */
+  min-height: calc(100vh - 64px);
   padding: 40px 20px;
 }
 
-/* Caixa que envolve o formulário (agora apenas um constraint de largura) */
+/* Caixa que envolve o formulário */
 .formContainer {
-  max-width: 900px; /* Mais largo para o novo design */
+  max-width: 900px;
   width: 100%;
   margin: 0 auto;
 }
 
-/* Cabeçalho do formulário (agora separado) */
+/* Cabeçalho do formulário */
 .header {
   text-align: center;
   margin-bottom: 32px;
@@ -107,7 +103,7 @@
 }
 
 .messageIcon {
-  font-size: 20px; /* Ajustado para ícone */
+  font-size: 20px;
   flex-shrink: 0;
   margin-top: 2px;
   stroke-width: 2.5;
@@ -159,7 +155,7 @@
   gap: 24px;
 }
 
-/* NOVO: Secção do Formulário */
+/* Secção do Formulário */
 .formSection {
   background-color: var(--color-bg-card);
   padding: 32px 40px;
@@ -168,17 +164,17 @@
   border: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  gap: 24px; /* Espaço entre os grupos dentro da secção */
+  gap: 24px;
 }
 
-/* Título da Secção (Opcional, pode ser adicionado no JSX) */
+/* Título da Secção */
 .sectionTitle {
   font-size: 20px;
   font-weight: 600;
   color: var(--color-text-primary);
   padding-bottom: 16px;
   border-bottom: 1px solid var(--color-border);
-  margin-bottom: 8px; /* Espaço após o título */
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -200,34 +196,6 @@
   gap: 20px;
 }
 
-/* Responsividade para a linha do formulário */
-@media (max-width: 600px) {
-  .formRow {
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .formWrapper {
-    padding: 20px 10px; /* Menos padding lateral */
-  }
-  
-  .formContainer {
-    padding: 0; /* Container não tem padding */
-  }
-  
-  .formSection {
-    padding: 24px 20px;
-  }
-  
-  .header {
-    padding: 24px 20px;
-  }
-  
-  .title {
-    font-size: 24px;
-  }
-}
-
 .formGroup label {
   margin-bottom: 8px;
   font-weight: 500;
@@ -235,10 +203,9 @@
   font-size: 14px;
 }
 
-.formGroup input[type="text"],
-.formGroup input[type="tel"],
-.formGroup textarea,
-.formGroup select {
+.input,
+.textarea,
+.select {
   width: 100%;
   padding: 12px 16px;
   border: 1.5px solid #d1d5db;
@@ -249,32 +216,32 @@
   transition: all 0.2s ease;
 }
 
-.formGroup textarea {
+.textarea {
   resize: vertical;
   font-family: inherit;
 }
 
-.formGroup input::placeholder,
-.formGroup textarea::placeholder {
+.input::placeholder,
+.textarea::placeholder {
   color: var(--color-text-placeholder);
 }
 
-.formGroup input:focus,
-.formGroup textarea:focus,
-.formGroup select:focus {
+.input:focus,
+.textarea:focus,
+.select:focus {
   outline: none;
   border-color: var(--color-primary-green);
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
   background-color: #ffffff;
 }
 
-.formGroup input:hover,
-.formGroup textarea:hover,
-.formGroup select:hover {
+.input:hover,
+.textarea:hover,
+.select:hover {
   border-color: var(--color-text-placeholder);
 }
 
-/* Estilo do Tooltip (dica de ajuda) */
+/* Estilo do Tooltip */
 .labelWithTooltip {
   display: flex;
   align-items: center;
@@ -294,7 +261,7 @@
   stroke-width: 2.5;
 }
 
-.tooltip .tooltipText {
+.tooltipText {
   visibility: hidden;
   width: 280px;
   background-color: #1f2937;
@@ -315,7 +282,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.tooltip .tooltipText::after {
+.tooltipText::after {
   content: "";
   position: absolute;
   top: 100%;
@@ -331,13 +298,13 @@
   opacity: 1;
 }
 
-/* Caixa de informação sobre documentos */
+/* Caixa de informação */
 .infoBox {
   background-color: var(--color-success-bg-light);
   border: 1px solid var(--color-success-border);
   border-left: 4px solid var(--color-primary-green);
   padding: 16px;
-  margin: 0; /* Removido margin, pois o gap da secção cuida disso */
+  margin: 0;
   border-radius: 8px;
 }
 
@@ -358,7 +325,7 @@
   line-height: 1.5;
 }
 
-/* Estilo do campo de Upload */
+/* Upload */
 .fileUploadBox {
   border: 2px dashed #d1d5db;
   border-radius: 12px;
@@ -389,7 +356,7 @@
 }
 
 .uploadIcon {
-  font-size: 28px; /* Ajustado para ícone */
+  font-size: 28px;
   margin-bottom: 8px;
   color: var(--color-primary-green);
   stroke-width: 2;
@@ -406,7 +373,7 @@
   font-weight: 400;
 }
 
-/* Lista de arquivos selecionados */
+/* Lista de arquivos */
 .fileList {
   margin-top: 16px;
   padding: 12px;
@@ -422,8 +389,8 @@
 
 .fileList ul {
   margin: 8px 0 0 0;
-  padding-left: 0; /* Removido padding para alinhar com ícone */
-  list-style: none; /* Removido bullet point */
+  padding-left: 0;
+  list-style: none;
 }
 
 .fileList li {
@@ -441,12 +408,12 @@
   flex-shrink: 0;
 }
 
-/* Botões de ação */
+/* Botões */
 .formActions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 8px; /* Reduzido, pois está fora da secção */
+  margin-top: 8px;
   gap: 16px;
 }
 
@@ -461,10 +428,10 @@
   transition: all 0.2s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  display: flex; /* Adicionado para ícone */
-  align-items: center; /* Adicionado para ícone */
-  justify-content: center; /* Adicionado para ícone */
-  gap: 8px; /* Adicionado para ícone */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .backButton {
@@ -484,7 +451,7 @@
   color: #ffffff;
   border: 1.5px solid var(--color-primary-green);
   flex: 1;
-  max-width: 280px; /* Aumentado para o texto */
+  max-width: 280px;
 }
 
 .submitButton:hover {
@@ -494,21 +461,6 @@
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
-/* Responsividade para botões */
-@media (max-width: 480px) {
-  .formActions {
-    flex-direction: column-reverse; /* Invertido, botão principal primeiro */
-    gap: 12px;
-  }
-  
-  .backButton,
-  .submitButton {
-    width: 100%;
-    max-width: none;
-  }
-}
-
-/* Estados de loading e disabled */
 .submitButton:disabled,
 .backButton:disabled {
   background-color: #9ca3af;
@@ -519,6 +471,7 @@
   box-shadow: none;
 }
 
+/* Loading */
 .loadingContainer {
   display: flex;
   flex-direction: column;
@@ -545,4 +498,45 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Responsividade */
+@media (max-width: 600px) {
+  .formRow {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .formWrapper {
+    padding: 20px 10px;
+  }
+  
+  .formContainer {
+    padding: 0;
+  }
+  
+  .formSection {
+    padding: 24px 20px;
+  }
+  
+  .header {
+    padding: 24px 20px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .formActions {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+  
+  .backButton,
+  .submitButton {
+    width: 100%;
+    max-width: none;
+  }
 }
