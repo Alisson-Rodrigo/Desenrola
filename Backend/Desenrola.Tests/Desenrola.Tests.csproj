@@ -32,7 +32,6 @@
 
   <ItemGroup>
     <Folder Include="Integration\" />
-    <Folder Include="Unit\Application\Features\Providers\Commands\" />
   </ItemGroup>
 
   <ItemGroup>
