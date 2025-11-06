@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './AssinarPlano.module.css';
 import { FiCheck, FiX } from 'react-icons/fi';
 import Navbar from '../../components/Navbar';
@@ -10,7 +10,7 @@ export default function Planos() {
         normal: { 
             id: 'normal', 
             name: 'Normal', 
-            price: { monthly: 0, annually: 0 }, 
+            price: 0, 
             description: 'Perfeito para começar a usar o Desenrola', 
             features: [
                 { text: 'Cadastro de serviços básicos', included: true },
@@ -23,7 +23,7 @@ export default function Planos() {
         vip: { 
             id: 'vip', 
             name: 'VIP', 
-            price: { monthly: 29.90, annually: 322.92 }, 
+            price: 29.90, 
             description: 'Ideal para prestadores que querem se destacar', 
             popular: true, 
             features: [
@@ -37,7 +37,7 @@ export default function Planos() {
         master: { 
             id: 'master', 
             name: 'Master', 
-            price: { monthly: 59.90, annually: 646.92 }, 
+            price: 59.90, 
             description: 'Para profissionais que querem dominar o mercado', 
             features: [
                 { text: 'Máxima visibilidade (sempre no topo do catálogo)', included: true },
@@ -56,10 +56,53 @@ export default function Planos() {
         { id: 4, question: 'Quais formas de pagamento vocês aceitam?', answer: 'Aceitamos os principais cartões de crédito (Visa, MasterCard, American Express) e Pix.' },
     ];
 
-    const [billingCycle, setBillingCycle] = useState('monthly');
-    const [selectedPlan, setSelectedPlan] = useState('vip');
+    const [selectedPlan, setSelectedPlan] = useState('normal');
+    const [currentUserPlan, setCurrentUserPlan] = useState('normal');
     const [openFaq, setOpenFaq] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [loadingUserPlan, setLoadingUserPlan] = useState(true);
+
+    useEffect(() => {
+        fetchUserPlan();
+    }, []);
+
+    const fetchUserPlan = async () => {
+        try {
+            const token = localStorage.getItem('auth_token');
+            
+            if (!token) {
+                setLoadingUserPlan(false);
+                return;
+            }
+
+            const response = await fetch('https://api.desenrola.shop/api/users/me', {
+                method: 'GET',
+                headers: {
+                    'accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const userData = await response.json();
+                
+                // Mapear o plan_id para o nome do plano
+                const planIdMap = {
+                    1: 'normal',
+                    2: 'vip',
+                    3: 'master'
+                };
+
+                const userPlanId = planIdMap[userData.plan_id] || 'normal';
+                setCurrentUserPlan(userPlanId);
+                setSelectedPlan(userPlanId);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar plano do usuário:', error);
+        } finally {
+            setLoadingUserPlan(false);
+        }
+    };
 
     const handleFaqToggle = (id) => {
         setOpenFaq(openFaq === id ? null : id);
@@ -117,6 +160,19 @@ export default function Planos() {
         }
     };
 
+    if (loadingUserPlan) {
+        return (
+            <>
+                <Navbar />
+                <div className={styles.container}>
+                    <div style={{ textAlign: 'center', padding: '50px' }}>
+                        <p>Carregando planos...</p>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
     return (
         <>
             <Navbar />
@@ -125,42 +181,27 @@ export default function Planos() {
                 <div className={styles.header}>
                     <h1>Escolha o Plano Ideal para Você</h1>
                     <p>Encontre prestadores de confiança, solicite serviços com facilidade e tenha acesso a recursos exclusivos. Comece grátis e evolua quando precisar!</p>
-                    
-                    <div className={styles.toggle}>
-                        <button 
-                            className={`${styles.toggleButton} ${billingCycle === 'monthly' ? styles.active : ''}`}
-                            onClick={() => setBillingCycle('monthly')}
-                        >
-                            Mensal
-                        </button>
-                        <button 
-                            className={`${styles.toggleButton} ${billingCycle === 'annually' ? styles.active : ''}`}
-                            onClick={() => setBillingCycle('annually')}
-                        >
-                            Anual <span className={styles.discount}>-10%</span>
-                        </button>
-                    </div>
                 </div>
 
                 <div className={styles.plansGrid}>
                     {Object.values(plansData).map(plan => {
+                        const isCurrentPlan = currentUserPlan === plan.id;
                         const isSelected = selectedPlan === plan.id;
-                        const currentPrice = plan.price[billingCycle];
-                        const priceFormatted = currentPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-                        const pricePeriod = billingCycle === 'monthly' ? '/mês' : '/ano';
+                        const priceFormatted = plan.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
 
                         return (
                             <div 
                                 key={plan.id}
-                                className={`${styles.planCard} ${isSelected ? styles.vipCard : ''}`}
+                                className={`${styles.planCard} ${isSelected ? styles.vipCard : ''} ${isCurrentPlan ? styles.currentPlan : ''}`}
                                 onClick={() => setSelectedPlan(plan.id)}
                             >
                                 {plan.popular && <div className={styles.mostPopular}>MAIS POPULAR</div>}
+                                {isCurrentPlan && <div className={styles.currentPlanBadge}>SEU PLANO ATUAL</div>}
                                 <h2>{plan.name}</h2>
                                 <div className={styles.price}>
                                     <span className={styles.currency}>R$</span>
                                     <span className={styles.amount}>{priceFormatted}</span>
-                                    <span className={styles.period}>{plan.price.monthly > 0 ? pricePeriod : '/grátis'}</span>
+                                    <span className={styles.period}>{plan.price > 0 ? '/mês' : '/grátis'}</span>
                                 </div>
                                 <p className={styles.description}>{plan.description}</p>
                                 <ul className={styles.featuresList}>
@@ -172,16 +213,16 @@ export default function Planos() {
                                     ))}
                                 </ul>
                                 <button 
-                                    className={plan.id === 'normal' ? styles.buttonDisabled : plan.id === 'vip' ? styles.buttonVip : styles.buttonPrimary}
+                                    className={isCurrentPlan ? styles.buttonDisabled : plan.id === 'vip' ? styles.buttonVip : styles.buttonPrimary}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        if (plan.id !== 'normal') {
+                                        if (!isCurrentPlan) {
                                             handleCheckout(plan.id);
                                         }
                                     }}
-                                    disabled={loading || plan.id === 'normal'}
+                                    disabled={loading || isCurrentPlan}
                                 >
-                                    {loading ? 'PROCESSANDO...' : plan.id === 'normal' ? 'PLANO GRATUITO' : `ASSINAR ${plan.name.toUpperCase()}`}
+                                    {loading ? 'PROCESSANDO...' : isCurrentPlan ? 'PLANO ATUAL' : `ASSINAR ${plan.name.toUpperCase()}`}
                                 </button>
                             </div>
                         )
