@@ -1,6 +1,7 @@
 'use client';
 import styles from './FinalizeCadastro.module.css';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import { submitProviderRegistration } from '../../services/providerService';
 import { debugUserToken, checkProviderStatus } from '../../services/debugService';
@@ -9,9 +10,14 @@ import { debugUserToken, checkProviderStatus } from '../../services/debugService
  * Página de finalização de cadastro de prestador.
  * Permite ao usuário preencher e enviar dados e documentos para cadastro como prestador de serviços.
  * Inclui validação de formulário, upload de arquivos e exibição de mensagens de sucesso/erro.
+ * PROTEGIDA - Requer autenticação
  * @component
  */
 export default function FinalizeCadastroPage() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [formData, setFormData] = useState({
     CPF: '',
     RG: '',
@@ -27,6 +33,48 @@ export default function FinalizeCadastroPage() {
   const [apiResponse, setApiResponse] = useState(null);
   const [error, setError] = useState(null);
   const [debugInfo, setDebugInfo] = useState(null);
+
+  /**
+   * Verifica autenticação do usuário ao carregar a página
+   * Redireciona para login se não autenticado
+   */
+  useEffect(() => {
+    const checkAuth = () => {
+      const authToken = localStorage.getItem('auth_token');
+      
+      if (!authToken) {
+        // Não autenticado - redireciona para login
+        router.push('/acesso-negado');
+        return;
+      }
+
+      // Token existe - verificar validade (opcional)
+      try {
+        // Decodificar token JWT para verificar expiração
+        const tokenPayload = JSON.parse(atob(authToken.split('.')[1]));
+        const isExpired = tokenPayload.exp * 1000 < Date.now();
+        
+        if (isExpired) {
+          // Token expirado
+          localStorage.removeItem('auth_token');
+          router.push('/login?redirect=/finalizar-cadastro&expired=true');
+          return;
+        }
+
+        // Autenticado e token válido
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Erro ao validar token:', error);
+        localStorage.removeItem('auth_token');
+        router.push('/login?redirect=/finalizar-cadastro');
+        return;
+      }
+
+      setIsLoading(false);
+    };
+
+    checkAuth();
+  }, [router]);
 
   /**
    * Manipula mudanças nos campos de input do formulário.
@@ -107,7 +155,7 @@ export default function FinalizeCadastroPage() {
     try {
       const authToken = localStorage.getItem('auth_token');
       if (!authToken) {
-        throw new Error('Token de autenticação não encontrado. Faça login novamente.');
+        throw new Error('Sessão expirada. Faça login novamente.');
       }
 
       console.log('Dados do formulário antes do envio:', formData);
@@ -122,6 +170,14 @@ export default function FinalizeCadastroPage() {
 
     } catch (error) {
       console.error('Erro no cadastro:', error);
+      
+      // Se erro de autenticação, redireciona para login
+      if (error.message.includes('autenticação') || error.message.includes('401')) {
+        localStorage.removeItem('auth_token');
+        router.push('/login?redirect=/finalizar-cadastro&session_expired=true');
+        return;
+      }
+
       setError({
         type: 'error',
         message: error.message || 'Erro desconhecido ao enviar cadastro',
@@ -170,13 +226,31 @@ export default function FinalizeCadastroPage() {
     { value: 29, label: 'Culinária e Gastronomia' }
   ];
 
+  // Tela de loading enquanto verifica autenticação
+  if (isLoading) {
+    return (
+      <div className={styles.container}>
+        <Navbar />
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner}></div>
+          <p>Verificando autenticação...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Não renderiza o formulário se não estiver autenticado
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className={styles.container}>
       <Navbar />
 
       <div className={styles.formWrapper}>
         <div className={styles.formContainer}>
-          {/* Cabeçalho - CORRIGIDO */}
+          {/* Cabeçalho */}
           <div className={styles.header}>
             <h1 className={styles.title}>Finalize seu cadastro como prestador</h1>
             <p className={styles.subtitle}>
@@ -187,7 +261,7 @@ export default function FinalizeCadastroPage() {
             </div>
           </div>
 
-          {/* Debug Info - CORRIGIDO */}
+          {/* Debug Info */}
           {debugInfo && (
             <div className={styles.infoBox}>
               <div className={styles.infoBoxTitle}>🔍 DEBUG INFO:</div>
@@ -202,18 +276,18 @@ export default function FinalizeCadastroPage() {
             </div>
           )}
 
-          {/* Mensagem de Sucesso - CORRIGIDO */}
+          {/* Mensagem de Sucesso */}
           {apiResponse && apiResponse.type === 'success' && (
             <div className={styles.successMessage}>
               <div className={styles.messageIcon}>✅</div>
               <div className={styles.messageContent}>
                 <h3>Sucesso!</h3>
-                
+                <p>{apiResponse.message}</p>
               </div>
             </div>
           )}
 
-          {/* Mensagem de Erro - CORRIGIDO */}
+          {/* Mensagem de Erro */}
           {error && (
             <div className={styles.errorMessage}>
               <div className={styles.messageIcon}>❌</div>
@@ -227,7 +301,6 @@ export default function FinalizeCadastroPage() {
                     ))}
                   </ul>
                 )}
-               
               </div>
             </div>
           )}
@@ -344,7 +417,7 @@ export default function FinalizeCadastroPage() {
               />
             </div>
 
-            {/* Upload de documentos - CORRIGIDO */}
+            {/* Upload de documentos */}
             <div className={styles.formGroup}>
               <div className={styles.labelWithTooltip}>
                 <label htmlFor="DocumentPhotos">Fotos de Documentos *</label>
@@ -400,7 +473,7 @@ export default function FinalizeCadastroPage() {
               )}
             </div>
 
-            {/* Botões - CORRIGIDO */}
+            {/* Botões */}
             <div className={styles.formActions}>
               <button 
                 type="button" 
