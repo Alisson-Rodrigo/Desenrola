@@ -32,8 +32,6 @@ public class CreateProviderCommandHandlerTests
     }
 
 
-  
-
     // 🔹 Função auxiliar para criar um comando válido
     private static CreateProviderCommand CreateValidCommand()
     {
