@@ -1,5 +1,4 @@
 services:
-  # --- Serviço principal (Next.js com hot reload) ---
   web:
     build:
       context: .
@@ -10,32 +9,13 @@ services:
     volumes:
       - ./src:/app/src
       - ./public:/app/public
-      - nextjs-cache:/app/.next
+      # 🚫 NÃO monte .next como volume!
+      # - nextjs-cache:/app/.next
     environment:
       - NODE_ENV=development
       - HOST=0.0.0.0
       - NEXT_TELEMETRY_DISABLED=1
-      - WATCHPACK_POLLING=true
-      - WATCHPACK_POLLING_INTERVAL=1000
-      - CHOKIDAR_USEPOLLING=true
-      - CHOKIDAR_INTERVAL=1000
       - FAST_REFRESH=true
     command: ["npm", "run", "dev"]
 
-  # --- Serviço separado para rodar testes Jest ---
-  test:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: desenrola_test
-    volumes:
-      - ./src:/app/src
-      - ./jest.config.js:/app/jest.config.js
-      - ./jest.setup.js:/app/jest.setup.js
-    environment:
-      - NODE_ENV=test
-    # Forçar uso apenas do jest.config.js (evita conflito com package.json)
-    command: ["npx", "jest", "--watchAll", "--config", "jest.config.js"]
-
-volumes:
-  nextjs-cache:
+volumes: {}

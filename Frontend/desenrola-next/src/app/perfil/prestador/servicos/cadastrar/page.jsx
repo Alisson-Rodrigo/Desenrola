@@ -3,6 +3,19 @@
 import { useState } from 'react';
 import Navbar from '../../../../../components/Navbar';
 import styles from "./CadastrarServico.module.css";
+// Importando ícones do lucide-react
+import { 
+  Wand2, 
+  CheckCircle, 
+  AlertTriangle, 
+  FileText, 
+  ClipboardList, 
+  DollarSign, 
+  Target, 
+  Camera, 
+  Image, 
+  Rocket 
+} from 'lucide-react';
 
 export default function CadastrarServico() {
   const [form, setForm] = useState({
@@ -17,45 +30,45 @@ export default function CadastrarServico() {
   const [preview, setPreview] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Lista de categorias com ícones - IDs correspondentes ao enum do backend (começando em 0)
+  // Lista de categorias SEM ícones
   const categorias = [
-    { id: 0, nome: "Elétrica", icon: "⚡" },
-    { id: 1, nome: "Hidráulica", icon: "🔧" },
-    { id: 2, nome: "Pintura", icon: "🎨" },
-    { id: 3, nome: "Jardinagem", icon: "🌱" },
-    { id: 4, nome: "Limpeza", icon: "🧽" },
-    { id: 5, nome: "Reformas e Construção", icon: "🏗️" },
-    { id: 6, nome: "Tecnologia da Informação (TI)", icon: "💻" },
-    { id: 7, nome: "Transporte e Mudanças", icon: "🚚" },
-    { id: 8, nome: "Beleza e Estética", icon: "💅" },
-    { id: 9, nome: "Educação e Aulas Particulares", icon: "📚" },
-    { id: 10, nome: "Saúde e Bem-estar", icon: "🏥" },
-    { id: 11, nome: "Serviços Automotivos", icon: "🚗" },
-    { id: 12, nome: "Marcenaria e Móveis Planejados", icon: "🪵" },
-    { id: 13, nome: "Serralheria", icon: "🔨" },
-    { id: 14, nome: "Climatização", icon: "❄️" },
-    { id: 15, nome: "Instalação de Eletrodomésticos", icon: "📺" },
-    { id: 16, nome: "Fotografia e Filmagem", icon: "📸" },
-    { id: 17, nome: "Eventos e Festas", icon: "🎉" },
-    { id: 18, nome: "Consultoria Financeira e Contábil", icon: "💰" },
-    { id: 19, nome: "Assistência Técnica", icon: "🔧" },
-    { id: 20, nome: "Design e Publicidade", icon: "🎯" },
-    { id: 21, nome: "Serviços Jurídicos", icon: "⚖️" },
-    { id: 22, nome: "Segurança", icon: "🛡️" },
-    { id: 23, nome: "Marketing Digital", icon: "📊" },
-    { id: 24, nome: "Consultoria Empresarial", icon: "📈" },
-    { id: 25, nome: "Tradução e Idiomas", icon: "🗣️" },
-    { id: 26, nome: "Serviços Domésticos Gerais", icon: "🏠" },
-    { id: 27, nome: "Manutenção Predial e Industrial", icon: "🏢" },
-    { id: 28, nome: "Pet Care", icon: "🐕" },
-    { id: 29, nome: "Culinária e Gastronomia", icon: "👨‍🍳" }
+    { id: 0, nome: "Elétrica" },
+    { id: 1, nome: "Hidráulica" },
+    { id: 2, nome: "Pintura" },
+    { id: 3, nome: "Jardinagem" },
+    { id: 4, nome: "Limpeza" },
+    { id: 5, nome: "Reformas e Construção" },
+    { id: 6, nome: "Tecnologia da Informação (TI)" },
+    { id: 7, nome: "Transporte e Mudanças" },
+    { id: 8, nome: "Beleza e Estética" },
+    { id: 9, nome: "Educação e Aulas Particulares" },
+    { id: 10, nome: "Saúde e Bem-estar" },
+    { id: 11, nome: "Serviços Automotivos" },
+    { id: 12, nome: "Marcenaria e Móveis Planejados" },
+    { id: 13, nome: "Serralheria" },
+    { id: 14, nome: "Climatização" },
+    { id: 15, nome: "Instalação de Eletrodomésticos" },
+    { id: 16, nome: "Fotografia e Filmagem" },
+    { id: 17, nome: "Eventos e Festas" },
+    { id: 18, nome: "Consultoria Financeira e Contábil" },
+    { id: 19, nome: "Assistência Técnica" },
+    { id: 20, nome: "Design e Publicidade" },
+    { id: 21, nome: "Serviços Jurídicos" },
+    { id: 22, nome: "Segurança" },
+    { id: 23, nome: "Marketing Digital" },
+    { id: 24, nome: "Consultoria Empresarial" },
+    { id: 25, nome: "Tradução e Idiomas" },
+    { id: 26, nome: "Serviços Domésticos Gerais" },
+    { id: 27, nome: "Manutenção Predial e Industrial" },
+    { id: 28, nome: "Pet Care" },
+    { id: 29, nome: "Culinária e Gastronomia" }
   ];
+  
   /**
   Lida com as mudanças nos campos do formulário, incluindo o upload e preview da imagem.
   Valida o tipo da imagem ao selecionar um arquivo.
   @param {React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>} e Evento de input
   */
-
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -79,12 +92,12 @@ export default function CadastrarServico() {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
   };
+
   /**
   Envia os dados do formulário para a API para cadastrar um novo serviço.
   Cria um FormData, adiciona o token JWT e trata erros de resposta.
   @param {React.FormEvent<HTMLFormElement>} e Evento de envio do formulário
   */
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -143,12 +156,12 @@ export default function CadastrarServico() {
       setIsLoading(false);
     }
   };
+
   /**
   Retorna a classe CSS de aviso com base no conteúdo da mensagem.
   Usado para definir estilo de sucesso, erro ou neutro.
   @return {string} Classe CSS correspondente
   */
-
   const getMensagemClass = () => {
     if (mensagem.includes("sucesso")) return styles.avisoSuccess;
     if (mensagem.includes("Erro") || mensagem.includes("inválido") || mensagem.includes("inesperado")) return styles.avisoError;
@@ -164,7 +177,8 @@ export default function CadastrarServico() {
           {/* Header */}
           <div className={styles.header}>
             <div className={styles.headerIcon}>
-              <span className={styles.iconLarge}>✨</span>
+              {/* Emoji substituído por ícone Lucide */}
+              <Wand2 className={styles.iconLarge} />
             </div>
             <h1 className={styles.title}>Cadastrar Novo Serviço</h1>
             <p className={styles.subtitle}>
@@ -175,8 +189,9 @@ export default function CadastrarServico() {
           {/* Mensagem de feedback */}
           {mensagem && (
             <div className={getMensagemClass()}>
+              {/* Emojis substituídos por ícones Lucide */}
               <span className={styles.mensagemIcon}>
-                {mensagem.includes("sucesso") ? "✅" : "⚠️"}
+                {mensagem.includes("sucesso") ? <CheckCircle /> : <AlertTriangle />}
               </span>
               {mensagem}
             </div>
@@ -187,7 +202,8 @@ export default function CadastrarServico() {
             {/* Título */}
             <div className={styles.inputGroup}>
               <label htmlFor="titulo" className={styles.label}>
-                <span className={styles.labelIcon}>📝</span>
+                {/* Emoji substituído por ícone Lucide */}
+                <FileText className={styles.labelIcon} />
                 Título do Serviço
               </label>
               <input
@@ -204,7 +220,8 @@ export default function CadastrarServico() {
             {/* Descrição */}
             <div className={styles.inputGroup}>
               <label htmlFor="descricao" className={styles.label}>
-                <span className={styles.labelIcon}>📄</span>
+                {/* Emoji substituído por ícone Lucide */}
+                <ClipboardList className={styles.labelIcon} />
                 Descrição Detalhada
               </label>
               <textarea
@@ -227,7 +244,8 @@ export default function CadastrarServico() {
               {/* Preço */}
               <div className={styles.inputGroup}>
                 <label htmlFor="preco" className={styles.label}>
-                  <span className={styles.labelIcon}>💰</span>
+                  {/* Emoji substituído por ícone Lucide */}
+                  <DollarSign className={styles.labelIcon} />
                   Preço Sugerido
                 </label>
                 <div className={styles.priceInput}>
@@ -250,7 +268,8 @@ export default function CadastrarServico() {
               {/* Categoria */}
               <div className={styles.inputGroup}>
                 <label htmlFor="categoria" className={styles.label}>
-                  <span className={styles.labelIcon}>🎯</span>
+                  {/* Emoji substituído por ícone Lucide */}
+                  <Target className={styles.labelIcon} />
                   Categoria
                 </label>
                 <select
@@ -262,9 +281,10 @@ export default function CadastrarServico() {
                   required
                 >
                   <option value="">Escolha a categoria</option>
+                  {/* Emojis removidos do dropdown */}
                   {categorias.map((cat) => (
                     <option key={cat.id} value={cat.id}>
-                      {cat.icon} {cat.nome}
+                      {cat.nome}
                     </option>
                   ))}
                 </select>
@@ -274,7 +294,8 @@ export default function CadastrarServico() {
             {/* Upload de Foto */}
             <div className={styles.inputGroup}>
               <label htmlFor="foto" className={styles.label}>
-                <span className={styles.labelIcon}>📷</span>
+                {/* Emoji substituído por ícone Lucide */}
+                <Camera className={styles.labelIcon} />
                 Foto do Serviço (Opcional)
               </label>
               
@@ -301,7 +322,8 @@ export default function CadastrarServico() {
                     </div>
                   ) : (
                     <div className={styles.uploadPlaceholder}>
-                      <span className={styles.uploadIcon}>📸</span>
+                      {/* Emoji substituído por ícone Lucide */}
+                      <Image className={styles.uploadIcon} />
                       <p className={styles.uploadText}>
                         Clique ou arraste uma imagem aqui
                       </p>
@@ -328,7 +350,8 @@ export default function CadastrarServico() {
                   </>
                 ) : (
                   <>
-                    <span className={styles.buttonIcon}>🚀</span>
+                    {/* Emoji substituído por ícone Lucide */}
+                    <Rocket className={styles.buttonIcon} />
                     Cadastrar Serviço
                   </>
                 )}
