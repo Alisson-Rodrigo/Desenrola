@@ -49,11 +49,24 @@ export default function ChatPage() {
 
     useEffect(() => {
         const token = getAuthToken();
-        const userId = getUserIdFromToken();
-
+        
         if (!token) {
             console.error('Token não encontrado. Usuário não autenticado.');
-            window.location.href = '/auth/login';
+            if (typeof window !== 'undefined') {
+                window.location.href = '/auth/login';
+            }
+            return;
+        }
+
+        const userId = getUserIdFromToken();
+        
+        if (!userId) {
+            console.error('Não foi possível obter o ID do usuário. Token inválido.');
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('auth_token');
+                sessionStorage.removeItem('auth_token');
+                window.location.href = '/auth/login';
+            }
             return;
         }
 
@@ -126,16 +139,31 @@ export default function ChatPage() {
 
     const markAsRead = async (conversationId) => {
         const token = getAuthToken();
-        if (!token) return;
+        if (!token) {
+            if (typeof window !== 'undefined') {
+                window.location.href = '/auth/login';
+            }
+            return;
+        }
 
         try {
-            await fetch(`${API_BASE_URL}/api/Message/conversation/${conversationId}/mark-as-read`, {
+            const response = await fetch(`${API_BASE_URL}/api/Message/conversation/${conversationId}/mark-as-read`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'accept': '*/*'
                 }
             });
+
+            if (response.status === 401) {
+                localStorage.removeItem('auth_token');
+                sessionStorage.removeItem('auth_token');
+                if (typeof window !== 'undefined') {
+                    window.location.href = '/auth/login';
+                }
+                return;
+            }
+
             console.log('✅ Mensagens marcadas como lidas');
         } catch (error) {
             console.error('❌ Erro ao marcar mensagens como lidas:', error);
@@ -144,7 +172,12 @@ export default function ChatPage() {
 
     const fetchConversations = async () => {
         const token = getAuthToken();
-        if (!token) return;
+        if (!token) {
+            if (typeof window !== 'undefined') {
+                window.location.href = '/auth/login';
+            }
+            return;
+        }
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/Message/conversations`, {
@@ -153,6 +186,15 @@ export default function ChatPage() {
                     'accept': '*/*'
                 }
             });
+
+            if (response.status === 401) {
+                localStorage.removeItem('auth_token');
+                sessionStorage.removeItem('auth_token');
+                if (typeof window !== 'undefined') {
+                    window.location.href = '/auth/login';
+                }
+                return;
+            }
 
             if (response.ok) {
                 const data = await response.json();
@@ -167,7 +209,12 @@ export default function ChatPage() {
 
     const fetchMessages = async (conversationId, silent = false) => {
         const token = getAuthToken();
-        if (!token) return;
+        if (!token) {
+            if (typeof window !== 'undefined') {
+                window.location.href = '/auth/login';
+            }
+            return;
+        }
 
         try {
             const response = await fetch(`${API_BASE_URL}/api/Message/conversation/${conversationId}/history`, {
@@ -176,6 +223,15 @@ export default function ChatPage() {
                     'accept': '*/*'
                 }
             });
+
+            if (response.status === 401) {
+                localStorage.removeItem('auth_token');
+                sessionStorage.removeItem('auth_token');
+                if (typeof window !== 'undefined') {
+                    window.location.href = '/auth/login';
+                }
+                return;
+            }
 
             if (response.ok) {
                 const data = await response.json();
@@ -193,7 +249,12 @@ export default function ChatPage() {
         if (!messageInput.trim() || !activeChat || sendingMessage) return;
 
         const token = getAuthToken();
-        if (!token) return;
+        if (!token) {
+            if (typeof window !== 'undefined') {
+                window.location.href = '/auth/login';
+            }
+            return;
+        }
 
         setSendingMessage(true);
         const messageContent = messageInput;
@@ -214,6 +275,15 @@ export default function ChatPage() {
                     content: messageContent
                 })
             });
+
+            if (response.status === 401) {
+                localStorage.removeItem('auth_token');
+                sessionStorage.removeItem('auth_token');
+                if (typeof window !== 'undefined') {
+                    window.location.href = '/auth/login';
+                }
+                return;
+            }
 
             if (response.ok) {
                 const sentMessage = await response.json();
@@ -276,7 +346,12 @@ export default function ChatPage() {
 
         pollingIntervalRef.current = setInterval(async () => {
             const token = getAuthToken();
-            if (!token) return;
+            if (!token) {
+                if (typeof window !== 'undefined') {
+                    window.location.href = '/auth/login';
+                }
+                return;
+            }
 
             try {
                 const response = await fetch(`${API_BASE_URL}/api/Message/conversation/${activeChat.conversationId}/history`, {
@@ -285,6 +360,15 @@ export default function ChatPage() {
                         'accept': '*/*'
                     }
                 });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('auth_token');
+                    sessionStorage.removeItem('auth_token');
+                    if (typeof window !== 'undefined') {
+                        window.location.href = '/auth/login';
+                    }
+                    return;
+                }
 
                 if (response.ok) {
                     const data = await response.json();
