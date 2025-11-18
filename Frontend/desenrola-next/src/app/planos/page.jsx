@@ -11,7 +11,7 @@ export default function Planos() {
             id: 'normal', 
             name: 'Normal', 
             price: 0, 
-            description: 'Perfeito para começar a usar o Desenrola', 
+            description: 'Plano Perfeito para começar a usar o Desenrola', 
             features: [
                 { text: 'Cadastro de serviços básicos', included: true },
                 { text: 'Perfil visível, mas sem destaque', included: true },
@@ -24,7 +24,7 @@ export default function Planos() {
             id: 'vip', 
             name: 'VIP', 
             price: 29.90, 
-            description: 'Ideal para prestadores que querem se destacar', 
+            description: 'Plano Ideal para prestadores que querem se destacar', 
             popular: true, 
             features: [
                 { text: 'Serviços aparecem com prioridade média no catálogo', included: true },
@@ -38,7 +38,7 @@ export default function Planos() {
             id: 'master', 
             name: 'Master', 
             price: 59.90, 
-            description: 'Para profissionais que querem dominar o mercado', 
+            description: ' Plano Para profissionais que querem dominar o mercado', 
             features: [
                 { text: 'Máxima visibilidade (sempre no topo do catálogo)', included: true },
                 { text: 'Perfil com selo exclusivo (ex: filtros, destaque especial)', included: true },
