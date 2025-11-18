@@ -120,11 +120,11 @@ export default function FinalizeCadastroPage() {
     
     // Validação corrigida para categoria - verifica se é string vazia ou null/undefined
     if (formData.Category === '' || formData.Category === null || formData.Category === undefined) {
-      errors.push('Categoria é obrigatória');
+      errors.push('A Categoria é obrigatória');
     }
     
     if (!formData.DocumentPhotos || formData.DocumentPhotos.length === 0) {
-      errors.push('Pelo menos um documento deve ser enviado');
+      errors.push('No minímo um documento deve ser enviado');
     }
     
     return errors;
@@ -155,7 +155,7 @@ export default function FinalizeCadastroPage() {
     try {
       const authToken = localStorage.getItem('auth_token');
       if (!authToken) {
-        throw new Error('Sessão expirada. Faça login novamente.');
+        throw new Error('Sua Sessão foi expirada. Faça login novamente.');
       }
 
       console.log('Dados do formulário antes do envio:', formData);
