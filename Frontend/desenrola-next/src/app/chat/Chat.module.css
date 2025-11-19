@@ -1,4 +1,4 @@
-/* Chat.module.css (Versão Responsiva com Menu Hamburger) */
+/* Chat.module.css (Versão Corrigida e Responsiva) */
 
 .chatContainer {
   --primary-green: #4CAF50;
@@ -9,24 +9,22 @@
   --text-secondary: #757575;
   --border-color: #EEEEEE;
   --avatar-placeholder-bg: #E0E0E0;
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
   position: fixed;
-  top: 0;
+  top: 70px;
   left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  overflow: hidden;
   background-color: var(--app-background);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  padding-top: 70px;
-  box-sizing: border-box;
 }
 
 /* --- BOTÃO HAMBURGER --- */
 .hamburgerButton {
-  display: none; /* Oculto por padrão em desktop */
+  display: none;
   position: fixed;
-  top: 80px;
+  top: 85px; /* Abaixo da navbar */
   left: 16px;
   z-index: 1100;
   background-color: var(--primary-green);
@@ -50,16 +48,22 @@
   transform: scale(0.95);
 }
 
+.hamburgerIcon {
+  font-size: 24px;
+}
+
 /* --- OVERLAY PARA MOBILE --- */
 .overlay {
   display: none;
   position: fixed;
-  top: 0;
+  top: 70px; /* Começa abaixo da navbar */
   left: 0;
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 998;
+  opacity: 1;
+  pointer-events: all;
 }
 
 /* --- PAINEL ESQUERDO --- */
@@ -72,23 +76,24 @@
   background-color: var(--panel-background);
   overflow: hidden;
   transition: transform 0.3s ease;
+  height: 100%;
 }
 
 .contactListHeader { 
-  padding: 10px 16px; 
+  padding: 16px; 
   display: flex; 
   justify-content: space-between; 
   align-items: center; 
   background-color: var(--panel-background); 
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
+  min-height: 60px;
 }
 
 .contactListHeaderLeft { 
   display: flex; 
   align-items: center; 
   gap: 8px; 
-  cursor: pointer; 
   color: var(--text-primary); 
   font-size: 20px; 
   font-weight: 500; 
@@ -98,14 +103,14 @@
   font-size: 14px; 
   background-color: var(--light-green-bg); 
   color: var(--primary-green); 
-  padding: 2px 8px; 
+  padding: 4px 10px; 
   border-radius: 12px; 
   font-weight: bold; 
 }
 
 .plusIcon { 
-  width: 28px; 
-  height: 28px; 
+  width: 32px; 
+  height: 32px; 
   background-color: var(--primary-green); 
   border-radius: 50%; 
   display: flex; 
@@ -116,6 +121,7 @@
   font-weight: bold; 
   cursor: pointer; 
   transition: transform 0.2s ease;
+  flex-shrink: 0;
 }
 
 .plusIcon:hover {
@@ -123,7 +129,7 @@
 }
 
 .searchBar { 
-  padding: 8px 16px; 
+  padding: 12px 16px; 
   background-color: var(--panel-background); 
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
@@ -131,7 +137,7 @@
 
 .searchInput { 
   width: 100%; 
-  height: 38px; 
+  height: 40px; 
   border: none; 
   background-color: var(--app-background); 
   border-radius: 8px; 
@@ -139,19 +145,27 @@
   font-size: 14px; 
   outline: none; 
   color: var(--text-primary); 
+  box-sizing: border-box;
 }
 
 .searchInput::placeholder { 
   color: var(--text-secondary); 
 }
 
+.contactsScroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .contactItem { 
   display: flex; 
   align-items: center; 
-  padding: 10px 16px; 
-  gap: 15px; 
+  padding: 12px 16px; 
+  gap: 12px; 
   cursor: pointer; 
   transition: background-color 0.2s ease; 
+  border-bottom: 1px solid var(--border-color);
 }
 
 .contactItem:not(.active):hover { 
@@ -166,6 +180,7 @@
   flex-grow: 1; 
   display: flex; 
   flex-direction: column;
+  gap: 4px;
   min-width: 0;
 }
 
@@ -177,7 +192,7 @@
 }
 
 .contactItemInfo p { 
-  font-size: 14px; 
+  font-size: 13px; 
   color: var(--text-secondary); 
   white-space: nowrap; 
   overflow: hidden; 
@@ -188,15 +203,17 @@
 .contactItemTime { 
   font-size: 12px; 
   color: var(--text-secondary); 
-  flex-shrink: 0; 
+  flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .avatar { 
-  width: 45px; 
-  height: 45px; 
+  width: 48px; 
+  height: 48px; 
   border-radius: 50%; 
   object-fit: cover; 
-  flex-shrink: 0; 
+  flex-shrink: 0;
+  background-color: var(--avatar-placeholder-bg);
 }
 
 /* --- PAINEL DIREITO --- */
@@ -205,24 +222,25 @@
   display: flex; 
   flex-direction: column;
   overflow: hidden;
+  height: 100%;
 }
 
 .chatHeader { 
-  padding: 10px 16px; 
+  padding: 12px 20px; 
   display: flex; 
   align-items: center; 
   justify-content: flex-start; 
-  gap: 15px; 
+  gap: 12px; 
   background-color: var(--app-background); 
   border-bottom: 1px solid var(--border-color); 
-  height: 60px;
+  min-height: 60px;
   flex-shrink: 0;
 }
 
 .chatHeaderInfo { 
   display: flex; 
   flex-direction: column; 
-  align-items: flex-start; 
+  gap: 2px;
 }
 
 .chatHeaderInfo h3 { 
@@ -249,8 +267,8 @@
 .inputArea { 
   display: flex; 
   align-items: center; 
-  padding: 10px 16px; 
-  gap: 15px; 
+  padding: 12px 16px; 
+  gap: 12px; 
   background-color: var(--panel-background); 
   border-top: 1px solid var(--border-color);
   flex-shrink: 0;
@@ -275,7 +293,8 @@
   outline: none; 
   color: var(--text-primary); 
   border: 1px solid var(--primary-green); 
-  box-shadow: none; 
+  box-shadow: none;
+  box-sizing: border-box;
 }
 
 .textInput::placeholder { 
@@ -297,6 +316,7 @@
   justify-content: center; 
   transition: color 0.2s;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .sendButton:hover { 
@@ -315,7 +335,7 @@
 /* Tablets e telas menores */
 @media (max-width: 768px) {
   .hamburgerButton {
-    display: flex; /* Mostrar botão hamburger */
+    display: flex;
   }
 
   .overlay {
@@ -324,16 +344,19 @@
 
   .contactList {
     position: fixed;
-    top: 70px;
+    top: 70px; /* Abaixo da navbar */
     left: 0;
     bottom: 0;
+    height: calc(100vh - 70px);
     z-index: 999;
-    transform: translateX(-100%); /* Escondido por padrão */
+    width: 85%;
+    max-width: 350px;
+    transform: translateX(-100%);
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
   }
 
   .contactList.sidebarOpen {
-    transform: translateX(0); /* Mostrar quando ativo */
+    transform: translateX(0);
   }
 
   .chatWindow {
@@ -341,26 +364,39 @@
   }
 
   .chatHeader {
-    padding-left: 70px; /* Espaço para o botão hamburger */
+    padding-left: 72px;
   }
 }
 
 /* Smartphones */
 @media (max-width: 480px) {
+  .chatContainer {
+    margin-top: 60px;
+    height: calc(100vh - 60px);
+  }
+
   .contactList {
-    width: 85%; /* Mais largo em mobile */
-    max-width: 320px;
+    width: 85%;
+    max-width: 300px;
+    top: 60px;
+    height: calc(100vh - 60px);
   }
 
   .hamburgerButton {
     width: 44px;
     height: 44px;
-    top: 85px;
+    top: 70px;
+    left: 12px;
+  }
+
+  .overlay {
+    top: 60px;
   }
 
   .chatHeader {
-    padding: 8px 12px;
-    padding-left: 65px;
+    padding: 10px 12px;
+    padding-left: 68px;
+    min-height: 56px;
   }
 
   .chatHeaderInfo h3 {
@@ -376,7 +412,7 @@
   }
 
   .inputArea {
-    padding: 8px 12px;
+    padding: 10px 12px;
     gap: 10px;
   }
 
@@ -385,12 +421,17 @@
     height: 38px;
   }
 
+  .contactListHeader {
+    padding: 12px;
+    min-height: 56px;
+  }
+
   .contactListHeaderLeft {
     font-size: 18px;
   }
 
   .contactItem {
-    padding: 8px 12px;
+    padding: 10px 12px;
   }
 
   .contactItemInfo h3 {
@@ -398,12 +439,18 @@
   }
 
   .contactItemInfo p {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .avatar {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .plusIcon {
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
   }
 }
 
@@ -416,10 +463,16 @@
   .hamburgerButton {
     width: 40px;
     height: 40px;
-    left: 12px;
+    top: 65px;
+    left: 10px;
   }
 
   .chatHeader {
     padding-left: 60px;
+  }
+
+  .contactListHeaderLeft span {
+    padding: 3px 8px;
+    font-size: 12px;
   }
 }
