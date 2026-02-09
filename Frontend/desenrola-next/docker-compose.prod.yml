@@ -1,4 +1,3 @@
-
 services:
   web:
     build:
@@ -6,7 +5,7 @@ services:
       dockerfile: Dockerfile.prod
     container_name: desenrola_next
     ports:
-      - "3001:3000"
+      - "127.0.0.1:3001:3000"   # <-- só local
     environment:
       - NODE_ENV=production
       - HOST=0.0.0.0
